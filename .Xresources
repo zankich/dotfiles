@@ -1,0 +1,35 @@
+Xft.rgba:       rgb
+Xft.autohint:   0
+Xft.lcdfilter:  lcddefault
+Xft.hintstyle:  hintslight
+Xft.hinting:    1
+Xft.antialias:  1
+
+URxvt*iso14755: false
+URxvt*iso14755_52: false
+
+URxvt*letterSpace: -1
+URxvt*font: xft:Inconsolata:pixelsize=20:style=medium
+URxvt*boldFont: xft:Inconsolata:pixelsize=20:style=bold
+URxvt*buffered: false
+
+URxvt*saveLines: 99999
+
+URxvt*scrollBar: false
+URxvt*scrollTtyOutput: false
+URxvt*scrollWithBuffer: true
+URxvt*scrollTtyKeypress: true
+URxvt.secondaryScreen: 1
+URxvt.secondaryScroll: 0
+
+URxvt*cursorBlink: true
+URxvt*pointerBlank: true
+
+URxvt*clipboard.copycmd: xclip -i -selection clipboard
+URxvt*clipboard.pastecmd: xclip -o -selection clipboard
+
+URxvt*perl-ext-common: default,resize-font,selection-to-clipboard
+
+URxvt*fading: 10
+
+#include "/home/adrian/.base16_xresources"
