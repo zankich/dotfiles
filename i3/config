@@ -162,5 +162,8 @@ hide_edge_borders both
 gaps inner 2
 gaps outer 2
 
+for_window [class="Galculator"] floating enable, border normal
+
 exec compton -CGb --backend glx --vsync opengl
 exec clipit
+exec redshift-gtk
