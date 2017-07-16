@@ -5,10 +5,10 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
+export LANG=en_US.UTF-8
+
 source /usr/share/git/completion/git-prompt.sh
 source $HOME/.ps1-colors
-
-export LANG=en_US.UTF-8
 
 export GIT_PS1_SHOWDIRTYSTATE=1
 export GIT_PS1_SHOWUNTRACKEDFILES=1
@@ -18,7 +18,10 @@ export GIT_PS1_SHOWDIRTYSTATE=1
 export EDITOR="nvim"
 
 export GOPATH=$HOME/code
-export PATH=$GOPATH/bin:$PATH
+export PATH=$HOME/bin:$HOME/.rbenv/bin:$GOPATH/bin:$PATH
+
+eval "$(rbenv init -)"
+eval "$(direnv hook bash)"
 
 alias ls='ls --color=auto'
 alias ll='ls -l'
@@ -27,6 +30,8 @@ alias lla='ls -la'
 alias vim="nvim"
 alias pbcopy='xclip -selection clipboard'
 alias pbpaste='xclip -selection clipboard -o'
+alias docker-up='sudo systemctl start docker'
+alias docker-down='sudo systemctl stop docker'
 
 PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]$(__git_ps1 " [${Green}%s${Color_Off}]")\n$ '
 
@@ -41,6 +46,12 @@ function reload_urxvt_config() {
   xrdb -merge -load $HOME/.Xresources
 }
 
-function steam() {
-  LD_PRELOAD='/usr/$LIB/libstdc++.so.6 /usr/$LIB/libgcc_s.so.1 /usr/$LIB/libxcb.so.1 /usr/$LIB/libgpg-error.so' /usr/bin/steam
+function restart_compton() {
+  killall compton
+  compton -CGb --backend xr_glx_hybrid --vsync-use-glfinish --vsync opengl
+}
+
+function reset_keyboard_settings() {
+  xset r rate 200 30
+  xmodmap ~/.Xmodmap
 }

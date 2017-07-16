@@ -25,3 +25,5 @@
 [user]
   email = adzankich@gmail.com
   name = Adrian Zankich
+[http "https://gopkg.in"]
+	followRedirects = true

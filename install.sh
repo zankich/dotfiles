@@ -28,11 +28,24 @@ function setup_pulse() {
   ln -sf $PWD/pulse/daemon.conf $HOME/.config/pulse/
 }
 
+function setup_fonts() {
+  pushd /etc/fonts/conf.d > /dev/null
+    sudo ln -sf ../conf.avail/11-lcdfilter-default.conf
+    sudo ln -sf ../conf.avail/10-sub-pixel-rgb.conf
+  popd > /dev/null
+}
+
+function setup_lockscreen() {
+  sudo systemctl enable $PWD/systemd/i3lock.service
+}
+
 function main() {
   setup_home
   setup_vim
   setup_i3
   setup_pulse
+  setup_fonts
+  setup_lockscreen
 }
 
 main
