@@ -48,6 +48,7 @@ Plugin 'scrooloose/nerdcommenter'
 Plugin 'chriskempson/base16-vim'
 Plugin 'pangloss/vim-javascript'
 Plugin 'vim-ruby/vim-ruby'
+Plugin 'rust-lang/rust.vim'
 call vundle#end()
 
 syntax enable

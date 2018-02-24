@@ -9,6 +9,7 @@ export LANG=en_US.UTF-8
 
 source /usr/share/git/completion/git-prompt.sh
 source $HOME/.ps1-colors
+source /etc/profile.d/autojump.bash
 
 export GIT_PS1_SHOWDIRTYSTATE=1
 export GIT_PS1_SHOWUNTRACKEDFILES=1
@@ -17,8 +18,9 @@ export GIT_PS1_SHOWDIRTYSTATE=1
 
 export EDITOR="nvim"
 
-export GOPATH=$HOME/code
-export PATH=$HOME/bin:$HOME/.rbenv/bin:$GOPATH/bin:$PATH
+export GOROOT=$HOME/go1.10
+export GOPATH=$HOME/go
+export PATH=$HOME/bin:$HOME/.rbenv/bin:$GOPATH/bin:$GOROOT/bin:$PATH
 
 eval "$(rbenv init -)"
 eval "$(direnv hook bash)"
