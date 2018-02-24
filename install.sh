@@ -7,6 +7,15 @@ function setup_home() {
   done
 }
 
+function setup_colors() {
+  mkdir -p $HOME/.config
+
+  pushd $HOME/.config > /dev/null
+    git clone https://github.com/chriskempson/base16-shell
+    git clone https://github.com/chriskempson/base16-xresources
+  popd > /dev/null
+}
+
 function setup_vim() {
   mkdir -p $HOME/.config
   mkdir -p $HOME/.vim
@@ -41,6 +50,7 @@ function setup_lockscreen() {
 
 function main() {
   setup_home
+  setup_colors
   setup_vim
   setup_i3
   setup_pulse
