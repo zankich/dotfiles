@@ -1,0 +1,9 @@
+#!/bin/bash -exu
+
+function main() {
+  pushd "/home/adrian/.wine/drive_c/GOG Games/Fallout/Fallout Fixt"
+    wine FALLOUTW.exe
+  popd
+}
+
+main

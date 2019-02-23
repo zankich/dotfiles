@@ -1,0 +1,9 @@
+#!/bin/bash -exu
+
+function main() {
+  pushd "/home/adrian/.wine/drive_c/Program Files (x86)/Rosetta Stone/Rosetta Stone Version 3"
+    wine RosettaStoneVersion3.exe
+  popd
+}
+
+main

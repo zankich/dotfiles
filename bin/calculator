@@ -1,0 +1,7 @@
+#!/bin/bash -exu
+
+function main() {
+  galculator
+}
+
+main

@@ -14,3 +14,6 @@
 ## Increase screen brightness
 "xbacklight -time 0 -inc 10"
     XF86MonBrightnessUp
+
+"gnome-screenshot -i"
+    Print
