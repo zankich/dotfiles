@@ -48,6 +48,15 @@ function setup_lockscreen() {
   sudo systemctl enable $PWD/systemd/i3lock.service
 }
 
+function setup_bin() {
+  mkdir -p $HOME/bin
+
+  for fbin in $(ls $PWD/bin/)
+  do
+    ln -sf ${PWD}/bin/${fbin} ${HOME}/bin/
+  done
+}
+
 function main() {
   setup_home
   setup_colors
@@ -56,6 +65,7 @@ function main() {
   setup_pulse
   setup_fonts
   setup_lockscreen
+  setup_bin
 }
 
 main

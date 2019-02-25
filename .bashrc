@@ -50,7 +50,7 @@ function reload_urxvt_config() {
 
 function restart_compton() {
   killall compton
-  compton -CGb --backend xr_glx_hybrid --vsync-use-glfinish --vsync opengl
+  compton -CGb --backend xr_glx_hybrid --vsync-use-glfinish --vsync opengl-swc
 }
 
 function reset_keyboard_settings() {
