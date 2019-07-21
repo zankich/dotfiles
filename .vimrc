@@ -39,17 +39,26 @@ set shiftwidth=2
 set softtabstop=2
 set expandtab
 
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-Plugin 'fatih/vim-go'
-Plugin 'eiginn/netrw'
-Plugin 'tpope/vim-vinegar'
-Plugin 'scrooloose/nerdcommenter'
-Plugin 'chriskempson/base16-vim'
-Plugin 'pangloss/vim-javascript'
-Plugin 'vim-ruby/vim-ruby'
-Plugin 'rust-lang/rust.vim'
-call vundle#end()
+call plug#begin('~/.vim/plugged')
+Plug 'eiginn/netrw'
+Plug 'tpope/vim-vinegar'
+Plug 'scrooloose/nerdcommenter'
+
+Plug 'chriskempson/base16-vim'
+
+Plug 'pangloss/vim-javascript'
+Plug 'vim-ruby/vim-ruby'
+Plug 'rust-lang/rust.vim'
+Plug 'fatih/vim-go'
+
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
+call plug#end()
 
 syntax enable
 set t_Co=256
@@ -85,8 +94,12 @@ nnoremap Y y$
 " Enter automatically into the files directory
 autocmd BufEnter * silent! lcd %:p:h
 
+" nerdcomenter
 " Comment/uncomment lines
 map <leader>/ <plug>NERDCommenterToggle
+"
+" deoplete
+let g:deoplete#enable_at_startup = 1
 
 " vim-go
 let g:go_fmt_command = "goimports"

@@ -22,6 +22,9 @@ function setup_vim() {
 
   ln -sf $HOME/.vim $HOME/.config/nvim
   ln -sf $HOME/.vimrc $HOME/.config/nvim/init.vim
+
+  pacman -S pip
+  pip3 install --user pynvim
 }
 
 function setup_i3() {

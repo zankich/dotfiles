@@ -164,7 +164,8 @@ gaps outer 2
 
 for_window [class="Galculator"] floating enable, border normal
 
-exec compton -CGb --backend xr_glx_hybrid --vsync-use-glfinish --vsync opengl-swc
+exec compton -CGb --backend glx --vsync
+
 exec clipit
 exec redshift-gtk -l 37.7749:-122.4194
 exec dropbox
