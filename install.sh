@@ -18,7 +18,7 @@ function setup_colors() {
 
 function setup_vim() {
   mkdir -p $HOME/.config
-  mkdir -p $HOME/.vim
+  mkdir -p $HOME/.vim/tmp/{backup,info,swap,undo}
 
   ln -sf $HOME/.vim $HOME/.config/nvim
   ln -sf $HOME/.vimrc $HOME/.config/nvim/init.vim
