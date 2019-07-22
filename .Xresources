@@ -31,5 +31,3 @@ URxvt*clipboard.pastecmd: xclip -o -selection clipboard
 URxvt*perl-ext-common: default,resize-font,selection-to-clipboard
 
 URxvt*fading: 10
-
-#include "/home/adrian/.base16_xresources"

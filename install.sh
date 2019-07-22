@@ -23,6 +23,9 @@ function setup_vim() {
   ln -sf $HOME/.vim $HOME/.config/nvim
   ln -sf $HOME/.vimrc $HOME/.config/nvim/init.vim
 
+  curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
   pacman -S pip
   pip3 install --user pynvim
 }
@@ -32,6 +35,20 @@ function setup_i3() {
 
   ln -sf $PWD/i3/config $HOME/.config/i3/
   ln -sf $PWD/i3/status.conf $HOME/.config/i3/
+}
+
+function setup_sway() {
+  mkdir -p $HOME/.config/{sway,waybar}
+
+  ln -sf $PWD/sway/config $HOME/.config/sway/
+  ln -sf $PWD/waybar/config $HOME/.config/waybar/
+  ln -sf $PWD/waybar/style.css $HOME/.config/waybar/
+}
+
+function setup_alacritty() {
+  mkdir -p $HOME/.config/alacritty/
+
+  ln -sf $PWD/alacritty/alacritty.yml $HOME/.config/alacritty
 }
 
 function setup_pulse() {
@@ -64,7 +81,9 @@ function main() {
   setup_home
   setup_colors
   setup_vim
-  setup_i3
+  #setup_i3
+  setup_sway
+  setup_alacritty
   setup_pulse
   setup_fonts
   setup_lockscreen

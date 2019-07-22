@@ -6,8 +6,9 @@ filetype plugin indent on          " Load plugins according to detected filetype
 syntax on                          " Enable syntax highlighting.
 set autoindent                     " Indent according to previous line.
 set expandtab                      " Use spaces instead of tabs.
-set softtabstop =4                 " Tab key indents by 4 spaces.
-set shiftwidth  =4                 " >> indents by 4 spaces.
+set softtabstop =2                 " Tab key indents by 2 spaces.
+set tabstop =2                     " tab indents to 2 spaces
+set shiftwidth  =2                 " >> indents by 2 spaces.
 set shiftround                     " >> indents to next multiple of 'shiftwidth'.
 set backspace   =indent,eol,start  " Make backspace work as you would expect.
 set hidden                         " Switch between buffers without having to save first.
@@ -25,7 +26,6 @@ set cursorline                     " Find the current line quickly.
 set wrapscan                       " Searches wrap around end-of-file.
 set report      =0                 " Always report changed lines.
 set synmaxcol   =200               " Only highlight the first 200 columns.
-set list                           " Show non-printable characters.
 set encoding=utf-8                 " Set default encoding to UTF-8
 set noerrorbells                   " No beeps
 set number                         " Show line numbers
@@ -36,12 +36,6 @@ set ttimeout                       " nvim esc delay issues
 set ttimeoutlen=0                  " nvim esc delay issues
 set clipboard^=unnamed             " enable clipboard sync
 set clipboard^=unnamedplus
-set list                           " Show non-printable characters.
-if has('multi_byte') && &encoding ==# 'utf-8'
-  let &listchars = 'tab:▸ ,extends:❯,precedes:❮,nbsp:±'
-else
-  let &listchars = 'tab:> ,extends:>,precedes:<,nbsp:.'
-endif
 
 " Put all temporary files under the same directory.
 set backup
