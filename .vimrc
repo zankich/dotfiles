@@ -22,7 +22,6 @@ set ttyfast                        " Faster redrawing.
 set lazyredraw                     " Only redraw when necessary.
 set splitbelow                     " Open new windows below the current window.
 set splitright                     " Open new windows right of the current window.
-set cursorline                     " Find the current line quickly.
 set wrapscan                       " Searches wrap around end-of-file.
 set report      =0                 " Always report changed lines.
 set synmaxcol   =200               " Only highlight the first 200 columns.
@@ -58,7 +57,12 @@ Plug 'chriskempson/base16-vim'
 Plug 'pangloss/vim-javascript'
 Plug 'vim-ruby/vim-ruby'
 Plug 'rust-lang/rust.vim'
-Plug 'fatih/vim-go'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+
+Plug 'mileszs/ack.vim'
+Plug 'ctrlpvim/ctrlp.vim'
+
+Plug 'semanser/vim-outdated-plugins'
 
 if has('nvim')
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -100,3 +104,13 @@ let g:go_highlight_build_constraints = 1
 
 let g:go_term_enabled = 1
 let g:go_term_mode = "split"
+
+call deoplete#custom#option('omni_patterns', { 'go': '[^. *\t]\.\w*' })
+
+" ack.vim
+if executable('ag')
+  let g:ackprg = 'ag --vimgrep'
+endif
+
+" outdated-plugins
+let g:outdated_plugins_silent_mode = 1

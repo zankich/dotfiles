@@ -34,11 +34,11 @@ output * bg #a4b6bf solid_color
 #
 # Example configuration:
 #
-# exec swayidle -w \
-#          timeout 300 'swaylock -f -c 000000' \
-#          timeout 600 'swaymsg "output * dpms off"' \
-#               resume 'swaymsg "output * dpms on"' \
-#          before-sleep 'swaylock -f -c 000000'
+exec swayidle -w \
+        timeout 300 'swaylock -f -c a4b6bf' \
+        timeout 600 'swaymsg "output * dpms off"' \
+              resume 'swaymsg "output * dpms on"' \
+        before-sleep 'swaylock -f -c a4b6bf'
 #
 # This will lock your screen after 300 seconds of inactivity, then turn off
 # your displays after another 300 seconds, and turn your screens back on when
@@ -212,30 +212,33 @@ bar {
         #background #323232
         #inactive_workspace #32323200 #32323200 #5c5c5c
     #}
+    mode hide
+    hidden_state hide
     swaybar_command waybar
 }
 
 include /etc/sway/config.d/*
 
-
 default_border none
 hide_edge_borders both
 
 gaps inner 2
-gaps outer 2
+#gaps outer 2
+smart_borders on
+smart_gaps on
 
-exec clipman -d
-bindsym $mod+Shift+v exec clipman -s
+exec wl-paste -t text --watch clipman store
+bindsym $mod+Shift+v exec clipman pick
 
 exec dropbox
 
-for_window [class="Galculator"] floating enable, border normal
+for_window [title="galculator"] floating enable, border normal
 
 bindsym XF86AudioRaiseVolume exec pamixer --increase 5
 bindsym XF86AudioLowerVolume exec pamixer --decrease 5
 bindsym XF86AudioMute exec pamixer --toggle-mute
-bindsym XF86MonBrightnessDown exec light -U 10
-bindsym XF86MonBrightnessUp exec light -A 10
+bindsym XF86MonBrightnessDown exec light -U 5
+bindsym XF86MonBrightnessUp exec light -A 5
 bindsym Print exec grim -g "$(slurp)" $HOME/Documents/$(date +%m-%d-%y-%H:%M:%S)-screenshot.png
 
 input type:keyboard {
@@ -246,6 +249,9 @@ input type:keyboard {
 
 input type:trackpad {
     natural_scroll enabled
+    dwt enabled
 }
 
 font pango:Inconsolata 10
+
+bindsym $mod+x exec killall -SIGUSR1 waybar

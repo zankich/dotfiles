@@ -77,6 +77,10 @@ function setup_bin() {
   done
 }
 
+function setup_groups() {
+  sudo usermod -aG video adrian
+}
+
 function main() {
   setup_home
   setup_colors
@@ -88,6 +92,7 @@ function main() {
   setup_fonts
   setup_lockscreen
   setup_bin
+  setup_groups
 }
 
 main

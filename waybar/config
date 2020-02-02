@@ -8,7 +8,8 @@
         "max-length": 50
     },
     "battery": {
-        "format": "{capacity}% {time}"
+        "format": "{capacity}% {time}",
+        "interval": 10
     },
     "clock": {
         "format": "{:%m/%d/%y %H:%M:%S}",

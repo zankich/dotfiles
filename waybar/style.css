@@ -1,52 +1,48 @@
 * {
-    border: none;
-    border-radius: 0;
-    font-family: Inconsolata, "Material Design Icons";
-    font-weight: normal;
-    font-size: 16px;
-    min-height: 0;
-}
+  border: none;
+  border-radius: 0;
+  font-family: Inconsolata, "Material Design Icons";
+  font-weight: normal;
+  font-size: 16px;
+  min-height: 0;
+  }
 
 window#waybar {
-    background-color: rgba(11, 11, 11, 0.8);
-    color: #ffffff;
-    transition-property: background-color;
-    transition-duration: .5s;
+  background-color: rgba(11, 11, 11, 0.8);
+  color: #ffffff;
+  transition-property: background-color;
+  transition-duration: .5s;
 }
 
 window#waybar.hidden {
-    opacity: 0.2;
+  opacity: 0.0;
 }
 
 #window {
   padding: 0 15px;
 }
 
-/*
-window#waybar.empty {
-    background-color: transparent;
+#workspaces button:hover {
+  box-shadow: inherit;
+  text-shadow: inherit;
 }
-window#waybar.solo {
-    background-color: #FFFFFF;
-}
-*/
 
 /* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
 #workspaces button {
-    padding: 0 5px;
-    background-color: transparent;
-    border-bottom: 2px solid rgba(100, 114, 125, 0.5);
-    color: #999999;
+  padding: 0 5px;
+  background-color: transparent;
+  border-bottom: 2px solid rgba(100, 114, 125, 0.5);
+  color: #999999;
 }
 
 #workspaces button.focused {
-  color: #ffffff;
-    background-color: #333333;
-    border-bottom: 2px solid #00ff96;
+  color: #cccccc;
+  background-color: #333333;
+  border-bottom: 2px solid ForestGreen;
 }
 
 #workspaces button.urgent {
-    background-color: #eb4d4b;
+  background-color: #eb4d4b;
 }
 
 #clock,
@@ -60,11 +56,11 @@ window#waybar.solo {
 #tray,
 #mode,
 #idle_inhibitor {
-    padding: 0 5px;
-    margin: 0 4px;
-    background-color: transparent;
-    border-bottom: 2px solid #00ff96;
-    color: #ffffff;
+  padding: 0 5px;
+  margin: 0 4px;
+  background-color: transparent;
+  border-bottom: 2px solid #00ff96;
+  color: #ffffff;
 }
 
 #mode {
@@ -80,31 +76,37 @@ window#waybar.solo {
 }
 
 #battery {
-  border-bottom: 2px solid #bff874;
+  border-bottom: 2px solid Goldenrod;
+}
+
+#battery.full{
+  border-bottom: 2px solid ForestGreen;
 }
 
 #battery.charging {
-  border-bottom: 2px solid #00ff96;
+  border-bottom: 2px solid Teal;
 }
 
-#custom-vpn.down,
 #battery.critical:not(.charging) {
-  border-bottom: 2px solid #dd2241;
+  border-bottom: 2px solid FireBrick;
 }
 
 label:focus {
     background-color: #000000;
 }
 
-#network.disconnected {
-  border-bottom: 2px solid #dd2241;
+#network {
+  border-bottom: 2px solid ForestGreen;
 }
 
-#pulseaudio.bluetooth {
-  border-bottom: 2px solid #1a8cff;
+#network.disconnected {
+  border-bottom: 2px solid FireBrick;
+}
+
+#pulseaudio {
+  border-bottom: 2px solid ForestGreen;
 }
 
 #pulseaudio.muted {
-  border-bottom: 2px solid #dd2241;
+  border-bottom: 2px solid FireBrick;
 }
-
