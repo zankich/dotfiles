@@ -54,15 +54,14 @@ Plug 'scrooloose/nerdcommenter'
 
 Plug 'chriskempson/base16-vim'
 
-Plug 'pangloss/vim-javascript'
-Plug 'vim-ruby/vim-ruby'
-Plug 'rust-lang/rust.vim'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
-Plug 'mileszs/ack.vim'
-Plug 'ctrlpvim/ctrlp.vim'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 
 Plug 'semanser/vim-outdated-plugins'
+
+Plug 'saltstack/salt-vim'
 
 if has('nvim')
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -78,6 +77,13 @@ let g:rehash256 = 1
 if filereadable(expand("~/.vimrc_background"))
   let base16colorspace=256
   source ~/.vimrc_background
+
+  if g:colors_name == 'base16-tomorrow'
+    set background=light
+  else
+    set background=dark
+  endif
+
 endif
 
 " Set leader shortcut to a comma ','. By default it's the backslash
@@ -105,6 +111,8 @@ let g:go_highlight_build_constraints = 1
 let g:go_term_enabled = 1
 let g:go_term_mode = "split"
 
+let g:go_bin_path = expand('~/.vim/vim-go_bin')
+
 call deoplete#custom#option('omni_patterns', { 'go': '[^. *\t]\.\w*' })
 
 " ack.vim
@@ -114,3 +122,14 @@ endif
 
 " outdated-plugins
 let g:outdated_plugins_silent_mode = 1
+
+
+" PLUGIN: FZF
+nnoremap <silent> <C-f> :Files<CR>
+nnoremap <silent> <Leader>f :Rg<CR>
+" do not match filenames in rg search
+command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'right:50%'), <bang>0)
+
+" use ripgrep for vimgrep
+set grepprg=rg\ --vimgrep\ --smart-case\ --follow
+
