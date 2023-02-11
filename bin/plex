@@ -1,7 +1,0 @@
-#!/bin/bash -exu
-
-function main() {
-  /bin/sh -c 'LD_LIBRARY_PATH=/usr/lib/plexmediaserver /usr/lib/plexmediaserver/Plex\ Media\ Server'
-}
-
-main

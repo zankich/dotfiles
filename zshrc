@@ -1,8 +1,10 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
+#
+export BASE16_CONFIG_PATH=$HOME/.config/tinted-theming
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/azankich/.oh-my-zsh"
+export ZSH="${HOME}/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -69,7 +71,7 @@ ZSH_THEME="frisk"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git fzf autojump direnv)
+plugins=(git fzf base16-shell autojump direnv fd)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -98,31 +100,33 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-alias vim="nvim"
-alias vimdiff="nvim -d"
+#
+source $HOME/.config/tinted-theming/base16_shell_theme
+source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/theme_name).config
 
 export EDITOR="nvim"
-export FZF_DEFAULT_COMMAND='rg --files --hidden'
-export FZF_DEFAULT_OPTS='-m'
+export RG_COMMAND="rg --follow --column --line-number --no-heading --smart-case --hidden --color=ansi --threads $(($(nproc --all)/2))"
+export FZF_DEFAULT_COMMAND="fd --hidden --follow --type file --strip-cwd-prefix --color=always --threads $(($(nproc --all)/2))"
+export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS} --multi --ansi --layout=reverse --exact"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_CTRL_T_OPTS="${FZF_DEFAULT_OPTS} --preview '$HOME/.vim/plugged/fzf.vim/bin/preview.sh {}'"
+export FZF_CTRL_R_OPTS="${FZF_DEFAULT_OPTS}"
+export FZF_TMUX_OPTS='-p 90%,60%'
 
-BASE16_SHELL=$HOME/.config/base16-shell/
-[ -n "$PS1" ] && [ -s $BASE16_SHELL/profile_helper.sh ] && eval "$($BASE16_SHELL/profile_helper.sh)"
+export PATH=$HOME/.vim/vim-go_bin:$HOME/bin:$HOME/code/go/bin:$HOME/bin/go/bin:/usr/local/bin:$PATH
+export GOPATH=$HOME/code/go
 
-#source $HOME/.base16_theme
-source $HOME/.config/base16-fzf/bash/base16-$BASE16_THEME.config
+export TERM="xterm-256color"
+export BAT_THEME="base16-256"
 
-export GOPATH=$HOME/go
-export PATH=$GOPATH/bin:$PATH
+alias lla='ls -la'
+alias vim="nvim"
+alias vi="nvim"
+alias vimdiff="nvim -d"
+alias rg=$RG_COMMAND
 
-function theme() {
-  if [ -z $1 ]; then
-    echo 'Please pass one argument: the name of the base16 theme you want to use.'
-    echo 'For example: `theme tomorrow`'
-    return 1
-  fi
-  eval "base16_$1"
-  export FZF_DEFAULT_OPTS='-m'
-  eval "source ~/.config/base16-fzf/bash/base16-$1.config"
-  tmux source-file ~/.config/base16-tmux/colors/base16-$1.conf
+# fnm
+export PATH=/home/azankich/.fnm:$PATH
+eval "`fnm env`"
 
-}
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

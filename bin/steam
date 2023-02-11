@@ -1,7 +1,0 @@
-#!/bin/bash -exu
-
-function main() {
-  STEAM_RUNTIME=0 /usr/bin/steam
-}
-
-main

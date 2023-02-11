@@ -1,98 +1,77 @@
-#!/bin/bash -exu
+#!/bin/bash -eu
 
-function setup_home() {
-  for dotfile in $(find . -type f -iname ".*" -printf "%f\n")
-  do
-    ln -sf ${PWD}/${dotfile} ${HOME}/
-  done
-}
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-function setup_colors() {
-  mkdir -p $HOME/.config
+setup_colors() {
+  echo "setting up colors..."
+  mkdir -p ~/.config
 
-  pushd $HOME/.config > /dev/null
-    git clone https://github.com/chriskempson/base16-shell
-    git clone https://github.com/chriskempson/base16-xresources
+  pushd ~/.config > /dev/null
+    [[ -d "base16-shell" ]] || git clone https://github.com/tinted-theming/base16-shell
+    [[ -d "base16-fzf" ]] || git clone https://github.com/tinted-theming/base16-fzf
   popd > /dev/null
+
+  mkdir -p ~/.oh-my-zsh/plugins/base16-shell
+  ln -sf ~/.config/base16-shell/base16-shell.plugin.zsh ~/.oh-my-zsh/plugins/base16-shell/base16-shell.plugin.zsh
 }
 
-function setup_vim() {
-  mkdir -p $HOME/.config
-  mkdir -p $HOME/.vim/tmp/{backup,info,swap,undo}
+setup_dotfiles() {
+  echo "setting up dotfiles..."
+  if [[ -d "~/.tmux/plugins/tpm" ]]; then
+	  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+  fi
 
-  ln -sf $HOME/.vim $HOME/.config/nvim
-  ln -sf $HOME/.vimrc $HOME/.config/nvim/init.vim
+  ln -sf ${SCRIPT_DIR}/tmux.conf ~/.tmux.conf
+  ln -sf ${SCRIPT_DIR}/zshrc ~/.zshrc
+  ln -sf ${SCRIPT_DIR}/vimrc ~/.vimrc
+  ln -sf ${SCRIPT_DIR}/gitconfig ~/.gitconfig
+  if [[ $(uname -s) == "Linux" ]]; then
+    ln -sf ${SCRIPT_DIR}/logid.cfg /etc/logid.cfg
+  fi
 
-  curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-
-  pacman -S pip
-  pip3 install --user pynvim
+  mkdir -p ~/.config/alacritty/
+  ln -sf ${SCRIPT_DIR}/alacritty.yml ~/.config/alacritty/alacritty.yml
 }
 
-function setup_i3() {
-  mkdir -p $HOME/.config/i3
+setup_vim() {
+  echo "setting up vim..."
+  mkdir -p ~/.config
+  mkdir -p ~/.vim/tmp/{backup,info,swap,undo}
 
-  ln -sf $PWD/i3/config $HOME/.config/i3/
-  ln -sf $PWD/i3/status.conf $HOME/.config/i3/
+  ln -sf ~/.vim ~/.config/nvim
+  ln -sf ~/.vimrc ~/.config/nvim/init.vim
+
+  if [[ -f "~/.vim/autoload/plug.vim" ]]; then
+    curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+      https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  fi
+
+  pip3 install -U --user pynvim
 }
 
-function setup_sway() {
-  mkdir -p $HOME/.config/{sway,waybar}
+setup_dependencies() {
+  echo "installing dependencies..."
+  if [[ -d "~/.oh-my-zsh" ]]; then
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  fi
 
-  ln -sf $PWD/sway/config $HOME/.config/sway/
-  ln -sf $PWD/waybar/config $HOME/.config/waybar/
-  ln -sf $PWD/waybar/style.css $HOME/.config/waybar/
+  case "$(uname -s)" in
+    Linux)
+    ;;
+    Darwin)
+      brew install neovim tmux bat fnm ripgrep go git
+      python3 -m pip install --upgrade setuptools
+      python3 -m pip install --upgrade pip
+      brew install homebrew/cask-fonts/font-hack
+    ;;
+  esac
 }
 
-function setup_alacritty() {
-  mkdir -p $HOME/.config/alacritty/
-
-  ln -sf $PWD/alacritty/alacritty.yml $HOME/.config/alacritty
-}
-
-function setup_pulse() {
-  mkdir -p $HOME/.config/pulse
-
-  ln -sf $PWD/pulse/daemon.conf $HOME/.config/pulse/
-}
-
-function setup_fonts() {
-  pushd /etc/fonts/conf.d > /dev/null
-    sudo ln -sf ../conf.avail/11-lcdfilter-default.conf
-    sudo ln -sf ../conf.avail/10-sub-pixel-rgb.conf
-  popd > /dev/null
-}
-
-function setup_lockscreen() {
-  sudo systemctl enable $PWD/systemd/i3lock.service
-}
-
-function setup_bin() {
-  mkdir -p $HOME/bin
-
-  for fbin in $(ls $PWD/bin/)
-  do
-    ln -sf ${PWD}/bin/${fbin} ${HOME}/bin/
-  done
-}
-
-function setup_groups() {
-  sudo usermod -aG video adrian
-}
-
-function main() {
-  setup_home
+main() {
+  setup_dependencies
   setup_colors
   setup_vim
-  #setup_i3
-  setup_sway
-  setup_alacritty
-  setup_pulse
-  setup_fonts
-  setup_lockscreen
-  setup_bin
-  setup_groups
+  setup_dotfiles
 }
 
 main

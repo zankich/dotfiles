@@ -1,7 +1,0 @@
-#!/bin/bash -exu
-
-function main() {
-  google-chrome-stable
-}
-
-main

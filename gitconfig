@@ -1,0 +1,22 @@
+[alias]
+  diff = auto
+  status = auto
+  branch = auto
+  interactive = auto
+  ui = true
+  pager = true
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+
+[color]
+  branch = auto
+  diff = auto
+  interactive = auto
+  status = auto
+  ui = auto
+
+[user]
+	name = Adrian Zankich
+	email = adzankich@gmail.com
+
+[http "https://gopkg.in"]
+	followRedirects = true
