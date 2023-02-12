@@ -4,45 +4,63 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 setup_colors() {
   echo "setting up colors..."
-  mkdir -p ~/.config
+  mkdir -p ${HOME}/.config
 
-  pushd ~/.config > /dev/null
-    [[ -d "base16-shell" ]] || git clone https://github.com/tinted-theming/base16-shell
-    [[ -d "base16-fzf" ]] || git clone https://github.com/tinted-theming/base16-fzf
+  pushd ${HOME}/.config > /dev/null
+    if [[ -d "base16-shell" ]]; then
+      pushd base16-shell > /dev/null
+        git pull -r
+      popd > /dev/null
+    else
+      git clone https://github.com/tinted-theming/base16-shell
+    fi
+
+    if [[ -d "base16-fzf" ]]; then
+      pushd base16-fzf > /dev/null
+        git pull -r
+      popd > /dev/null
+    else
+      git clone https://github.com/tinted-theming/base16-fzf
+    fi
   popd > /dev/null
 
-  mkdir -p ~/.oh-my-zsh/plugins/base16-shell
-  ln -sf ~/.config/base16-shell/base16-shell.plugin.zsh ~/.oh-my-zsh/plugins/base16-shell/base16-shell.plugin.zsh
+  mkdir -p ${HOME}/.oh-my-zsh/plugins/base16-shell
+  ln -sf "${HOME}/.config/base16-shell/base16-shell.plugin.zsh" "${HOME}/.oh-my-zsh/plugins/base16-shell/base16-shell.plugin.zsh"
 }
 
 setup_dotfiles() {
   echo "setting up dotfiles..."
-  if [[ -d "~/.tmux/plugins/tpm" ]]; then
-	  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+  if [[ -d "${HOME}/.tmux/plugins/tpm" ]]; then
+    pushd ${HOME}/.tmux/plugins/tpm > /dev/null
+      git pull -r
+    popd > /dev/null
+  else
+	  git clone https://github.com/tmux-plugins/tpm
   fi
 
-  ln -sf ${SCRIPT_DIR}/tmux.conf ~/.tmux.conf
-  ln -sf ${SCRIPT_DIR}/zshrc ~/.zshrc
-  ln -sf ${SCRIPT_DIR}/vimrc ~/.vimrc
-  ln -sf ${SCRIPT_DIR}/gitconfig ~/.gitconfig
+  ln -sf "${SCRIPT_DIR}/tmux.conf" "${HOME}/.tmux.conf"
+  ln -sf "${SCRIPT_DIR}/zshrc" "${HOME}/.zshrc"
+  ln -sf "${SCRIPT_DIR}/vimrc" "${HOME}/.vimrc"
+  ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
+
   if [[ $(uname -s) == "Linux" ]]; then
     ln -sf ${SCRIPT_DIR}/logid.cfg /etc/logid.cfg
   fi
 
-  mkdir -p ~/.config/alacritty/
-  ln -sf ${SCRIPT_DIR}/alacritty.yml ~/.config/alacritty/alacritty.yml
+  mkdir -p ${HOME}/.config/alacritty/
+  ln -sf ${SCRIPT_DIR}/alacritty.yml ${HOME}/.config/alacritty/alacritty.yml
 }
 
 setup_vim() {
   echo "setting up vim..."
-  mkdir -p ~/.config
-  mkdir -p ~/.vim/tmp/{backup,info,swap,undo}
+  mkdir -p ${HOME}/.config
+  mkdir -p ${HOME}/.vim/tmp/{backup,info,swap,undo}
 
-  ln -sf ~/.vim ~/.config/nvim
-  ln -sf ~/.vimrc ~/.config/nvim/init.vim
+  ln -sf "${HOME}/.vim" "${HOME}/.config/nvim"
+  ln -sf "${HOME}/.vimrc" "${HOME}/.config/nvim/init.vim"
 
-  if [[ -f "~/.vim/autoload/plug.vim" ]]; then
-    curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+  if [[ ! -f "${HOME}/.vim/autoload/plug.vim" ]]; then
+    curl -fLo ${HOME}/.vim/autoload/plug.vim --create-dirs \
       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   fi
 
@@ -51,7 +69,7 @@ setup_vim() {
 
 setup_dependencies() {
   echo "installing dependencies..."
-  if [[ -d "~/.oh-my-zsh" ]]; then
+  if [[ ! -d ${HOME}/.oh-my-zsh ]]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
   fi
 
