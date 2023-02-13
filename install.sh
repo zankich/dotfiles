@@ -35,11 +35,19 @@ setup_dotfiles() {
       git pull -r
     popd > /dev/null
   else
-	  git clone https://github.com/tmux-plugins/tpm
+    git clone https://github.com/tmux-plugins/tpm
+  fi
+
+  mkdir -p "${HOME}/.zsh_configs"
+
+  local sourcecmd='for f in ~/.zsh_configs/*; do source "${f}"; done'
+  if [[ $(grep -c "${sourcecmd}" $HOME/.zshrc) == "0" ]];then
+    echo "# added by zankich dotfiles" >> $HOME/.zshrc
+    echo "${sourcecmd}" >> $HOME/.zshrc
   fi
 
   ln -sf "${SCRIPT_DIR}/tmux.conf" "${HOME}/.tmux.conf"
-  ln -sf "${SCRIPT_DIR}/zshrc" "${HOME}/.zshrc"
+  ln -sf "${SCRIPT_DIR}/zshrc" "${HOME}/.zsh_configs/zshrc"
   ln -sf "${SCRIPT_DIR}/vimrc" "${HOME}/.vimrc"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
 
