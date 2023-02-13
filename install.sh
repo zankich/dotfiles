@@ -1,5 +1,7 @@
 #!/bin/bash -eu
 
+set -o pipefail
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 setup_colors() {
@@ -83,14 +85,30 @@ setup_dependencies() {
 
   case "$(uname -s)" in
     Linux)
+      local bat="""$(curl -S https://api.github.com/repos/sharkdp/bat/releases/latest | jq -r '.assets | map(select(.name | test("bat.*-x86_64-unknown-linux-musl.tar.gz"))) | .[0]')"""
+      curl -SqL "$(echo "${bat}" | jq -r .browser_download_url)" | sudo tar zxv -C /usr/local/bin "$(basename "$(echo ${bat} | jq -r .name)" .tar.gz)/bat" --strip-components=1 --no-same-owner
+
+      local fd="""$(curl -S https://api.github.com/repos/sharkdp/fd/releases/latest | jq -r '.assets | map(select(.name | test("fd.*-x86_64-unknown-linux-musl.tar.gz"))) | .[0]')"""
+      curl -SqL "$(echo "${fd}" | jq -r .browser_download_url)" | sudo tar zxv -C /usr/local/bin "$(basename "$(echo ${fd} | jq -r .name)" .tar.gz)/fd" --strip-components=1 --no-same-owner
+
+      local nvim="""$(curl -S https://api.github.com/repos/neovim/neovim/releases/latest | jq -r '.assets | map(select(.name | test("nvim-linux64.deb"))) | .[0]')"""
+      curl -SqL "$(echo "${nvim}" | jq -r .browser_download_url)" -O --output-dir ~/Downloads/
+      sudo dpkg -i ~/Downloads/nvim-linux64.deb
+
+      if [[ -d /usr/local/go ]]; then
+        sudo rm -rf /usr/local/go
+      fi
+
+      curl -SaqL "https://dl.google.com/go/$(curl -L "https://golang.org/VERSION?m=text").linux-amd64.tar.gz" | sudo tar xzv -C /usr/local
     ;;
     Darwin)
-      brew install neovim tmux bat fnm ripgrep go git
-      python3 -m pip install --upgrade setuptools
-      python3 -m pip install --upgrade pip
+      brew install neovim tmux bat ripgrep go git fd
       brew install homebrew/cask-fonts/font-hack
     ;;
   esac
+
+  python3 -m pip install --upgrade setuptools
+  python3 -m pip install --upgrade pip
 }
 
 main() {
