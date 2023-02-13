@@ -52,7 +52,7 @@ setup_dotfiles() {
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
 
   if [[ $(uname -s) == "Linux" ]]; then
-    ln -sf ${SCRIPT_DIR}/logid.cfg /etc/logid.cfg
+    sudo ln -sf ${SCRIPT_DIR}/logid.cfg /etc/logid.cfg
   fi
 
   mkdir -p ${HOME}/.config/alacritty/
