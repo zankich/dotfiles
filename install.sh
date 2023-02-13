@@ -42,7 +42,7 @@ setup_dotfiles() {
 
   mkdir -p "${HOME}/.zsh_configs"
 
-  local sourcecmd='for f in ~/.zsh_configs/*; do source "${f}"; done'
+  local sourcecmd='for f in ${HOME}/.zsh_configs/*; do source "${f}"; done'
   if [[ $(grep -c "${sourcecmd}" $HOME/.zshrc) == "0" ]];then
     echo "# added by zankich dotfiles" >> $HOME/.zshrc
     echo "${sourcecmd}" >> $HOME/.zshrc
@@ -92,14 +92,30 @@ setup_dependencies() {
       curl -SqL "$(echo "${fd}" | jq -r .browser_download_url)" | sudo tar zxv -C /usr/local/bin "$(basename "$(echo ${fd} | jq -r .name)" .tar.gz)/fd" --strip-components=1 --no-same-owner
 
       local nvim="""$(curl -S https://api.github.com/repos/neovim/neovim/releases/latest | jq -r '.assets | map(select(.name | test("nvim-linux64.deb"))) | .[0]')"""
-      curl -SqL "$(echo "${nvim}" | jq -r .browser_download_url)" -O --output-dir ~/Downloads/
-      sudo dpkg -i ~/Downloads/nvim-linux64.deb
+      curl -SqL "$(echo "${nvim}" | jq -r .browser_download_url)" -O --output-dir ${HOME}/Downloads/
+      sudo dpkg -i ${HOME}/Downloads/nvim-linux64.deb
 
-      if [[ -d /usr/local/go ]]; then
-        sudo rm -rf /usr/local/go
+      local go_version="$(curl -L "https://golang.org/VERSION?m=text")"
+      if [[ "${go_version}" != "$(go version | cut -d ' ' -f 3)" ]]; then
+        if [[ -d /usr/local/go ]]; then
+          sudo rm -rf /usr/local/go
+        fi
+
+        curl -SaqL "https://dl.google.com/go/${go_version}.linux-amd64.tar.gz" | sudo tar xzv -C /usr/local
       fi
 
-      curl -SaqL "https://dl.google.com/go/$(curl -L "https://golang.org/VERSION?m=text").linux-amd64.tar.gz" | sudo tar xzv -C /usr/local
+      local tmux="""$(curl -S https://api.github.com/repos/tmux/tmux/releases/latest | jq -r '.assets | map(select(.name | test("tmux.*tar.gz"))) | .[0]')"""
+      local tmux_version="$(basename "$(echo ${tmux} | jq -r .name)" .tar.gz)"
+      if [[ $(tmux -V | cut -d ' ' -f 2) != $(echo ${tmux_version} | cut -d '-' -f 2) ]]; then
+        echo "installing new version of tmux"
+        curl -SqL "$(echo "${tmux}" | jq -r .browser_download_url)" | tar zxv -C "${HOME}/Downloads/"
+        sudo apt-get update && sudo apt-get install -y libevent-dev ncurses-dev build-essential bison pkg-config
+        pushd "${HOME}/Downloads/${tmux_version}"
+          ./configure
+          make
+          sudo make install
+        popd
+      fi
     ;;
     Darwin)
       brew install neovim tmux bat ripgrep go git fd
