@@ -26,8 +26,8 @@ setup_colors() {
     fi
   popd > /dev/null
 
-  mkdir -p ${HOME}/.oh-my-zsh/plugins/base16-shell
-  ln -sf "${HOME}/.config/base16-shell/base16-shell.plugin.zsh" "${HOME}/.oh-my-zsh/plugins/base16-shell/base16-shell.plugin.zsh"
+  mkdir -p ${HOME}/.oh-my-zsh/custom/plugins/base16-shell
+  ln -sf "${HOME}/.config/base16-shell/base16-shell.plugin.zsh" "${HOME}/.oh-my-zsh/custom/plugins/base16-shell/base16-shell.plugin.zsh"
 }
 
 setup_dotfiles() {
@@ -40,16 +40,9 @@ setup_dotfiles() {
     git clone https://github.com/tmux-plugins/tpm
   fi
 
-  mkdir -p "${HOME}/.zsh_configs"
-
-  local sourcecmd='for f in ${HOME}/.zsh_configs/*; do source "${f}"; done'
-  if [[ $(grep -c "${sourcecmd}" $HOME/.zshrc) == "0" ]];then
-    echo "# added by zankich dotfiles" >> $HOME/.zshrc
-    echo "${sourcecmd}" >> $HOME/.zshrc
-  fi
-
   ln -sf "${SCRIPT_DIR}/tmux.conf" "${HOME}/.tmux.conf"
-  ln -sf "${SCRIPT_DIR}/zshrc" "${HOME}/.zsh_configs/zshrc"
+  ln -sf "${SCRIPT_DIR}/zshrc" "${HOME}/.zshrc"
+  ln -sf "${SCRIPT_DIR}/p10k.zsh" "${HOME}/.p10k.zsh"
   ln -sf "${SCRIPT_DIR}/vimrc" "${HOME}/.vimrc"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
 
@@ -83,39 +76,21 @@ setup_dependencies() {
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
   fi
 
+  if [[ ! -d ${HOME}/.oh-my-zsh/custom/themes/powerlevel10k ]]; then
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${HOME}/.oh-my-zsh/custom/themes/powerlevel10k
+  fi
+
   case "$(uname -s)" in
     Linux)
-      local bat="""$(curl -S https://api.github.com/repos/sharkdp/bat/releases/latest | jq -r '.assets | map(select(.name | test("bat.*-x86_64-unknown-linux-musl.tar.gz"))) | .[0]')"""
-      curl -SqL "$(echo "${bat}" | jq -r .browser_download_url)" | sudo tar zxv -C /usr/local/bin "$(basename "$(echo ${bat} | jq -r .name)" .tar.gz)/bat" --strip-components=1 --no-same-owner
+      sudo apt-get update
+      sudo apt-get install -y libevent-dev ncurses-dev build-essential bison pkg-config
 
-      local fd="""$(curl -S https://api.github.com/repos/sharkdp/fd/releases/latest | jq -r '.assets | map(select(.name | test("fd.*-x86_64-unknown-linux-musl.tar.gz"))) | .[0]')"""
-      curl -SqL "$(echo "${fd}" | jq -r .browser_download_url)" | sudo tar zxv -C /usr/local/bin "$(basename "$(echo ${fd} | jq -r .name)" .tar.gz)/fd" --strip-components=1 --no-same-owner
-
-      local nvim="""$(curl -S https://api.github.com/repos/neovim/neovim/releases/latest | jq -r '.assets | map(select(.name | test("nvim-linux64.deb"))) | .[0]')"""
-      curl -SqL "$(echo "${nvim}" | jq -r .browser_download_url)" -O --output-dir ${HOME}/Downloads/
-      sudo dpkg -i ${HOME}/Downloads/nvim-linux64.deb
-
-      local go_version="$(curl -L "https://golang.org/VERSION?m=text")"
-      if [[ "${go_version}" != "$(go version | cut -d ' ' -f 3)" ]]; then
-        if [[ -d /usr/local/go ]]; then
-          sudo rm -rf /usr/local/go
-        fi
-
-        curl -SaqL "https://dl.google.com/go/${go_version}.linux-amd64.tar.gz" | sudo tar xzv -C /usr/local
-      fi
-
-      local tmux="""$(curl -S https://api.github.com/repos/tmux/tmux/releases/latest | jq -r '.assets | map(select(.name | test("tmux.*tar.gz"))) | .[0]')"""
-      local tmux_version="$(basename "$(echo ${tmux} | jq -r .name)" .tar.gz)"
-      if [[ $(tmux -V | cut -d ' ' -f 2) != $(echo ${tmux_version} | cut -d '-' -f 2) ]]; then
-        echo "installing new version of tmux"
-        curl -SqL "$(echo "${tmux}" | jq -r .browser_download_url)" | tar zxv -C "${HOME}/Downloads/"
-        sudo apt-get update && sudo apt-get install -y libevent-dev ncurses-dev build-essential bison pkg-config
-        pushd "${HOME}/Downloads/${tmux_version}"
-          ./configure
-          make
-          sudo make install
-        popd
-      fi
+      __zsh
+      __go
+      __tmux
+      __bat
+      __fd
+      __nvim
     ;;
     Darwin)
       brew install neovim tmux bat ripgrep go git fd
@@ -125,6 +100,110 @@ setup_dependencies() {
 
   python3 -m pip install --upgrade setuptools
   python3 -m pip install --upgrade pip
+}
+
+__nvim() {
+  echo "installing nvim..."
+  local github_release="$(curl -sq https://api.github.com/repos/neovim/neovim/releases/latest)"
+
+  if [[ "$(echo "${github_release}" | jq -r .body | grep -wc "$(nvim --version | head -n 1)")" == "0" ]]; then
+    local github_asset="""$(echo "${github_release}" | \
+      jq -r '.assets | map(select(.name | test("nvim-linux64.deb"))) | .[0]')"""
+
+    curl -#qL "$(echo "${github_asset}" | jq -r .browser_download_url)" -O --output-dir ${HOME}/Downloads/
+    sudo dpkg -i ${HOME}/Downloads/nvim-linux64.deb
+  fi
+}
+
+__bat() {
+  echo "installing bat..."
+  local github_release="$(curl -sq https://api.github.com/repos/sharkdp/bat/releases/latest)"
+
+  if [[ "$(echo "${github_release}" | jq -r .name | grep -c "$(bat --version | cut -d " " -f 2)")" == "0" ]]; then
+    local github_asset="""$(echo ${github_release} | \
+      jq -r '.assets | map(select(.name | test("bat.*-x86_64-unknown-linux-musl.tar.gz"))) | .[0]')"""
+
+    curl -#qL "$(echo "${github_asset}" | jq -r .browser_download_url)" | \
+      sudo tar zxv -C /usr/local/bin "$(basename "$(echo ${github_release} | jq -r .name)" .tar.gz)/bat" \
+      --strip-components=1 --no-same-owner
+  fi
+}
+
+__fd() {
+  echo "installing fd..."
+  local github_release="$(curl -sq https://api.github.com/repos/sharkdp/fd/releases/latest)"
+
+  if [[ "$(echo "${github_release}" | jq -r .name | grep -c "$(fd --version | cut -d " " -f 2)")" == "0" ]]; then
+    local github_asset="""$(echo ${github_release} | \
+      jq -r '.assets | map(select(.name | test("fd.*-x86_64-unknown-linux-musl.tar.gz"))) | .[0]')"""
+
+    curl -#qL "$(echo "${github_asset}" | jq -r .browser_download_url)" | \
+      sudo tar zxv -C /usr/local/bin "$(basename "$(echo ${github_release} | jq -r .name)" .tar.gz)/fd" \
+      --strip-components=1 --no-same-owner
+  fi
+}
+
+__tmux() {
+  echo "installing tmux..."
+  local github_release="""$(curl -sq https://api.github.com/repos/tmux/tmux/releases/latest | jq -r '.assets | map(select(.name | test("tmux.*tar.gz"))) | .[0]')"""
+  local tmux_version="$(basename "$(echo ${github_release} | jq -r .name)" .tar.gz)"
+
+  if [[ $(tmux -V | cut -d ' ' -f 2) != $(echo ${tmux_version} | cut -d '-' -f 2) ]]; then
+    echo "installing tmux ${tmux_version}"
+
+    curl -#qL "$(echo "${github_release}" | jq -r .browser_download_url)" | tar zxv -C "${HOME}/Downloads/"
+    pushd "${HOME}/Downloads/${tmux_version}"
+      ./configure
+      make -j
+      sudo make install
+    popd
+  fi
+}
+
+__go() {
+  echo "installing go..."
+  local go_version="$(curl -sq "https://go.dev/VERSION?m=text")"
+
+  if [[ "${go_version}" != "$(go version | cut -d ' ' -f 3)" ]]; then
+    echo "installing go ${go_version}"
+    if [[ -d /usr/local/go ]]; then
+      sudo rm -rf /usr/local/go
+    fi
+
+    curl -#qL "https://dl.google.com/go/${go_version}.linux-amd64.tar.gz" | sudo tar xzv -C /usr/local
+  fi
+}
+
+__zsh() {
+  echo "installing zsh..."
+  curl -#qL -o ${HOME}/Downloads/zsh-latest.tar.xz https://sourceforge.net/projects/zsh/files/latest/download
+
+  pushd ${HOME}/Downloads > /dev/null
+    if [[ -d ${HOME}/zsh-latest ]]; then
+      rm -r zsh-latest
+    fi
+
+    mkdir -p zsh-latest
+
+    tar -xf zsh-latest.tar.xz -C zsh-latest --strip-components=1
+    pushd zsh-latest > /dev/null
+      local zsh_version="$(source Config/version.mk; echo $VERSION)"
+      if [[ "$(/usr/local/bin/zsh --version | cut -d ' ' -f 2)" == "${zsh_version}" ]]; then
+        return 0
+      fi
+
+      ./configure
+      make -j
+      make test -j
+      sudo make install
+    popd > /dev/null
+  popd > /dev/null
+
+  if [[ $(grep -cw "/usr/local/bin/zsh" /etc/shells) == "0" ]]; then
+    sudo echo "/usr/local/bin/zsh" >> /etc/shells
+  fi
+
+  chsh -s /usr/local/bin/zsh
 }
 
 main() {
