@@ -9,7 +9,7 @@ export ZSH=$HOME/.oh-my-zsh
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-plugins=(git fzf base16-shell autojump direnv fd)
+plugins=(git fzf base16-shell autojump direnv fd golang rust tmux sudo docker docker-compose)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -45,7 +45,7 @@ alias vi="nvim"
 alias vimdiff="nvim -d"
 alias rg=$RG_COMMAND
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[[ ! -f ~/.cargo/env ]] || source ~/.cargo/env
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
