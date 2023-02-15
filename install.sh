@@ -105,7 +105,8 @@ setup_dependencies() {
         unzip \
         autoconf \
         ripgrep \
-        autojump
+        autojump \
+        xclip
 
       __go
       __rust
@@ -314,9 +315,8 @@ __alacritty() {
         gzip -c extra/alacritty.man | sudo tee /usr/local/share/man/man1/alacritty.1.gz > /dev/null
         gzip -c extra/alacritty-msg.man | sudo tee /usr/local/share/man/man1/alacritty-msg.1.gz > /dev/null
 
-        mkdir -p ${ZDOTDIR:-~}/.zsh_functions
-        'fpath+=${ZDOTDIR:-~}/.zsh_functions' >> ${ZDOTDIR:-~}/.zshrc
-        cp extra/completions/_alacritty ${ZDOTDIR:-~}/.zsh_functions/_alacritty
+        mkdir -p "${HOME}/.zsh_functions"
+        cp extra/completions/_alacritty "${HOME}/.zsh_functions/_alacritty"
       popd > /dev/null
     popd > /dev/null
   fi
