@@ -161,6 +161,22 @@ setup_dependencies() {
       git pull -r
     popd > /dev/null
   fi
+
+  if [[ ! -d ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then
+    git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+  else
+    pushd ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting > /dev/null
+      git pull -r
+    popd > /dev/null
+  fi
+
+  if [[ ! -d ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then
+    git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+  else
+    pushd ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions > /dev/null
+      git pull -r
+    popd > /dev/null
+  fi
 }
 
 __nvim() {

@@ -9,7 +9,7 @@ export ZSH=$HOME/.oh-my-zsh
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-plugins=(git fzf base16-shell autojump direnv fd golang rust tmux sudo docker docker-compose)
+plugins=(git fzf base16-shell autojump direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -51,3 +51,9 @@ alias rg=$RG_COMMAND
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 fpath+=(~/.zsh_functions)
+fpath+=(~/.oh-my-zsh/custom/plugins/zsh-completions/src)
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+bindkey '^ ' autosuggest-accept  # space + tab  | autosuggest
