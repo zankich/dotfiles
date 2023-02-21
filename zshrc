@@ -22,6 +22,7 @@ cores=""
 if [[ "$(uname -s)" == "Linux" ]]; then
   cores="$(nproc --all)"
 else
+  export HOMEBREW_NO_ANALYTICS=1
   cores="$(sysctl -n hw.ncpu)"
 fi
 

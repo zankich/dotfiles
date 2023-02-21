@@ -123,6 +123,7 @@ setup_dependencies() {
       if ! command -v brew > /dev/null; then
         NONINTERACTIVE=1 /bin/bash -c "$(curl --fail-with-body -q -sSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       fi
+      brew analytics off
 
       brew install \
         neovim \
@@ -174,6 +175,14 @@ setup_dependencies() {
     git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions
   else
     pushd ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions > /dev/null
+      git pull -r
+    popd > /dev/null
+  fi
+
+  if [[ ! -d ${HOME}/.oh-my-zsh/custom/plugins/zsh-completions ]]; then
+    git clone --depth=1 https://github.com/zsh-users/zsh-completions ${HOME}/.oh-my-zsh/custom/plugins/zsh-completions
+  else
+    pushd ${HOME}/.oh-my-zsh/custom/plugins/zsh-completions > /dev/null
       git pull -r
     popd > /dev/null
   fi
