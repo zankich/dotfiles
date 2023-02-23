@@ -52,6 +52,8 @@ set viminfo     ='100,n$HOME/.vim/tmp/info/viminfo
 
 " exit terminal insert mode with esc
 tnoremap <Esc> <C-\><C-n>
+command! -nargs=* T split | terminal <args>
+command! -nargs=* VT vsplit | terminal <args>
 
 call plug#begin('~/.vim/plugged')
   Plug 'preservim/nerdtree'
@@ -62,7 +64,7 @@ call plug#begin('~/.vim/plugged')
 
   Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
-  Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+  Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': { -> fzf#install() } }
   Plug 'junegunn/fzf.vim'
 
   Plug 'semanser/vim-outdated-plugins'

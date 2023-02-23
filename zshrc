@@ -13,11 +13,6 @@ plugins=(git fzf base16-shell autojump direnv fd golang rust tmux sudo docker do
 
 source $ZSH/oh-my-zsh.sh
 
-source $HOME/.config/tinted-theming/base16_shell_theme
-source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/theme_name).config
-
-export EDITOR="nvim"
-
 cores=""
 if [[ "$(uname -s)" == "Linux" ]]; then
   cores="$(nproc --all)"
@@ -26,6 +21,7 @@ else
   cores="$(sysctl -n hw.ncpu)"
 fi
 
+export EDITOR="nvim"
 export RG_COMMAND="rg --follow --column --line-number --no-heading --smart-case --hidden --color=ansi --threads $((${cores}/2))"
 export FZF_DEFAULT_COMMAND="fd --hidden --follow --type file --strip-cwd-prefix --color=always --threads $((${cores}/2))"
 export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS} --multi --ansi --layout=reverse --exact"
@@ -34,7 +30,7 @@ export FZF_CTRL_T_OPTS="${FZF_DEFAULT_OPTS} --preview '$HOME/.vim/plugged/fzf.vi
 export FZF_CTRL_R_OPTS="${FZF_DEFAULT_OPTS}"
 export FZF_TMUX_OPTS='-p 90%,60%'
 
-export PATH=$HOME/.vim/vim-go_bin:$HOME/bin:$HOME/code/go/bin:/usr/local/go/bin:/usr/local/bin:$PATH
+export PATH=$HOME/.vim/vim-go_bin:$HOME/bin:$HOME/code/go/bin:/usr/local/bin:$PATH
 export GOPATH=$HOME/code/go
 
 export TERM="xterm-256color"
@@ -45,6 +41,7 @@ alias vim="nvim"
 alias vi="nvim"
 alias vimdiff="nvim -d"
 alias rg=$RG_COMMAND
+alias chmox="chmod +x"
 
 [[ ! -f ~/.cargo/env ]] || source ~/.cargo/env
 

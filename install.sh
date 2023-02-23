@@ -1,15 +1,15 @@
-#!/bin/bash -eu
+#!/bin/bash
 
-set -o pipefail
+set -eu -o pipefail
 
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf ${TMP_DIR}' EXIT
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-GITHUB_CURL_HEADERS="--header \"Accept: application/vnd.github+json\""
+GITHUB_CURL_HEADERS=(--header "Accept: application/vnd.github+json")
 
 if [[ ${GITHUB_API_TOKEN:+1} ]]; then
-  GITHUB_CURL_HEADERS="${GITHUB_CURL_HEADERS} --header \"Authorization: Bearer ${GITHUB_API_TOKEN}\""
+  GITHUB_CURL_HEADERS+=(--header "Authorization: Bearer ${GITHUB_API_TOKEN}")
 fi
 
 setup_colors() {
@@ -21,27 +21,33 @@ setup_colors() {
 
   mkdir -p "${HOME}/.oh-my-zsh/custom/plugins/base16-shell"
   ln -sf "${HOME}/.config/base16-shell/base16-shell.plugin.zsh" "${HOME}/.oh-my-zsh/custom/plugins/base16-shell/base16-shell.plugin.zsh"
+
+  if [ ! -f "${HOME}/.config/tinted-theming/base16_shell_theme" ]; then
+    bash -x -c "shopt -s expand_aliases; . $HOME/.config/base16-shell/profile_helper.sh; set_theme default-dark;"
+  fi
+
 }
 
 setup_dotfiles() {
   echo "setting up dotfiles..."
   mkdir -p "${HOME}/.tmux/plugins/"
-
-  __ensure_repo https://github.com/tmux-plugins/tpm "${HOME}/.tmux/plugins/tpm"
-  "${HOME}/.tmux/plugins/tpm/bin/install_plugins"
+  mkdir -p "${HOME}/.config/alacritty"
 
   ln -sf "${SCRIPT_DIR}/tmux.conf" "${HOME}/.tmux.conf"
   ln -sf "${SCRIPT_DIR}/zshrc" "${HOME}/.zshrc"
   ln -sf "${SCRIPT_DIR}/p10k.zsh" "${HOME}/.p10k.zsh"
   ln -sf "${SCRIPT_DIR}/vimrc" "${HOME}/.vimrc"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
+  ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
 
   if [[ "$(uname -s)" == "Linux" ]]; then
     sudo ln -sf "${SCRIPT_DIR}/logid.cfg" /etc/logid.cfg
   fi
 
-  mkdir -p "${HOME}/.config/alacritty"
-  ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
+  __ensure_repo https://github.com/tmux-plugins/tpm "${HOME}/.tmux/plugins/tpm"
+
+  tmux -c 'bash -e -c "~/.tmux/plugins/tpm/bin/install_plugins" '
+  tmux -c 'bash -e -c "~/.tmux/plugins/tpm/bin/update_plugins all"'
 }
 
 setup_vim() {
@@ -56,6 +62,10 @@ setup_vim() {
     curl --fail-with-body -qLo "${HOME}/.vim/autoload/plug.vim" --create-dirs \
       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   fi
+
+  nvim +PlugInstall +qa
+  nvim +PlugInstall! +PlugUpgrade +qa
+  ~/.fzf/install --all
 }
 
 setup_dependencies() {
@@ -88,7 +98,12 @@ setup_dependencies() {
         autoconf \
         ripgrep \
         autojump \
-        xclip
+        xclip \
+        libudev-dev \
+        libconfig++-dev \
+        libevdev-dev \
+        xsel \
+        fonts-hack-ttf
 
       __go
       __rust
@@ -100,6 +115,7 @@ setup_dependencies() {
       __alacritty
       __direnv
       __grpcurl
+      __logiops
     ;;
     Darwin)
       if ! command -v brew > /dev/null; then
@@ -120,7 +136,8 @@ setup_dependencies() {
         jq \
         autojump \
         direnv \
-        grpcurl
+        grpcurl \
+        reattach-to-user-namespace
 
       brew install homebrew/cask-fonts/font-hack
       brew install --cask alacritty
@@ -146,7 +163,7 @@ setup_dependencies() {
 __nvim() {
   echo "installing nvim..."
   local github_release
-  github_release="$(curl "${GITHUB_CURL_HEADERS}" --fail-with-body -sq https://api.github.com/repos/neovim/neovim/releases/latest)"
+  github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail-with-body -sq https://api.github.com/repos/neovim/neovim/releases/latest)"
 
   if ! command -v nvim > /dev/null || [[ $(echo "${github_release}" | jq -r .body | grep -wc "$(nvim --version | head -n 1)") == "0" ]]; then
 
@@ -165,12 +182,12 @@ __nvim() {
 __bat() {
   echo "installing bat..."
   local github_release
-  github_release="$(curl "${GITHUB_CURL_HEADERS}" --fail-with-body -sq https://api.github.com/repos/sharkdp/bat/releases/latest)"
+  github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail-with-body -sq https://api.github.com/repos/sharkdp/bat/releases/latest)"
 
   if ! command -v bat > /dev/null || [[ "$(echo "${github_release}" | jq -r .tag_name | grep -c "$(bat --version | cut -d " " -f 2)")" == "0" ]]; then
     local github_asset
     github_asset="""$(echo "${github_release}" | \
-      jq -r '.assets | map(select(.name | test("bat.*-x86_64-unknown-linux-musl.tar.gz"))) | .[0]')"""
+      jq --arg arch "$(uname -m)" -r '.assets | map(select(.name | contains($arch) and contains("linux"))) | .[0]')"""
 
     curl --fail-with-body -#qL "$(echo "${github_asset}" | jq -r .browser_download_url)" | \
       sudo tar zxv -C /usr/local/bin "$(basename "$(echo "${github_asset}" | jq -r .name)" .tar.gz)/bat" \
@@ -181,12 +198,12 @@ __bat() {
 __fd() {
   echo "installing fd..."
   local github_release
-  github_release="$(curl "${GITHUB_CURL_HEADERS}" --fail-with-body -sq https://api.github.com/repos/sharkdp/fd/releases/latest)"
+  github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail-with-body -sq https://api.github.com/repos/sharkdp/fd/releases/latest)"
 
   if ! command -v fd > /dev/null || [[ "$(echo "${github_release}" | jq -r .tag_name | grep -c "$(fd --version | cut -d " " -f 2)")" == "0" ]]; then
     local github_asset
     github_asset="""$(echo "${github_release}" | \
-      jq -r '.assets | map(select(.name | test("fd.*-x86_64-unknown-linux-musl.tar.gz"))) | .[0]')"""
+      jq --arg arch "$(uname -m)" -r '.assets | map(select(.name | contains($arch) and contains("linux"))) | .[0]')"""
 
     curl --fail-with-body -#qL "$(echo "${github_asset}" | jq -r .browser_download_url)" | \
       sudo tar zxv -C /usr/local/bin "$(basename "$(echo "${github_asset}" | jq -r .name)" .tar.gz)/fd" \
@@ -197,7 +214,7 @@ __fd() {
 __tmux() {
   echo "installing tmux..."
   local github_release
-  github_release="""$(curl "${GITHUB_CURL_HEADERS}" --fail-with-body -sq https://api.github.com/repos/tmux/tmux/releases/latest | jq -r '.assets | map(select(.name | test("tmux.*tar.gz"))) | .[0]')"""
+  github_release="""$(curl "${GITHUB_CURL_HEADERS[@]}" --fail-with-body -sq https://api.github.com/repos/tmux/tmux/releases/latest | jq -r '.assets | map(select(.name | test("tmux.*tar.gz"))) | .[0]')"""
   local tmux_version
   tmux_version="$(basename "$(echo "${github_release}" | jq -r .name)" .tar.gz)"
 
@@ -218,7 +235,7 @@ __go() {
   local go_version
   go_version="$(curl --fail-with-body -sq "https://go.dev/VERSION?m=text")"
 
-  if ! command -v go > /dev/null || [[ "${go_version}" != "$(go version | cut -d ' ' -f 3)" ]]; then
+  if ! command -v /usr/local/bin/go > /dev/null || [[ "${go_version}" != "$(/usr/local/go/bin/go version | cut -d ' ' -f 3)" ]]; then
     echo "installing go ${go_version}"
     if [[ -d /usr/local/go ]]; then
       sudo rm -rf /usr/local/go
@@ -231,6 +248,9 @@ __go() {
 
     curl --fail-with-body -#qL "https://dl.google.com/go/${go_version}.linux-${arch}.tar.gz" | sudo tar xzv -C /usr/local
   fi
+
+  ln -sf /usr/local/go/bin/go /usr/local/bin/go
+  ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt
 }
 
 __zsh() {
@@ -281,15 +301,11 @@ __alacritty() {
   fi
 
   local github_release
-  github_release="$(curl "${GITHUB_CURL_HEADERS}" --fail-with-body -sq https://api.github.com/repos/alacritty/alacritty/releases/latest)"
+  github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail-with-body -sq https://api.github.com/repos/alacritty/alacritty/releases/latest)"
   local alacritty_version
   alacritty_version="$(echo "${github_release}" | jq -r .tag_name)"
 
   if ! command -v alacritty > /dev/null || [[ "$(echo "${alacritty_version}" | grep -c "$(alacritty --version | cut -d " " -f 2)")" == "0" ]]; then
-    local github_asset
-    github_asset="""$(echo "${github_release}" | \
-      jq -r '.assets | map(select(.name | test("bat.*-x86_64-unknown-linux-musl.tar.gz"))) | .[0]')"""
-
     mkdir -p "${TMP_DIR}/alacritty"
 
     pushd  "${TMP_DIR}" > /dev/null
@@ -319,7 +335,7 @@ __alacritty() {
 __direnv() {
   echo "installing direnv..."
   local github_release
-  github_release="$(curl "${GITHUB_CURL_HEADERS}" --fail-with-body -sq https://api.github.com/repos/direnv/direnv/releases/latest)"
+  github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail-with-body -sq https://api.github.com/repos/direnv/direnv/releases/latest)"
   local direnv_version
   direnv_version="$(echo "${github_release}" | jq -r .tag_name)"
 
@@ -337,7 +353,7 @@ __direnv() {
 __grpcurl() {
   echo "installing grpcurl..."
   local github_release
-  github_release="$(curl "${GITHUB_CURL_HEADERS}" --fail-with-body -sq https://api.github.com/repos/fullstorydev/grpcurl/releases/latest)"
+  github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail-with-body -sq https://api.github.com/repos/fullstorydev/grpcurl/releases/latest)"
 
   if ! command -v grpcurl > /dev/null || [[ "$(echo "${github_release}" | jq -r .tag_name | grep -c "$(grpcurl --version)")" == "0" ]]; then
     local arch="x86_64"
@@ -346,20 +362,49 @@ __grpcurl() {
     fi
 
     local github_asset
-    github_asset="""$(echo "${github_release}" | \
-      jq -r --arg arch "$arch" ".assets | map(select(.name | test(\"grpcurl_.*_linux_$arch.tar.gz\"))) | .[0]")"""
+    github_asset="$(echo "${github_release}" | \
+      jq -r --arg arch "${arch}" '.assets | map(select(.name | contains($arch) and contains("linux"))) | .[0]')"
 
     curl --fail-with-body -#qL "$(echo "${github_asset}" | jq -r .browser_download_url)" | \
       sudo tar zxv -C /usr/local/bin grpcurl --no-same-owner
   fi
 }
 
+__logiops() {
+  echo "installing logiops..."
+
+  local github_release
+  github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail-with-body -sq https://api.github.com/repos/PixlOne/logiops/releases/latest)"
+  local logiops_version
+  logiops_version="$(echo "${github_release}" | jq -r .tag_name)"
+
+    __ensure_repo https://github.com/PixlOne/logiops "${TMP_DIR}/logiops"
+    pushd "${TMP_DIR}/logiops" > /dev/null
+      git fetch --all --tags
+      git checkout "${logiops_version}"
+      if ! command -v logid > /dev/null || [[ $(logid --version | awk -F "-g" '{print $2}' | grep -c "$(git rev-parse --short  HEAD)") == 0 ]]; then
+        mkdir -p build
+        pushd build > /dev/null
+          cmake ..
+          make
+          sudo make install
+        popd > /dev/null
+
+        if systemctl --version; then
+          sudo systemctl enable --now logid
+          sudo systemctl restart logid
+        fi
+      fi
+    popd > /dev/null
+}
+
 __ensure_repo() {
   src=$1
   dest=$2
 
+  echo "setting up ${src}"
   if [[ ! -d "${dest}" ]]; then
-    git clone --depth=1 "${src}" "${dest}"
+    git clone "${src}" "${dest}"
   else
     pushd "${dest}" > /dev/null
       git pull -r
@@ -373,9 +418,9 @@ main() {
   fi
 
   setup_dependencies
+  setup_dotfiles
   setup_colors
   setup_vim
-  setup_dotfiles
 }
 
 main
