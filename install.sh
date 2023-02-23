@@ -235,7 +235,7 @@ __go() {
   local go_version
   go_version="$(curl --fail-with-body -sq "https://go.dev/VERSION?m=text")"
 
-  if ! command -v /usr/local/bin/go > /dev/null || [[ "${go_version}" != "$(/usr/local/go/bin/go version | cut -d ' ' -f 3)" ]]; then
+  if ! command -v /usr/local/bin/go > /dev/null || [[ "${go_version}" != "$(/usr/local/bin/go version | cut -d ' ' -f 3)" ]]; then
     echo "installing go ${go_version}"
     if [[ -d /usr/local/go ]]; then
       sudo rm -rf /usr/local/go
@@ -249,8 +249,8 @@ __go() {
     curl --fail-with-body -#qL "https://dl.google.com/go/${go_version}.linux-${arch}.tar.gz" | sudo tar xzv -C /usr/local
   fi
 
-  ln -sf /usr/local/go/bin/go /usr/local/bin/go
-  ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt
+  sudo ln -sf /usr/local/go/bin/go /usr/local/bin/go
+  sudo ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt
 }
 
 __zsh() {
