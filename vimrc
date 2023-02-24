@@ -102,6 +102,7 @@ nnoremap <leader>cd :cd %:p:h<CR>:pwd<CR>
 nnoremap <leader>cd :lcd %:p:h<CR>:pwd<CR>
 
 "nerdtree
+let g:NERDTreeShowHidden=1
 nnoremap <leader>n :NERDTreeToggle<CR>
 "nnoremap <C-n> :NERDTree<CR>
 "nnoremap <C-t> :NERDTreeToggle<CR>
@@ -235,7 +236,7 @@ let g:go_highlight_variable_assignments = 1
 
 autocmd FileType go nnoremap <silent> <Leader>tf :GoTestFunc! -count=1 -v<CR>
 autocmd FileType go nnoremap <silent> <Leader>t :GoTest! -count=1 -v<CR>
-autocmd FileType go nnoremap <silent> <Leader>b :GoBuildTags ''<CR>
+autocmd FileType go nnoremap <silent> <Leader>bt :GoBuildTags ''<CR>
 
 " outdated-plugins
 let g:outdated_plugins_silent_mode = 1
@@ -243,6 +244,7 @@ let g:outdated_plugins_silent_mode = 1
 " fzf.vim
 nnoremap <silent> <Leader>fd :ProjectFiles<CR>
 nnoremap <silent> <Leader>rg :RG<CR>
+nnoremap <silent> <Leader>b :Buffer<CR>
 
 let g:fzf_buffers_jump = 1
 if exists('$TMUX')
