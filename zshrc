@@ -12,6 +12,8 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(git fzf base16-shell autojump direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions)
 
 source $ZSH/oh-my-zsh.sh
+source $HOME/.config/tinted-theming/base16_shell_theme
+source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/theme_name).config
 
 cores=""
 if [[ "$(uname -s)" == "Linux" ]]; then
@@ -22,9 +24,9 @@ else
 fi
 
 export EDITOR="nvim"
-export RG_COMMAND="rg --follow --column --line-number --no-heading --smart-case --hidden --color=ansi --threads $((${cores}/2))"
-export FZF_DEFAULT_COMMAND="fd --hidden --follow --type file --strip-cwd-prefix --color=always --threads $((${cores}/2))"
-export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS} --multi --ansi --layout=reverse --exact"
+export RG_COMMAND="rg --follow --column --line-number --no-heading --smart-case --hidden --color=ansi --threads=$((${cores}/2)) --glob '!.git' "
+export FZF_DEFAULT_COMMAND="fd --hidden --follow --type file --strip-cwd-prefix --color=always --threads=$((${cores}/2)) --exclude=".git" --exclude="go/pkg/""
+export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS} --multi --ansi --layout=reverse"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="${FZF_DEFAULT_OPTS} --preview '$HOME/.vim/plugged/fzf.vim/bin/preview.sh {}'"
 export FZF_CTRL_R_OPTS="${FZF_DEFAULT_OPTS}"
@@ -55,3 +57,23 @@ fpath+=(~/.oh-my-zsh/custom/plugins/zsh-completions/src)
 
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 bindkey '^ ' autosuggest-accept  # space + tab  | autosuggest
+
+
+_fzf_compgen_path() {
+  fd --hidden --follow --exclude ".git" . "$1"
+}
+
+# Use fd to generate the list for directory completion
+_fzf_compgen_dir() {
+  fd --type d --hidden --follow --exclude ".git" . "$1"
+}
+
+_get_display() {
+  local pid
+  pid="$(pgrep --newest --uid $(id -u) gnome-session)"
+  if [ -n "${pid}" ]; then
+    export DISPLAY="$(awk 'BEGIN{FS="="; RS="\0"}  $1=="DISPLAY" {print $2; exit}' /proc/${pid}/environ)"
+  fi
+}
+
+_get_display

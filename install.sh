@@ -39,6 +39,7 @@ setup_dotfiles() {
   ln -sf "${SCRIPT_DIR}/vimrc" "${HOME}/.vimrc"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
   ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
+  ln -sf "${SCRIPT_DIR}/scripts/tmux" "${HOME}/.tmux/scripts"
 
   if [[ "$(uname -s)" == "Linux" ]]; then
     sudo ln -sf "${SCRIPT_DIR}/logid.cfg" /etc/logid.cfg
@@ -103,7 +104,11 @@ setup_dependencies() {
         libconfig++-dev \
         libevdev-dev \
         xsel \
-        fonts-hack-ttf
+        fonts-hack-ttf \
+        libpixman-1-dev \
+        libslirp-dev \
+        libssh-dev \
+        libgtk-3-dev
 
       __go
       __rust
@@ -116,6 +121,10 @@ setup_dependencies() {
       __direnv
       __grpcurl
       __logiops
+      __qemu "7.2.0"
+      __colima
+      __lima
+      __docker
     ;;
     Darwin)
       if ! command -v brew > /dev/null; then
@@ -263,8 +272,8 @@ __zsh() {
     tar -xf zsh-latest.tar.xz -C zsh-latest --strip-components=1
     pushd zsh-latest > /dev/null
       local zsh_version
-      # shellcheck source=/dev/null
-      zsh_version="$(source Config/version.mk; echo "${VERSION}")"
+      zsh_version="$(grep "VERSION=" Config/version.mk | cut -d"=" -f2)"
+
       if ! command -v /usr/local/bin/zsh > /dev/null || [[ "$(/usr/local/bin/zsh --version | cut -d ' ' -f 2)" != "${zsh_version}" ]]; then
         ./configure
         make -j
@@ -396,6 +405,95 @@ __logiops() {
         fi
       fi
     popd > /dev/null
+}
+
+__qemu() {
+  local version
+  version="${1}"; shift;
+  echo "installing qemu..."
+
+  if ! command -v qemu-aarch64 > /dev/null || [[ "$(grep -c "$(qemu-aarch64 --version | head -n 1 | cut -d" " -f 3)" "${version}" )" == "0" ]]; then
+    mkdir -p "${TMP_DIR}/qemu"
+    pushd "${TMP_DIR}/qemu" > /dev/null
+      curl -OL "https://download.qemu.org/qemu-${version}.tar.xz"
+      tar xvJf "qemu-${version}.tar.xz"
+      cd "qemu-${version}"
+      ./configure \
+        --enable-slirp \
+        --enable-linux-user \
+        --enable-curses \
+        --enable-libssh \
+        --enable-gtk
+      make -j "$(nproc)"
+      sudo make install
+    popd > /dev/null
+  fi
+}
+
+__colima() {
+  echo "installing colima..."
+  local github_release
+  github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail-with-body -sq https://api.github.com/repos/abiosoft/colima/releases/latest)"
+  local version
+  version="$(echo "${github_release}" | jq -r .tag_name)"
+
+  if ! command -v colima > /dev/null || [[ "$(echo "${version}" | grep -c "$(colima --version | cut -d " " -f 3)")" == "0" ]]; then
+    local arch="x86_64"
+    if [[ $(uname -m) != "x86_64" ]]; then
+      arch="aarch64"
+    fi
+
+    sudo curl --fail-with-body -#qL -o /usr/local/bin/colima https://github.com/abiosoft/colima/releases/download/"${version}"/colima-Linux-"${arch}"
+    sudo chmod +x /usr/local/bin/colima
+  fi
+}
+
+__lima() {
+  echo "installing lima..."
+  local version
+  version=$(curl -fsSL https://api.github.com/repos/lima-vm/lima/releases/latest | jq -r .tag_name)
+
+
+  if ! command -v limactl > /dev/null || [[ "$(echo "${version}" | grep -c "$(limactl --version | cut -d " " -f 3)")" == "0" ]]; then
+    curl --fail-with-body -#qL "https://github.com/lima-vm/lima/releases/download/${version}/lima-${version:1}-$(uname -s)-$(uname -m).tar.gz" | sudo tar Cxzvm /usr/local
+  fi
+}
+
+__docker() {
+  sudo apt-get update && sudo apt-get -y install \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+
+  if [ ! -f /etc/apt/keyrings/docker.gpg ]; then
+    sudo mkdir -m 0755 -p /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  fi
+
+  if [ ! -f /etc/apt/sources.list.d/docker.list ]; then
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  fi
+
+  sudo apt-get update && sudo apt-get -y install \
+    docker-ce \
+    docker-ce-cli \
+    containerd.io \
+    docker-buildx-plugin \
+    docker-compose-plugin
+
+  if ! getent group docker; then
+    sudo groupadd docker
+  fi
+
+  if ! groups $USER | grep docker; then
+    sudo usermod -aG docker $USER
+  fi
+
+  sudo systemctl enable docker.service
+  sudo systemctl enable containerd.service
 }
 
 __ensure_repo() {

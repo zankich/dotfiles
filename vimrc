@@ -36,7 +36,8 @@ set ttimeoutlen=0                  " nvim esc delay issues
 set clipboard^=unnamed             " enable clipboard sync
 set clipboard^=unnamedplus
 set colorcolumn=80
-"set omnifunc=syntaxcomplete#Complete
+set wildmenu
+set wildmode=list:full
 
 " Put all temporary files under the same directory.
 set backup
@@ -49,6 +50,8 @@ set updatetime  =100
 set undofile
 set undodir     =$HOME/.vim/tmp/undo//
 set viminfo     ='100,n$HOME/.vim/tmp/info/viminfo
+
+autocmd BufEnter * if BufferRootDir() !~ ':/' | execute ':lcd' BufferRootDir() | endif
 
 " exit terminal insert mode with esc
 tnoremap <Esc> <C-\><C-n>
@@ -97,16 +100,9 @@ endif
 " Set leader shortcut to a comma ','. By default it's the backslash
 let mapleader = ","
 
-" set working directory to current file
-nnoremap <leader>cd :cd %:p:h<CR>:pwd<CR>
-nnoremap <leader>cd :lcd %:p:h<CR>:pwd<CR>
-
 "nerdtree
 let g:NERDTreeShowHidden=1
 nnoremap <leader>n :NERDTreeToggle<CR>
-"nnoremap <C-n> :NERDTree<CR>
-"nnoremap <C-t> :NERDTreeToggle<CR>
-"nnoremap <C-f> :NERDTreeFind<CR>
 
 " nerdcomenter
 " Comment/uncomment lines
@@ -242,7 +238,23 @@ autocmd FileType go nnoremap <silent> <Leader>bt :GoBuildTags ''<CR>
 let g:outdated_plugins_silent_mode = 1
 
 " fzf.vim
-nnoremap <silent> <Leader>fd :ProjectFiles<CR>
+nmap <leader><tab> <plug>(fzf-maps-n)
+xmap <leader><tab> <plug>(fzf-maps-x)
+omap <leader><tab> <plug>(fzf-maps-o)
+
+" Insert mode completion
+imap <c-x><c-k> <plug>(fzf-complete-word)
+imap <c-x><c-f> <plug>(fzf-complete-path)
+imap <c-x><c-l> <plug>(fzf-complete-line)
+inoremap <expr> <c-x><c-f> fzf#vim#complete#path('rg --files')
+
+inoremap <expr> <c-x><c-l> fzf#vim#complete(fzf#wrap({
+  \ 'prefix': '^.*$',
+  \ 'source': 'rg -n ^ --color always',
+  \ 'options': '--ansi --delimiter : --nth 3..',
+  \ 'reducer': { lines -> join(split(lines[0], ':\zs')[2:], '') }}))
+
+nnoremap <silent> <Leader>f :FD<CR>
 nnoremap <silent> <Leader>rg :RG<CR>
 nnoremap <silent> <Leader>b :Buffer<CR>
 
@@ -263,32 +275,53 @@ function! BufferRootDir()
   return resolve(expand('%:p:h'))
 endfunction
 
-"let git_root = system('git -C '.expand('%:p:h').' rev-parse --show-toplevel 2> /dev/null')[:-2]
+
 let rg_cmd = $RG_COMMAND.' %s -- || true'
 let fd_cmd = $FZF_DEFAULT_COMMAND
 let fzf_options = ['--preview', '~/.vim/plugged/fzf.vim/bin/preview.sh {}']
 
-command! -bang ProjectFiles
-  \ call fzf#run(
-  \   fzf#wrap(
-  \     fzf#vim#with_preview({'options': fzf_options + ['--prompt', 'fd> ','--header', BufferRootDir()], 'source': fd_cmd, 'dir': BufferRootDir()})
-  \   )
-  \ )
+function! FilesFzf()
+  let fd_cmd = $FZF_DEFAULT_COMMAND
+  let fzf_options = ['--preview', '~/.vim/plugged/fzf.vim/bin/preview.sh {}']
+  let buffer_root=BufferRootDir()
+  let spec = {
+    \ 'options': fzf_options + [
+      \ '--prompt', printf('%s> ', pathshorten(buffer_root)),
+      \ '--bind', printf('ctrl-f:reload(eval "$FZF_DEFAULT_COMMAND --base-directory=%s")+change-prompt(%s> ),ctrl-g:reload(eval "$FZF_DEFAULT_COMMAND --absolute-path --base-directory=%s ")+change-prompt(%s> )', buffer_root, pathshorten(buffer_root), expand("$HOME/code"), pathshorten(expand("$HOME/code"))),
+      \ '--header', printf("CTRL-F (%s) / CTRL-G (%s)", substitute(buffer_root, $HOME, "~",""), "~/code")],
+    \ 'source': fd_cmd,
+    \ 'dir': buffer_root
+    \ }
+  call fzf#run(fzf#wrap(fzf#vim#with_preview(spec)))
+endfunction
 
 function! RipgrepFzf(query, fullscreen, rg_cmd, fzf_options, prompt)
   let initial_command = printf(a:rg_cmd, shellescape(a:query))
   let reload_command = printf(a:rg_cmd, shellescape('{q}'))
-  let spec = {'options': ['--prompt', a:prompt,'--header', BufferRootDir(), '--phony', '--query', a:query, '--bind', 'change:reload:'.reload_command] + a:fzf_options, 'dir': BufferRootDir()}
+  let spec = {
+      \ 'options': a:fzf_options + [
+      \   '--prompt', a:prompt,
+      \   '--header', BufferRootDir(),
+      \   '--phony',
+      \   '--query', a:query,
+      \   '--bind', 'change:reload:'.reload_command],
+      \ 'dir': BufferRootDir()
+    \ }
+
   call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
 endfunction
 
 command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0, rg_cmd, fzf_options, "rg> ")
+command! -nargs=* -bang FD call FilesFzf()
 
 " use ripgrep for vimgrep
 set grepprg=rg\ --vimgrep\ --smart-case\ --hidden\ --follow
 
 " vim-airline
 let g:airline_powerline_fonts = 1
+let g:airline_inactive_collapse=1
+let g:airline_stl_path_style = 'short'
+let g:airline#extensions#branch#enabled=1
 
 " vim-gitgutter
 highlight! link SignColumn LineNr
