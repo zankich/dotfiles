@@ -63,8 +63,6 @@ call plug#begin('~/.vim/plugged')
   Plug 'tpope/vim-vinegar'
   Plug 'scrooloose/nerdcommenter'
 
-  Plug 'base16-project/base16-vim'
-
   Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
   Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': { -> fzf#install() } }
@@ -89,7 +87,7 @@ call plug#begin('~/.vim/plugged')
   Plug 'vim-airline/vim-airline'
   Plug 'vim-airline/vim-airline-themes'
 
-  Plug 'base16-project/base16-vim'
+  Plug 'tinted-theming/base16-vim', {'commit': '88a1e73e5358fefe0288538e6866f99d5487c5a0'}
 call plug#end()
 
 if filereadable(expand("$HOME/.config/tinted-theming/set_theme.vim"))

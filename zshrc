@@ -20,6 +20,7 @@ if [[ "$(uname -s)" == "Linux" ]]; then
   cores="$(nproc --all)"
 else
   export HOMEBREW_NO_ANALYTICS=1
+  export LS_COLORS=$LSCOLORS
   cores="$(sysctl -n hw.ncpu)"
 fi
 
@@ -69,6 +70,10 @@ _fzf_compgen_dir() {
 }
 
 _get_display() {
+  if [ "$(uname -s)" != "Linux" ]; then
+    return
+  fi
+
   local pid
   pid="$(pgrep --newest --uid $(id -u) gnome-session)"
   if [ -n "${pid}" ]; then

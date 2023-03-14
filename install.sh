@@ -39,7 +39,7 @@ setup_dotfiles() {
   ln -sf "${SCRIPT_DIR}/vimrc" "${HOME}/.vimrc"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
   ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
-  ln -sf "${SCRIPT_DIR}/scripts/tmux" "${HOME}/.tmux/scripts"
+  ln -sf "${SCRIPT_DIR}/scripts/tmux/" "${HOME}/.tmux/scripts"
 
   if [[ "$(uname -s)" == "Linux" ]]; then
     sudo ln -sf "${SCRIPT_DIR}/logid.cfg" /etc/logid.cfg
@@ -488,8 +488,8 @@ __docker() {
     sudo groupadd docker
   fi
 
-  if ! groups $USER | grep docker; then
-    sudo usermod -aG docker $USER
+  if ! groups "${USER}" | grep docker; then
+    sudo usermod -aG docker "${USER}"
   fi
 
   sudo systemctl enable docker.service

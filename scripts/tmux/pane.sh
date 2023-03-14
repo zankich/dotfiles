@@ -27,13 +27,13 @@ break-pane() {
 
 main() {
   local cmd
-  cmd="${1}";shift;
+  cmd="${1}"; shift;
 
   case "${cmd}" in
   join-pane)
-    join-pane "${@}" ;;
+    join-pane ;;
   break-pane)
-    break-pane "${@}" ;;
+    break-pane ;;
   *)
     echo >&2 "Unknown sub-command"
     exit 1
