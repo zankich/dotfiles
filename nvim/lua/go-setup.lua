@@ -1,14 +1,11 @@
-local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
 require('go').setup({
  lsp_inlay_hints = {
     enable = false
   },
-  lsp_cfg = {
-    capabilities = capabilities,
-  },
+  lsp_cfg = true,
   icons = { breakpoint = 'x', currentpos = '>' },
   lsp_diag_virtual_text = { space = 0, prefix = '' },
-  lsp_keymaps = false 
+  luasnip = true,
 })
 
 -- Run gofmt + goimport on save

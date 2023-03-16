@@ -32,7 +32,7 @@ set ttimeoutlen=0                  " nvim esc delay issues
 set clipboard^=unnamed             " enable clipboard sync
 set clipboard^=unnamedplus
 set colorcolumn=80
-set wildmode=list:full
+set wildmenu
 
 set backupdir   =$HOME/.local/state/nvim/backup//
 set directory   =$HOME/.local/state/nvim/swap//
@@ -43,29 +43,36 @@ set updatecount =100
 set updatetime  =100
 set undofile
 
-autocmd BufEnter * if BufferRootDir() !~ ':/' | execute ':lcd' BufferRootDir() | endif
-
 " exit terminal insert mode with esc
 tnoremap <Esc> <C-\><C-n>
 command! -nargs=* T split | terminal <args>
 command! -nargs=* VT vsplit | terminal <args>
 
 call plug#begin()
-  Plug 'preservim/nerdtree'
-  Plug 'tpope/vim-vinegar'
+  "Plug 'preservim/nerdtree'
+  "Plug 'tpope/vim-vinegar'
+  Plug 'nvim-neo-tree/neo-tree.nvim'
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'nvim-tree/nvim-web-devicons'
+  Plug 'MunifTanjim/nui.nvim'
   Plug 'scrooloose/nerdcommenter'
 
-  "Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
-  Plug 'ray-x/go.nvim'
+  " https://github.com/junegunn/vim-plug/issues/1107#issuecomment-911155500
+  let g:go_update_command = ":lua require('go.install').update_all()"
+  Plug 'ray-x/go.nvim', {'do': g:go_update_command}
   Plug 'ray-x/guihua.lua'
   Plug 'mfussenegger/nvim-dap'
   Plug 'rcarriga/nvim-dap-ui'
   Plug 'theHamsta/nvim-dap-virtual-text'
 
-  Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': { -> fzf#install() } }
-  Plug 'junegunn/fzf.vim'
+  "Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': { -> fzf#install() } }
+  "Plug 'junegunn/fzf.vim'
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.1' }
+  Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+  Plug 'BurntSushi/ripgrep'
 
   Plug 'semanser/vim-outdated-plugins'
 
@@ -75,9 +82,11 @@ call plug#begin()
   Plug 'hrsh7th/cmp-path'
   Plug 'hrsh7th/cmp-cmdline'
   Plug 'hrsh7th/nvim-cmp'
-  Plug 'hrsh7th/cmp-vsnip'
-  Plug 'hrsh7th/vim-vsnip'
+  Plug 'L3MON4D3/LuaSnip', {'do': 'make install_jsregexp'}
+  Plug 'saadparwaiz1/cmp_luasnip'
   Plug 'rafamadriz/friendly-snippets'
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'petertriho/cmp-git'
 
   Plug 'airblade/vim-gitgutter'
   Plug 'tpope/vim-fugitive'
@@ -87,11 +96,6 @@ call plug#begin()
 
   Plug 'tinted-theming/base16-vim', {'commit': '88a1e73e5358fefe0288538e6866f99d5487c5a0'}
 call plug#end()
-
-if filereadable(expand("$HOME/.config/tinted-theming/set_theme.vim"))
-  let base16colorspace=256
-  source $HOME/.config/tinted-theming/set_theme.vim
-endif
 
 " Set leader shortcut to a comma ','. By default it's the backslash
 let mapleader = ","
@@ -104,122 +108,74 @@ nnoremap <leader>n :NERDTreeToggle<CR>
 " Comment/uncomment lines
 map <leader>/ <plug>NERDCommenterToggle
 
-"
-" nvim-cmp
-"
-"set completeopt=menu,menuone,noselect
-
-" vim-go
-"let g:go_autodetect_gopath = 1
-"let g:go_list_type = "quickfix"
-"let g:go_term_enabled = 1
-"let g:go_term_mode = "split"
-"let g:go_fmt_experimental = 1
-"let g:go_bin_path = expand('~/.vim/vim-go_bin')
-"let g:go_jump_to_error = 0
-"let g:go_imports_mode = 'gosimports'
-"let g:go_fmt_command = 'gosimports'
-
-"let g:go_highlight_array_whitespace_error = 1
-"let g:go_highlight_chan_whitespace_error = 1
-"let g:go_highlight_extra_types = 1
-"let g:go_highlight_space_tab_error = 1
-"let g:go_highlight_trailing_whitespace_error = 0
-"let g:go_highlight_operators = 1
-"let g:go_highlight_functions = 1
-"let g:go_highlight_function_parameters = 1
-"let g:go_highlight_types = 1
-"let g:go_highlight_fields = 1
-"let g:go_highlight_build_constraints = 1
-"let g:go_highlight_generate_tags = 1
-"let g:go_highlight_string_spellcheck = 1
-"let g:go_highlight_format_strings = 1
-"let g:go_highlight_variable_declarations = 1
-"let g:go_highlight_variable_assignments = 1
-
-"autocmd FileType go nnoremap <silent> <Leader>tf :GoTestFunc! -count=1 -v<CR>
-"autocmd FileType go nnoremap <silent> <Leader>t :GoTest! -count=1 -v<CR>
-"autocmd FileType go nnoremap <silent> <Leader>bt :GoBuildTags ''<CR>
-
 " outdated-plugins
 let g:outdated_plugins_silent_mode = 1
 
 " fzf.vim
-nmap <leader><tab> <plug>(fzf-maps-n)
-xmap <leader><tab> <plug>(fzf-maps-x)
-omap <leader><tab> <plug>(fzf-maps-o)
+" nmap <leader><tab> <plug>(fzf-maps-n)
+" xmap <leader><tab> <plug>(fzf-maps-x)
+" omap <leader><tab> <plug>(fzf-maps-o)
+" 
+" " Insert mode completion
+" imap <c-x><c-k> <plug>(fzf-complete-word)
+" imap <c-x><c-f> <plug>(fzf-complete-path)
+" imap <c-x><c-l> <plug>(fzf-complete-line)
+" inoremap <expr> <c-x><c-f> fzf#vim#complete#path('rg --files')
+" 
+" inoremap <expr> <c-x><c-l> fzf#vim#complete(fzf#wrap({
+"   \ 'prefix': '^.*$',
+"   \ 'source': 'rg -n ^ --color always',
+"   \ 'options': '--ansi --delimiter : --nth 3..',
+"   \ 'reducer': { lines -> join(split(lines[0], ':\zs')[2:], '') }}))
+" 
+" nnoremap <silent> <Leader>f :FD<CR>
+" nnoremap <silent> <Leader>rg :RG<CR>
+" nnoremap <silent> <Leader>b :Buffer<CR>
 
-" Insert mode completion
-imap <c-x><c-k> <plug>(fzf-complete-word)
-imap <c-x><c-f> <plug>(fzf-complete-path)
-imap <c-x><c-l> <plug>(fzf-complete-line)
-inoremap <expr> <c-x><c-f> fzf#vim#complete#path('rg --files')
+"let g:fzf_buffers_jump = 1
+"if exists('$TMUX')
+  "let g:fzf_layout = { 'tmux': $FZF_TMUX_OPTS }
+"else
+  "let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+"endif
 
-inoremap <expr> <c-x><c-l> fzf#vim#complete(fzf#wrap({
-  \ 'prefix': '^.*$',
-  \ 'source': 'rg -n ^ --color always',
-  \ 'options': '--ansi --delimiter : --nth 3..',
-  \ 'reducer': { lines -> join(split(lines[0], ':\zs')[2:], '') }}))
+"let rg_cmd = $RG_COMMAND.' %s -- || true'
+"let fd_cmd = $FZF_DEFAULT_COMMAND
+"let fzf_options = ['--preview', '~/.vim/plugged/fzf.vim/bin/preview.sh {}']
 
-nnoremap <silent> <Leader>f :FD<CR>
-nnoremap <silent> <Leader>rg :RG<CR>
-nnoremap <silent> <Leader>b :Buffer<CR>
+"function! FilesFzf()
+  "let fd_cmd = $FZF_DEFAULT_COMMAND
+  "let fzf_options = ['--preview', '~/.vim/plugged/fzf.vim/bin/preview.sh {}']
+  "let buffer_root=BufferRootDir()
+  "let spec = {
+    "\ 'options': fzf_options + [
+      "\ '--prompt', printf('%s> ', pathshorten(buffer_root)),
+      "\ '--bind', printf('ctrl-f:reload(eval "$FZF_DEFAULT_COMMAND --base-directory=%s")+change-prompt(%s> ),ctrl-g:reload(eval "$FZF_DEFAULT_COMMAND --absolute-path --base-directory=%s ")+change-prompt(%s> )', buffer_root, pathshorten(buffer_root), expand("$HOME/code"), pathshorten(expand("$HOME/code"))),
+      "\ '--header', printf("CTRL-F (%s) / CTRL-G (%s)", substitute(buffer_root, $HOME, "~",""), "~/code")],
+    "\ 'source': fd_cmd,
+    "\ 'dir': buffer_root
+    "\ }
+  "call fzf#run(fzf#wrap(fzf#vim#with_preview(spec)))
+"endfunction
 
-let g:fzf_buffers_jump = 1
-if exists('$TMUX')
-  let g:fzf_layout = { 'tmux': $FZF_TMUX_OPTS }
-else
-  let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
-endif
+"function! RipgrepFzf(query, fullscreen, rg_cmd, fzf_options, prompt)
+  "let initial_command = printf(a:rg_cmd, shellescape(a:query))
+  "let reload_command = printf(a:rg_cmd, shellescape('{q}'))
+  "let spec = {
+      "\ 'options': a:fzf_options + [
+      "\   '--prompt', a:prompt,
+      "\   '--header', BufferRootDir(),
+      "\   '--phony',
+      "\   '--query', a:query,
+      "\   '--bind', 'change:reload:'.reload_command],
+      "\ 'dir': BufferRootDir()
+    "\ }
 
-function! BufferRootDir()
-  let l:root_dir = system('git -C '.expand('%:p:h').' rev-parse --show-toplevel 2> /dev/null')[:-2]
+  "call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
+"endfunction
 
-  if v:shell_error == 0
-    return l:root_dir
-  endif
-
-  return resolve(expand('%:p:h'))
-endfunction
-
-
-let rg_cmd = $RG_COMMAND.' %s -- || true'
-let fd_cmd = $FZF_DEFAULT_COMMAND
-let fzf_options = ['--preview', '~/.vim/plugged/fzf.vim/bin/preview.sh {}']
-
-function! FilesFzf()
-  let fd_cmd = $FZF_DEFAULT_COMMAND
-  let fzf_options = ['--preview', '~/.vim/plugged/fzf.vim/bin/preview.sh {}']
-  let buffer_root=BufferRootDir()
-  let spec = {
-    \ 'options': fzf_options + [
-      \ '--prompt', printf('%s> ', pathshorten(buffer_root)),
-      \ '--bind', printf('ctrl-f:reload(eval "$FZF_DEFAULT_COMMAND --base-directory=%s")+change-prompt(%s> ),ctrl-g:reload(eval "$FZF_DEFAULT_COMMAND --absolute-path --base-directory=%s ")+change-prompt(%s> )', buffer_root, pathshorten(buffer_root), expand("$HOME/code"), pathshorten(expand("$HOME/code"))),
-      \ '--header', printf("CTRL-F (%s) / CTRL-G (%s)", substitute(buffer_root, $HOME, "~",""), "~/code")],
-    \ 'source': fd_cmd,
-    \ 'dir': buffer_root
-    \ }
-  call fzf#run(fzf#wrap(fzf#vim#with_preview(spec)))
-endfunction
-
-function! RipgrepFzf(query, fullscreen, rg_cmd, fzf_options, prompt)
-  let initial_command = printf(a:rg_cmd, shellescape(a:query))
-  let reload_command = printf(a:rg_cmd, shellescape('{q}'))
-  let spec = {
-      \ 'options': a:fzf_options + [
-      \   '--prompt', a:prompt,
-      \   '--header', BufferRootDir(),
-      \   '--phony',
-      \   '--query', a:query,
-      \   '--bind', 'change:reload:'.reload_command],
-      \ 'dir': BufferRootDir()
-    \ }
-
-  call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
-endfunction
-
-command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0, rg_cmd, fzf_options, "rg> ")
-command! -nargs=* -bang FD call FilesFzf()
+"command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0, rg_cmd, fzf_options, "rg> ")
+"command! -nargs=* -bang FD call FilesFzf()
 
 " use ripgrep for vimgrep
 set grepprg=rg\ --vimgrep\ --smart-case\ --hidden\ --follow
@@ -232,3 +188,15 @@ let g:airline#extensions#branch#enabled=1
 
 " vim-gitgutter
 highlight! link SignColumn LineNr
+
+function! BufferRootDir()
+  let l:root_dir = system('git -C '.expand('%:p:h').' rev-parse --show-toplevel 2> /dev/null')[:-2]
+
+  if v:shell_error == 0
+    return l:root_dir
+  endif
+
+  return resolve(expand('%:p:h'))
+endfunction
+
+autocmd BufEnter * if BufferRootDir() !~ ':/' | execute ':lcd' BufferRootDir() | endif

@@ -38,7 +38,7 @@ setup_dotfiles() {
   ln -sf "${SCRIPT_DIR}/p10k.zsh" "${HOME}/.p10k.zsh"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
   ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
-  ln -sf "${SCRIPT_DIR}/scripts/tmux/" "${HOME}/.tmux/scripts"
+  ln -sfn "${SCRIPT_DIR}/scripts/tmux" "${HOME}/.tmux/scripts"
 
   if [[ "$(uname -s)" == "Linux" ]]; then
     sudo ln -sf "${SCRIPT_DIR}/logid.cfg" /etc/logid.cfg
@@ -53,10 +53,10 @@ setup_dotfiles() {
 setup_nvim() {
  set -x
   echo "setting up nvim..."
-  local nvim_dir
-  nvim_dir="${HOME}/.config/nvim"
+  #local nvim_dir
+  #nvim_dir="${HOME}/.config/nvim"
 
-  ln -sf "${SCRIPT_DIR}/nvim/" "${HOME}/.config/nvim"
+  ln -sfn "${SCRIPT_DIR}/nvim" "${HOME}/.config/nvim"
 
   if [[ ! -f "$HOME/.local/share/nvim/site/autoload/plug.vim" ]]; then
     curl -fLo "$HOME/.local/share/nvim/site/autoload/plug.vim" \
@@ -126,7 +126,6 @@ setup_dependencies() {
       __nerd-fonts
       __docker
 
-      cargo install tree-sitter-cli
     ;;
     Darwin)
       if ! command -v brew > /dev/null; then
@@ -150,7 +149,7 @@ setup_dependencies() {
         grpcurl \
         reattach-to-user-namespace
 
-      brew install homebrew/cask-fonts/font-hack
+      brew install homebrew/cask-fonts/font-hack-nerd-font
       brew install --cask alacritty
 
       __rust
@@ -160,6 +159,8 @@ setup_dependencies() {
   python3 -m pip install --upgrade --user pip
   python3 -m pip install --upgrade --user setuptools
   python3 -m pip install --upgrade --user pynvim
+
+  cargo install tree-sitter-cli
 
   if [[ ! -d ${HOME}/.oh-my-zsh ]]; then
     sh -c "$(curl --fail-with-body -q -sSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -525,13 +526,13 @@ __ensure_repo() {
 }
 
 main() {
-  #if docker info > /dev/null; then
-    #docker run --pull always --rm -v "${SCRIPT_DIR}:/mnt:ro" -w /mnt koalaman/shellcheck:stable install.sh
-  #fi
+  if docker info > /dev/null; then
+    docker run --pull always --rm -v "${SCRIPT_DIR}:/mnt:ro" -w /mnt koalaman/shellcheck:stable install.sh
+  fi
 
-  #setup_dependencies
-  #setup_dotfiles
-  #setup_colors
+  setup_dependencies
+  setup_dotfiles
+  setup_colors
   setup_nvim
 }
 
