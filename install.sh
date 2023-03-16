@@ -36,7 +36,6 @@ setup_dotfiles() {
   ln -sf "${SCRIPT_DIR}/tmux.conf" "${HOME}/.tmux.conf"
   ln -sf "${SCRIPT_DIR}/zshrc" "${HOME}/.zshrc"
   ln -sf "${SCRIPT_DIR}/p10k.zsh" "${HOME}/.p10k.zsh"
-  ln -sf "${SCRIPT_DIR}/vimrc" "${HOME}/.vimrc"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
   ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
   ln -sf "${SCRIPT_DIR}/scripts/tmux/" "${HOME}/.tmux/scripts"
@@ -51,17 +50,18 @@ setup_dotfiles() {
   tmux -c 'bash -e -c "~/.tmux/plugins/tpm/bin/update_plugins all"'
 }
 
-setup_vim() {
-  echo "setting up vim..."
-  mkdir -p "${HOME}/.config"
-  mkdir -p "${HOME}/.vim/tmp/{backup,info,swap,undo}"
+setup_nvim() {
+ set -x
+  echo "setting up nvim..."
+  local nvim_dir
+  nvim_dir="${HOME}/.config/nvim"
 
-  ln -sf "${HOME}/.vim" "${HOME}/.config/nvim"
-  ln -sf "${HOME}/.vimrc" "${HOME}/.config/nvim/init.vim"
+  ln -sf "${SCRIPT_DIR}/nvim/" "${HOME}/.config/nvim"
 
-  if [[ ! -f "${HOME}/.vim/autoload/plug.vim" ]]; then
-    curl --fail-with-body -qLo "${HOME}/.vim/autoload/plug.vim" --create-dirs \
-      https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  if [[ ! -f "$HOME/.local/share/nvim/site/autoload/plug.vim" ]]; then
+    curl -fLo "$HOME/.local/share/nvim/site/autoload/plug.vim" \
+	    --create-dirs \
+	    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   fi
 
   nvim +PlugInstall +qa
@@ -104,7 +104,6 @@ setup_dependencies() {
         libconfig++-dev \
         libevdev-dev \
         xsel \
-        fonts-hack-ttf \
         libpixman-1-dev \
         libslirp-dev \
         libssh-dev \
@@ -124,7 +123,10 @@ setup_dependencies() {
       __qemu "7.2.0"
       __colima
       __lima
+      __nerd-fonts
       __docker
+
+      cargo install tree-sitter-cli
     ;;
     Darwin)
       if ! command -v brew > /dev/null; then
@@ -496,13 +498,25 @@ __docker() {
   sudo systemctl enable containerd.service
 }
 
+
+__nerd-fonts() {
+  echo "installing nerd-fonts..."
+
+  git clone --filter=blob:none --sparse git@github.com:ryanoasis/nerd-fonts "${TMP_DIR}/nerd-fonts"
+
+  pushd "${TMP_DIR}/nerd-fonts" > /dev/null
+    git sparse-checkout add patched-fonts/Hack
+    sudo ./install.sh -S 
+  popd > /dev/null
+}
+
 __ensure_repo() {
   src=$1
   dest=$2
 
   echo "setting up ${src}"
   if [[ ! -d "${dest}" ]]; then
-    git clone "${src}" "${dest}"
+    git clone --depth 1 "${src}" "${dest}"
   else
     pushd "${dest}" > /dev/null
       git pull -r
@@ -511,14 +525,14 @@ __ensure_repo() {
 }
 
 main() {
-  if docker info > /dev/null; then
-    docker run --pull always --rm -v "${SCRIPT_DIR}:/mnt:ro" -w /mnt koalaman/shellcheck:stable install.sh
-  fi
+  #if docker info > /dev/null; then
+    #docker run --pull always --rm -v "${SCRIPT_DIR}:/mnt:ro" -w /mnt koalaman/shellcheck:stable install.sh
+  #fi
 
-  setup_dependencies
-  setup_dotfiles
-  setup_colors
-  setup_vim
+  #setup_dependencies
+  #setup_dotfiles
+  #setup_colors
+  setup_nvim
 }
 
 main
