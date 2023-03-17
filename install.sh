@@ -107,7 +107,8 @@ setup_dependencies() {
         libpixman-1-dev \
         libslirp-dev \
         libssh-dev \
-        libgtk-3-dev
+        libgtk-3-dev \
+        libluajit-5.1-dev
 
       __go
       __rust
@@ -147,7 +148,8 @@ setup_dependencies() {
         autojump \
         direnv \
         grpcurl \
-        reattach-to-user-namespace
+        reattach-to-user-namespace \
+        luajit
 
       brew install homebrew/cask-fonts/font-hack-nerd-font
       brew install --cask alacritty
