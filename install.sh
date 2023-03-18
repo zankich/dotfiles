@@ -53,8 +53,6 @@ setup_dotfiles() {
 setup_nvim() {
  set -x
   echo "setting up nvim..."
-  #local nvim_dir
-  #nvim_dir="${HOME}/.config/nvim"
 
   ln -sfn "${SCRIPT_DIR}/nvim" "${HOME}/.config/nvim"
 
@@ -64,9 +62,8 @@ setup_nvim() {
 	    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   fi
 
-  nvim +PlugInstall +qa
-  nvim +PlugInstall! +PlugUpgrade +qa
-  ~/.fzf/install --all
+  nvim --headless +PlugUpgrade +qa
+  nvim --headless '+PlugUpdate --sync' +qa
 }
 
 setup_dependencies() {
@@ -108,7 +105,9 @@ setup_dependencies() {
         libslirp-dev \
         libssh-dev \
         libgtk-3-dev \
-        libluajit-5.1-dev
+        libluajit-5.1-dev \
+        libreadline-dev \
+        unzip
 
       __go
       __rust
@@ -126,6 +125,8 @@ setup_dependencies() {
       __lima
       __nerd-fonts
       __docker
+      __lua
+      __luarocks
 
     ;;
     Darwin)
@@ -149,7 +150,10 @@ setup_dependencies() {
         direnv \
         grpcurl \
         reattach-to-user-namespace \
-        luajit
+        luajit \
+        lua \
+        luarocks
+
 
       brew install homebrew/cask-fonts/font-hack-nerd-font
       brew install --cask alacritty
@@ -167,6 +171,18 @@ setup_dependencies() {
   if [[ ! -d ${HOME}/.oh-my-zsh ]]; then
     sh -c "$(curl --fail-with-body -q -sSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
   fi
+
+  if command -v nvm; then 
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+  fi
+
+  # shellcheck source=/dev/null
+  . ~/.nvm/nvm.sh
+  nvm install node
+  nvm use node
+
+  __ensure_repo https://github.com/junegunn/fzf.git "${HOME}/.config/fzf"
+  "${HOME}/.config/fzf/install" --all --xdg
 
   __ensure_repo https://github.com/romkatv/powerlevel10k "${HOME}/.oh-my-zsh/custom/themes/powerlevel10k"
   __ensure_repo https://github.com/zsh-users/zsh-syntax-highlighting "${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
@@ -505,12 +521,40 @@ __docker() {
 __nerd-fonts() {
   echo "installing nerd-fonts..."
 
-  git clone --filter=blob:none --sparse git@github.com:ryanoasis/nerd-fonts "${TMP_DIR}/nerd-fonts"
+  git clone --filter=blob:none --sparse https://github.com/ryanoasis/nerd-fonts "${TMP_DIR}/nerd-fonts"
 
   pushd "${TMP_DIR}/nerd-fonts" > /dev/null
     git sparse-checkout add patched-fonts/Hack
     sudo ./install.sh -S 
   popd > /dev/null
+}
+
+__lua() {
+  mkdir -p "${TMP_DIR}/lua"
+  pushd "${TMP_DIR}/lua" > /dev/null
+    curl --fail-with-body -q -sSL -O http://www.lua.org/ftp/lua-5.4.4.tar.gz
+    tar zxf lua-5.4.4.tar.gz
+    pushd lua-5.4.4
+     sudo make all install
+    popd
+  popd > /dev/null
+}
+
+__luarocks() {
+  mkdir -p "${TMP_DIR}/luarocks"
+  pushd "${TMP_DIR}/luarocks" > /dev/null
+    curl --fail-with-body -q -sSL -O https://luarocks.org/releases/luarocks-3.8.0.tar.gz
+    tar zxpf luarocks-3.8.0.tar.gz
+    pushd luarocks-3.8.0 > /dev/null
+      ./configure --with-lua-include=/usr/local/include
+      make
+      sudo make install
+    popd > /dev/null
+  popd > /dev/null
+}
+
+__rbenv() {
+  __ensure_repo https://github.com/rbenv/rbenv.git ~/.config/rbenv
 }
 
 __ensure_repo() {
@@ -532,10 +576,11 @@ main() {
     docker run --pull always --rm -v "${SCRIPT_DIR}:/mnt:ro" -w /mnt koalaman/shellcheck:stable install.sh
   fi
 
-  setup_dependencies
-  setup_dotfiles
-  setup_colors
-  setup_nvim
+  #setup_dependencies
+  #setup_dotfiles
+  #setup_colors
+  #setup_nvim
+  __rbenv
 }
 
 main

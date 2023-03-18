@@ -2,29 +2,26 @@ filetype plugin indent on          " Load plugins according to detected filetype
 syntax on                          " Enable syntax highlighting.
 
 call plug#begin()
-  Plug 'tpope/vim-vinegar'
-  Plug 'nvim-neo-tree/neo-tree.nvim'
+  Plug 'semanser/vim-outdated-plugins'
   Plug 'nvim-lua/plenary.nvim'
-  Plug 'nvim-tree/nvim-web-devicons'
-  Plug 'MunifTanjim/nui.nvim'
-  Plug 'scrooloose/nerdcommenter'
+
+  Plug 'nvim-tree/nvim-tree.lua'
+  Plug 'nvim-tree/nvim-web-devicons' " optional
+  Plug 'numToStr/Comment.nvim'
 
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'nvim-treesitter/playground'
 
   " https://github.com/junegunn/vim-plug/issues/1107#issuecomment-911155500
-  let g:go_update_command = ":lua require('go.install').update_all()"
+  let g:go_update_command = ":lua require('go.install').update_all_sync()"
   Plug 'ray-x/go.nvim', {'do': g:go_update_command}
   Plug 'ray-x/guihua.lua'
   Plug 'mfussenegger/nvim-dap'
   Plug 'rcarriga/nvim-dap-ui'
   Plug 'theHamsta/nvim-dap-virtual-text'
 
-  Plug 'nvim-lua/plenary.nvim'
-  Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.1' }
+  Plug 'nvim-telescope/telescope.nvim',
   Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
-  Plug 'BurntSushi/ripgrep'
-
-  Plug 'semanser/vim-outdated-plugins'
 
   Plug 'neovim/nvim-lspconfig'
   Plug 'hrsh7th/cmp-nvim-lsp'
@@ -35,35 +32,23 @@ call plug#begin()
   Plug 'L3MON4D3/LuaSnip', {'do': 'make && make jsregexp && make install_jsregexp'}
   Plug 'saadparwaiz1/cmp_luasnip'
   Plug 'rafamadriz/friendly-snippets'
-  Plug 'nvim-lua/plenary.nvim'
   Plug 'petertriho/cmp-git'
 
   Plug 'airblade/vim-gitgutter'
   Plug 'tpope/vim-fugitive'
 
-  Plug 'vim-airline/vim-airline'
-  Plug 'vim-airline/vim-airline-themes'
+  Plug 'nvim-lualine/lualine.nvim'
+  Plug 'RRethy/nvim-base16'
 
-  Plug 'tinted-theming/base16-vim', {'commit': '88a1e73e5358fefe0288538e6866f99d5487c5a0'}
+  " Plug 'tinted-theming/base16-vim', {'commit': '88a1e73e5358fefe0288538e6866f99d5487c5a0'}
 
   Plug 'williamboman/mason.nvim'
   Plug 'williamboman/mason-lspconfig.nvim'
-
   Plug 'jose-elias-alvarez/null-ls.nvim'
 call plug#end()
 
-" nerdcomenter
-" Comment/uncomment lines
-map <leader>/ <plug>NERDCommenterToggle
-
 " outdated-plugins
 let g:outdated_plugins_silent_mode = 1
-
-" vim-airline
-let g:airline_powerline_fonts = 1
-let g:airline_inactive_collapse=1
-let g:airline_stl_path_style = 'short'
-let g:airline#extensions#branch#enabled=1
 
 " vim-gitgutter
 highlight! link SignColumn LineNr

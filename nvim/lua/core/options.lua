@@ -37,3 +37,4 @@ vim.o.updatecount = 100
 vim.o.updatetime  = 100
 vim.o.undofile = true
 vim.g.mapleader = ","
+vim.g.mapleaderlocal = ","

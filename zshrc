@@ -6,6 +6,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 export ZSH=$HOME/.oh-my-zsh
+export FZF_BASE="${HOME}/.config/fzf"
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
@@ -54,8 +55,6 @@ alias chmox="chmod +x"
 fpath+=(~/.zsh_functions)
 fpath+=(~/.oh-my-zsh/custom/plugins/zsh-completions/src)
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 bindkey '^ ' autosuggest-accept  # space + tab  | autosuggest
 
@@ -82,3 +81,11 @@ _get_display() {
 }
 
 _get_display
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+[ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh
+
+eval "$(~/.config/rbenv/bin/rbenv init - zsh)"
