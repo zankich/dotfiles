@@ -23,26 +23,32 @@ setup_colors() {
   ln -sf "${HOME}/.config/base16-shell/base16-shell.plugin.zsh" "${HOME}/.oh-my-zsh/custom/plugins/base16-shell/base16-shell.plugin.zsh"
 
   if [ ! -f "${HOME}/.config/tinted-theming/base16_shell_theme" ]; then
-    bash -x -c "shopt -s expand_aliases; . $HOME/.config/base16-shell/profile_helper.sh; set_theme default-dark;"
+    bash -c "shopt -s expand_aliases; . ${HOME}/.config/base16-shell/profile_helper.sh; set_theme default-dark;"
   fi
 
 }
 
 setup_dotfiles() {
   echo "setting up dotfiles..."
-  mkdir -p "${HOME}/.tmux/plugins/"
   mkdir -p "${HOME}/.config/alacritty"
 
-  ln -sf "${SCRIPT_DIR}/tmux.conf" "${HOME}/.tmux.conf"
   ln -sf "${SCRIPT_DIR}/zshrc" "${HOME}/.zshrc"
   ln -sf "${SCRIPT_DIR}/p10k.zsh" "${HOME}/.p10k.zsh"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
   ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
-  ln -sfn "${SCRIPT_DIR}/scripts/tmux" "${HOME}/.tmux/scripts"
 
   if [[ "$(uname -s)" == "Linux" ]]; then
     sudo ln -sf "${SCRIPT_DIR}/logid.cfg" /etc/logid.cfg
   fi
+}
+
+setup_tmux() {
+  echo "setting up tmux..."
+
+  mkdir -p "${HOME}/.tmux/plugins/"
+
+  ln -sf "${SCRIPT_DIR}/tmux.conf" "${HOME}/.tmux.conf"
+  ln -sfn "${SCRIPT_DIR}/scripts/tmux" "${HOME}/.tmux/scripts"
 
   __ensure_repo https://github.com/tmux-plugins/tpm "${HOME}/.tmux/plugins/tpm"
 
@@ -51,7 +57,6 @@ setup_dotfiles() {
 }
 
 setup_nvim() {
- set -x
   echo "setting up nvim..."
 
   ln -sfn "${SCRIPT_DIR}/nvim" "${HOME}/.config/nvim"
@@ -63,7 +68,8 @@ setup_nvim() {
   fi
 
   nvim --headless +PlugUpgrade +qa
-  nvim --headless '+PlugUpdate --sync' +qa
+  nvim --headless +PlugUpdate! +qa
+  nvim --headless +"lua require('go.install').update_all_sync()" +qa
 }
 
 setup_dependencies() {
@@ -80,8 +86,6 @@ setup_dependencies() {
         curl \
         git \
         jq \
-        python3 \
-        python3-pip \
         cmake \
         libfreetype6-dev \
         libfontconfig1-dev \
@@ -107,26 +111,45 @@ setup_dependencies() {
         libgtk-3-dev \
         libluajit-5.1-dev \
         libreadline-dev \
-        unzip
+        unzip \
+        libyaml-dev \
+        libssl-dev \
+        zlib1g-dev \
+        libbz2-dev \
+        libsqlite3-dev \
+        curl \
+        libncursesw5-dev \
+        xz-utils \
+        tk-dev \
+        libxml2-dev \
+        libxmlsec1-dev \
+        libffi-dev \
+        liblzma-dev
 
-      __go
-      __rust
       __zsh
       __tmux
       __bat
       __fd
       __nvim
-      __alacritty
       __direnv
       __grpcurl
-      __logiops
-      __qemu "7.2.0"
-      __colima
-      __lima
-      __nerd-fonts
-      __docker
+      __go
+      __rust
       __lua
-      __luarocks
+      __rbenv
+      __pyenv
+      __nvm
+      __fzf
+
+      if [[ ! -f "/.dockerenv" ]]; then
+        __logiops
+        __alacritty
+        __nerd-fonts
+        __docker
+        __qemu "7.2.0"
+        __colima
+        __lima
+      fi
 
     ;;
     Darwin)
@@ -152,8 +175,13 @@ setup_dependencies() {
         reattach-to-user-namespace \
         luajit \
         lua \
-        luarocks
-
+        luarocks \
+        rbenv \
+        ruby-build \
+        nvm \
+        pyenv \
+        fzf \
+        libyaml
 
       brew install homebrew/cask-fonts/font-hack-nerd-font
       brew install --cask alacritty
@@ -162,27 +190,13 @@ setup_dependencies() {
     ;;
   esac
 
-  python3 -m pip install --upgrade --user pip
-  python3 -m pip install --upgrade --user setuptools
-  python3 -m pip install --upgrade --user pynvim
-
-  cargo install tree-sitter-cli
+  __ruby
+  __python
+  __node
 
   if [[ ! -d ${HOME}/.oh-my-zsh ]]; then
     sh -c "$(curl --fail-with-body -q -sSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
   fi
-
-  if command -v nvm; then 
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-  fi
-
-  # shellcheck source=/dev/null
-  . ~/.nvm/nvm.sh
-  nvm install node
-  nvm use node
-
-  __ensure_repo https://github.com/junegunn/fzf.git "${HOME}/.config/fzf"
-  "${HOME}/.config/fzf/install" --all --xdg
 
   __ensure_repo https://github.com/romkatv/powerlevel10k "${HOME}/.oh-my-zsh/custom/themes/powerlevel10k"
   __ensure_repo https://github.com/zsh-users/zsh-syntax-highlighting "${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
@@ -207,6 +221,10 @@ __nvim() {
       sudo make install
     popd > /dev/null
   fi
+
+  python -m pip install --upgrade --user pynvim
+
+  cargo install tree-sitter-cli
 }
 
 __bat() {
@@ -517,7 +535,6 @@ __docker() {
   sudo systemctl enable containerd.service
 }
 
-
 __nerd-fonts() {
   echo "installing nerd-fonts..."
 
@@ -530,6 +547,7 @@ __nerd-fonts() {
 }
 
 __lua() {
+  echo "installing lua..."
   mkdir -p "${TMP_DIR}/lua"
   pushd "${TMP_DIR}/lua" > /dev/null
     curl --fail-with-body -q -sSL -O http://www.lua.org/ftp/lua-5.4.4.tar.gz
@@ -538,9 +556,8 @@ __lua() {
      sudo make all install
     popd
   popd > /dev/null
-}
 
-__luarocks() {
+
   mkdir -p "${TMP_DIR}/luarocks"
   pushd "${TMP_DIR}/luarocks" > /dev/null
     curl --fail-with-body -q -sSL -O https://luarocks.org/releases/luarocks-3.8.0.tar.gz
@@ -554,12 +571,80 @@ __luarocks() {
 }
 
 __rbenv() {
-  __ensure_repo https://github.com/rbenv/rbenv.git ~/.config/rbenv
+  echo "installing rbenv..."
+  curl -qfsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash
+  eval "$(~/.rbenv/bin/rbenv init - bash)"
+}
+
+__ruby() {
+  echo "installing ruby..."
+  local latest
+  latest="$(rbenv install -l | grep -v - | tail -1)"
+
+  rbenv install -s "${latest}"
+  rbenv global "${latest}"
+
+  gem update --system
+  gem install bundler
+  gem install neovim
+}
+
+__pyenv() {
+  echo "installing pyenv..."
+  if [ ! -d "${HOME}/.pyenv" ]; then
+    curl -qfsSL https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+  fi
+
+  if ! command -v pyenv > /dev/null; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+  fi
+
+  pyenv update
+}
+
+__python() {
+  echo "installing python..."
+  local latest
+  latest="$(pyenv latest -k 3)"
+
+  pyenv install -s "${latest}"
+  pyenv global "${latest}"
+
+  python -m pip install --upgrade --user pip
+  python -m pip install --upgrade --user setuptools
+}
+
+__nvm() {
+  echo "installing nvm..."
+  if [ ! -d "${HOME}/.nvm" ]; then
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+  fi
+}
+
+__node() {
+  echo "installing node..."
+
+  if ! command -v nvm > /dev/null; then
+    # shellcheck source=/dev/null
+    . "${HOME}/.nvm/nvm.sh"
+  fi
+
+  nvm install node
+  nvm use node
+  npm install -g neovim
+}
+
+__fzf() {
+  echo "installing fzf.."
+  __ensure_repo https://github.com/junegunn/fzf.git "${HOME}/.fzf"
+  "${HOME}/.fzf/install" --bin
 }
 
 __ensure_repo() {
-  src=$1
-  dest=$2
+  src="${1}"; shift;
+  dest="${1}"; shift;
 
   echo "setting up ${src}"
   if [[ ! -d "${dest}" ]]; then
@@ -575,12 +660,15 @@ main() {
   if docker info > /dev/null; then
     docker run --pull always --rm -v "${SCRIPT_DIR}:/mnt:ro" -w /mnt koalaman/shellcheck:stable install.sh
   fi
+  ##### TODO: DELETE ME
+  #apt-get update && apt-get -y install sudo curl
+  ##### TODO: DELETE ME
 
-  #setup_dependencies
-  #setup_dotfiles
-  #setup_colors
-  #setup_nvim
-  __rbenv
+  setup_dependencies
+  setup_dotfiles
+  setup_colors
+  setup_nvim
+  setup_tmux
 }
 
 main

@@ -6,51 +6,34 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 export ZSH=$HOME/.oh-my-zsh
-export FZF_BASE="${HOME}/.config/fzf"
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-plugins=(git fzf base16-shell autojump direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions)
+plugins=(git fzf base16-shell autojump direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions brew nvm pyenv rbenv)
 
-source $ZSH/oh-my-zsh.sh
-source $HOME/.config/tinted-theming/base16_shell_theme
-source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/theme_name).config
-
-cores=""
-if [[ "$(uname -s)" == "Linux" ]]; then
-  cores="$(nproc --all)"
-else
-  export HOMEBREW_NO_ANALYTICS=1
-  export LS_COLORS=$LSCOLORS
-  cores="$(sysctl -n hw.ncpu)"
+if [[ "$(uname -s)" == "Darwin" ]]; then
+ export HOMEBREW_NO_ANALYTICS=1
+ export LS_COLORS=$LSCOLORS
+ export NVM_HOMEBREW="/opt/homebrew/opt/nvm"
+ export ZSH_PYENV_QUIET="true"
 fi
 
+export COMPLETION_WAITING_DOTS=true
+export HYPHEN_INSENSITIVE=true
 export EDITOR="nvim"
-export RG_COMMAND="rg --follow --column --line-number --no-heading --smart-case --hidden --color=ansi --threads=$((${cores}/2)) --glob '!.git' "
-export FZF_DEFAULT_COMMAND="fd --hidden --follow --type file --strip-cwd-prefix --color=always --threads=$((${cores}/2)) --exclude=".git" --exclude="go/pkg/""
+export RG_COMMAND="rg --follow --column --line-number --no-heading --smart-case --hidden --color=ansi --glob '!.git' "
+export FZF_DEFAULT_COMMAND="fd --hidden --follow --type file --strip-cwd-prefix --color=always --exclude=".git" --exclude="go/pkg/""
 export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS} --multi --ansi --layout=reverse"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="${FZF_DEFAULT_OPTS} --preview '$HOME/.vim/plugged/fzf.vim/bin/preview.sh {}'"
 export FZF_CTRL_R_OPTS="${FZF_DEFAULT_OPTS}"
 export FZF_TMUX_OPTS='-p 90%,60%'
-
-export PATH=$HOME/.vim/vim-go_bin:$HOME/bin:$HOME/code/go/bin:/usr/local/bin:$PATH
 export GOPATH=$HOME/code/go
-
+export PATH=$HOME/bin:$GOPATH/bin:$PATH
 export TERM="xterm-256color"
 export BAT_THEME="base16-256"
 
-alias lla='ls -la'
-alias vim="nvim"
-alias vi="nvim"
-alias vimdiff="nvim -d"
-alias rg=$RG_COMMAND
-alias chmox="chmod +x"
-
-[[ ! -f ~/.cargo/env ]] || source ~/.cargo/env
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+zstyle ':omz:plugins:nvm' lazy yes
 
 fpath+=(~/.zsh_functions)
 fpath+=(~/.oh-my-zsh/custom/plugins/zsh-completions/src)
@@ -58,6 +41,20 @@ fpath+=(~/.oh-my-zsh/custom/plugins/zsh-completions/src)
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 bindkey '^ ' autosuggest-accept  # space + tab  | autosuggest
 
+source $ZSH/oh-my-zsh.sh
+source $HOME/.config/tinted-theming/base16_shell_theme
+source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/theme_name).config
+
+[[ ! -f ~/.cargo/env ]] || source ~/.cargo/env
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+alias lla='ls -la'
+alias vim="nvim"
+alias vi="nvim"
+alias vimdiff="nvim -d"
+alias rg=$RG_COMMAND
+alias chmox="chmod +x"
 
 _fzf_compgen_path() {
   fd --hidden --follow --exclude ".git" . "$1"
@@ -81,11 +78,3 @@ _get_display() {
 }
 
 _get_display
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-[ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh
-
-eval "$(~/.config/rbenv/bin/rbenv init - zsh)"

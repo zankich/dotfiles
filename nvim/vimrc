@@ -13,7 +13,7 @@ call plug#begin()
   Plug 'nvim-treesitter/playground'
 
   " https://github.com/junegunn/vim-plug/issues/1107#issuecomment-911155500
-  let g:go_update_command = ":lua require('go.install').update_all_sync()"
+  let g:go_update_command = ":lua require('go.install').update_all()"
   Plug 'ray-x/go.nvim', {'do': g:go_update_command}
   Plug 'ray-x/guihua.lua'
   Plug 'mfussenegger/nvim-dap'
@@ -39,8 +39,6 @@ call plug#begin()
 
   Plug 'nvim-lualine/lualine.nvim'
   Plug 'RRethy/nvim-base16'
-
-  " Plug 'tinted-theming/base16-vim', {'commit': '88a1e73e5358fefe0288538e6866f99d5487c5a0'}
 
   Plug 'williamboman/mason.nvim'
   Plug 'williamboman/mason-lspconfig.nvim'

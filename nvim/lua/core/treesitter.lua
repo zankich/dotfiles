@@ -21,7 +21,7 @@ require "nvim-treesitter.configs".setup {
 
 require('nvim-treesitter.configs').setup {
   -- A list of parser names, or "all" (the five listed parsers should always be installed)
-  ensure_installed = { "go", "lua", "vim", "help", "query" },
+  ensure_installed = {},
 
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
@@ -39,12 +39,6 @@ require('nvim-treesitter.configs').setup {
   highlight = {
     enable = true,
 
-    -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
-    -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
-    -- the name of the parser)
-    -- list of language that will be disabled
-    disable = {},
-    -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
     disable = function(lang, buf)
         local max_filesize = 100 * 1024 -- 100 KB
         local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
@@ -61,7 +55,7 @@ require('nvim-treesitter.configs').setup {
   },
 }
 
-vim.api.nvim_set_hl(0, "@comment", { nocombine = true})
-vim.api.nvim_set_hl(0, "@type.builtin", { nocombine = true})
-vim.api.nvim_set_hl(0, "@function.builtin", { nocombine = true})
-vim.api.nvim_set_hl(0, "@variable.builtin", { nocombine = true})
+vim.api.nvim_set_hl(0, "@comment", {nocombine = true})
+vim.api.nvim_set_hl(0, "@type.builtin", {nocombine = true })
+vim.api.nvim_set_hl(0, "@function.builtin", {nocombine = true})
+vim.api.nvim_set_hl(0, "@variable.builtin", {nocombine = true})
