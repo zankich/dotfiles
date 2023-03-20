@@ -126,6 +126,16 @@ setup_dependencies() {
         libffi-dev \
         liblzma-dev
 
+      __go
+      __rust
+      __lua
+      __rbenv
+      __pyenv
+      __nvm
+      __ruby
+      __python
+      __node
+
       __zsh
       __tmux
       __bat
@@ -133,11 +143,6 @@ setup_dependencies() {
       __nvim
       __direnv
       __grpcurl
-      __go
-      __rust
-      __lua
-      __rbenv
-      __pyenv
       __nvm
       __fzf
 
@@ -187,12 +192,12 @@ setup_dependencies() {
       brew install --cask alacritty
 
       __rust
+      __ruby
+      __python
+      __node
     ;;
   esac
 
-  __ruby
-  __python
-  __node
 
   if [[ ! -d ${HOME}/.oh-my-zsh ]]; then
     sh -c "$(curl --fail-with-body -q -sSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -661,7 +666,7 @@ main() {
     docker run --pull always --rm -v "${SCRIPT_DIR}:/mnt:ro" -w /mnt koalaman/shellcheck:stable install.sh
   fi
   ##### TODO: DELETE ME
-  #apt-get update && apt-get -y install sudo curl
+  apt-get update && apt-get -y install sudo curl
   ##### TODO: DELETE ME
 
   setup_dependencies
