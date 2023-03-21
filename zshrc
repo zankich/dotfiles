@@ -5,12 +5,6 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-export ZSH=$HOME/.oh-my-zsh
-
-ZSH_THEME="powerlevel10k/powerlevel10k"
-
-plugins=(git fzf base16-shell autojump direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions brew nvm pyenv rbenv)
-
 if [[ "$(uname -s)" == "Darwin" ]]; then
  export HOMEBREW_NO_ANALYTICS=1
  export LS_COLORS=$LSCOLORS
@@ -33,13 +27,11 @@ export PATH=$HOME/bin:$GOPATH/bin:$PATH
 export TERM="xterm-256color"
 export BAT_THEME="base16-256"
 
-zstyle ':omz:plugins:nvm' lazy yes
-
-fpath+=(~/.zsh_functions)
-fpath+=(~/.oh-my-zsh/custom/plugins/zsh-completions/src)
-
+export ZSH=$HOME/.oh-my-zsh
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-bindkey '^ ' autosuggest-accept  # space + tab  | autosuggest
+ZSH_THEME="powerlevel10k/powerlevel10k"
+zstyle ':omz:plugins:nvm' lazy yes
+plugins=(git fzf base16-shell autojump direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions brew nvm pyenv rbenv)
 
 source $ZSH/oh-my-zsh.sh
 source $HOME/.config/tinted-theming/base16_shell_theme
@@ -48,6 +40,10 @@ source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/t
 [[ ! -f ~/.cargo/env ]] || source ~/.cargo/env
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+fpath+=(~/.zsh_functions)
+fpath+=(~/.oh-my-zsh/custom/plugins/zsh-completions/src)
+bindkey '^ ' autosuggest-accept  # space + tab  | autosuggest
 
 alias lla='ls -la'
 alias vim="nvim"

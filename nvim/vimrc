@@ -43,6 +43,8 @@ call plug#begin()
   Plug 'williamboman/mason.nvim'
   Plug 'williamboman/mason-lspconfig.nvim'
   Plug 'jose-elias-alvarez/null-ls.nvim'
+
+  Plug 'folke/lsp-trouble.nvim'
 call plug#end()
 
 " outdated-plugins
@@ -50,15 +52,3 @@ let g:outdated_plugins_silent_mode = 1
 
 " vim-gitgutter
 highlight! link SignColumn LineNr
-
-function! BufferRootDir()
-  let l:root_dir = system('git -C '.expand('%:p:h').' rev-parse --show-toplevel 2> /dev/null')[:-2]
-
-  if v:shell_error == 0
-    return l:root_dir
-  endif
-
-  return resolve(expand('%:p:h'))
-endfunction
-
-autocmd BufEnter * if BufferRootDir() !~ ':/' | execute ':lcd' BufferRootDir() | endif
