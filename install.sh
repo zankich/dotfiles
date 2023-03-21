@@ -66,10 +66,6 @@ setup_nvim() {
 			--create-dirs \
 			https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 	fi
-
-	nvim --headless +PlugUpgrade +qa
-	nvim --headless +PlugUpdate! +qa
-	nvim --headless +"lua require('go.install').update_all_sync()" +qa
 }
 
 setup_dependencies() {
@@ -124,7 +120,8 @@ setup_dependencies() {
 				libxml2-dev \
 				libxmlsec1-dev \
 				libffi-dev \
-				liblzma-dev
+				liblzma-dev \
+        wget
 
 		__go
 		__rust
@@ -662,9 +659,9 @@ __ensure_repo() {
 }
 
 main() {
-	if docker info >/dev/null; then
-		docker run --pull always --rm -v "${SCRIPT_DIR}:/mnt:ro" -w /mnt koalaman/shellcheck:stable install.sh
-	fi
+	# if docker info >/dev/null; then
+	# 	docker run --pull always --rm -v "${SCRIPT_DIR}:/mnt:ro" -w /mnt koalaman/shellcheck:stable install.sh
+	# fi
 
 	setup_dependencies
 	setup_dotfiles

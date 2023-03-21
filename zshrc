@@ -9,9 +9,9 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
  export HOMEBREW_NO_ANALYTICS=1
  export LS_COLORS=$LSCOLORS
  export NVM_HOMEBREW="/opt/homebrew/opt/nvm"
- export ZSH_PYENV_QUIET="true"
 fi
 
+export ZSH_PYENV_QUIET="true"
 export COMPLETION_WAITING_DOTS=true
 export HYPHEN_INSENSITIVE=true
 export EDITOR="nvim"

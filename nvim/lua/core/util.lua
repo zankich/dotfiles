@@ -11,22 +11,16 @@ function M.bufferRootDir()
     local file = io.popen('git -C ' .. currentdir ..
                               ' rev-parse --show-toplevel 2> /dev/null', 'r')
     local output = file:read('*line')
-    local suc = file:close()
+    file:close()
 
-    if suc then
+    if output and not output:find(':/') then
         return vim.fn.resolve(output)
     else
         return vim.fn.resolve(currentdir)
     end
 end
 
-vim.api.nvim_create_autocmd("BufEnter", {
-    callback = function(bufnr)
-        local dir = M.bufferRootDir()
-        if not dir:find(':/') then vim.cmd.lcd(dir) end
-    end
-})
-
+vim.api.nvim_create_autocmd("BufEnter", {command = vim.cmd.lcd(M.bufferRootDir())})
 vim.keymap.set('n', '<space>r', M.reload, {silent = true, noremap = true})
 
 return M
