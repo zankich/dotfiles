@@ -43,6 +43,7 @@ call plug#begin()
   Plug 'williamboman/mason.nvim'
   Plug 'williamboman/mason-lspconfig.nvim'
   Plug 'jose-elias-alvarez/null-ls.nvim'
+  Plug 'jay-babu/mason-null-ls.nvim'
 
   Plug 'folke/lsp-trouble.nvim'
 call plug#end()

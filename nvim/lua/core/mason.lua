@@ -82,3 +82,49 @@ masonlspconfig.setup_handlers({
         }
     end
 })
+
+vim.api.nvim_create_autocmd("FileType", {
+	group = vim.api.nvim_create_augroup("mason-lspconfig", { clear = true }),
+	callback = function(t)
+		if vim.bo[t.buf].buftype ~= "" then return end
+    -- local iterators = require("plenary.iterators")
+    local list = require('plenary.collections.py_list')
+		local mason_lspconfig = require("mason-lspconfig")
+		local available_servers = list.new(mason_lspconfig.get_available_servers({ filetype = t.match }))
+		local installed_servers = list.new(mason_lspconfig.get_installed_servers())
+    local new_servers = list.new({})
+
+    -- local new_servers = available_servers:filter(function(elem)
+    --   return not installed_servers:tolist().contains(elem)
+    -- end)
+    -- end
+    print("available_servers", tostring(available_servers))
+    print("installed_servers", tostring(installed_servers))
+    if #installed_servers == 0 then
+      new_servers = available_servers
+      print("new_servers", tostring(new_servers))
+    else
+      print(1)
+      for _, v in available_servers:iter() do
+        print(2)
+        print("installed_servers", tostring(installed_servers))
+        if installed_servers.contains(v) then
+          available_servers.pop()
+        end
+      end
+      print("new_servers", tostring(new_servers))
+    end
+
+    print("available_servers", tostring(available_servers))
+    if #new_servers > 0 then
+		  vim.cmd.LspInstall()
+    end
+  --   for _, installed in ipairs(installed_servers) do
+  --     for _, available in ipairs(available_servers) do
+  --       if available == installed then return end
+  --     end
+		-- end
+		-- vim.schedule(vim.cmd.LspInstall)
+    -- end
+	end,
+})
