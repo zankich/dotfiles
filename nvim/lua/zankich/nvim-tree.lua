@@ -1,10 +1,24 @@
 local HEIGHT_RATIO = 0.9 -- You can change this
 local WIDTH_RATIO = 0.5 -- You can change this too
+
+local function copy_file_to(node)
+    local file_src = node['absolute_path']
+    -- The args of input are {prompt}, {default}, {completion}
+    -- Read in the new file path using the existing file's path as the baseline.
+    local file_out = vim.fn.input("COPY TO: ", file_src, "file")
+    -- Create any parent dirs as required
+    local dir = vim.fn.fnamemodify(file_out, ":h")
+    vim.fn.system {'mkdir', '-p', dir}
+    -- Copy the file
+    vim.fn.system {'cp', '-R', file_src, file_out}
+end
+
 require("nvim-tree").setup({
     view = {
         mappings = {
             list = {
-                {key = "u", action = "dir_up"}, {key = "-", action = "close"}
+                {key = "u", action = "dir_up"}, {key = "-", action = "close"},
+                {key = "c", action = "copy_file_to", action_cb = copy_file_to}
             }
         },
         float = {
@@ -47,7 +61,7 @@ local function open_nvim_tree(data)
     if not directory then return end
 
     -- change to the directory
-    vim.cmd.cd(require('core.util').bufferRootDir())
+    vim.cmd.cd(require('zankich.util').bufferRootDir())
 
     require("nvim-tree.api").tree.focus()
 end

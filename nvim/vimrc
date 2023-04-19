@@ -34,8 +34,9 @@ call plug#begin()
   Plug 'rafamadriz/friendly-snippets'
   Plug 'petertriho/cmp-git'
 
-  Plug 'airblade/vim-gitgutter'
-  Plug 'tpope/vim-fugitive'
+  Plug 'TimUntersberger/neogit'
+  Plug 'lewis6991/gitsigns.nvim'
+  Plug 'sindrets/diffview.nvim'
 
   Plug 'nvim-lualine/lualine.nvim'
   Plug 'RRethy/nvim-base16'

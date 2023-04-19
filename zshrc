@@ -14,28 +14,71 @@ fi
 export ZSH_PYENV_QUIET="true"
 export COMPLETION_WAITING_DOTS=true
 export HYPHEN_INSENSITIVE=true
-export EDITOR="nvim"
-export RG_COMMAND="rg --follow --column --line-number --no-heading --smart-case --hidden --color=ansi --glob '!.git' "
-export FZF_DEFAULT_COMMAND="fd --hidden --follow --type file --strip-cwd-prefix --color=always --exclude=".git" --exclude="go/pkg/""
+
+export RG_COMMAND="rg --follow --column --line-number --no-heading --smart-case --hidden --color=always --glob '!.git'"
+
+export FZF_DEFAULT_COMMAND="fd --hidden --follow --type file --strip-cwd-prefix --color=always --exclude='.git' --exclude='go/pkg/'"
 export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS} --multi --ansi --layout=reverse"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="${FZF_DEFAULT_OPTS} --preview '$HOME/.vim/plugged/fzf.vim/bin/preview.sh {}'"
 export FZF_CTRL_R_OPTS="${FZF_DEFAULT_OPTS}"
 export FZF_TMUX_OPTS='-p 90%,60%'
+
+
+export GOPROXY="http://goproxy.test.netflix.net"
+export GOVULNDB="https://go.vuldb.oc.prod.netflix.net"
+export GOPRIVATE="*.corp.netflix.com"
 export GOPATH=$HOME/code/go
+
+export EDITOR="nvim"
 export PATH=$HOME/bin:$GOPATH/bin:$PATH
 export TERM="xterm-256color"
+
 export BAT_THEME="base16-256"
 
 export ZSH=$HOME/.oh-my-zsh
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_THEME="powerlevel10k/powerlevel10k"
-zstyle ':omz:plugins:nvm' lazy yes
+# zstyle ':omz:plugins:nvm' lazy yes
 plugins=(git fzf base16-shell autojump direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions brew nvm pyenv rbenv)
 
 source $ZSH/oh-my-zsh.sh
+
+# colors
 source $HOME/.config/tinted-theming/base16_shell_theme
-source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/theme_name).config
+# force fzf theme change
+fzf() {
+  source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/theme_name).config
+  command fzf "${@}"
+}
+
+fzf-tmux() {
+  source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/theme_name).config
+  command fzf-tmux "${@}"
+}
+
+nvim() {
+  # local socket
+  # socket="${HOME}/.cache/nvim/listen/socket"
+  #
+  # if [[ -e "${socket}" ]];then
+  #   if [[ -n "${TMUX}" ]]; then
+  #     local ids window_id pane_id
+  #
+  #     ids="$(tmux list-panes -a -F '#{pane_current_command} #{window_id} #{pane_id}' | awk '/^nvim / {print $2" "$3; exit}')"
+  #     window_id="$ids[(w)1]"
+  #     pane_id="$ids[(w)2]"
+  #
+  #     [[ -n "$pane_id" ]] && tmux select-window -t "$window_id" && tmux select-pane -t "$pane_id"
+  #   fi
+  #
+  #   command nvim --server "${socket}" --remote-tab-silent "${@}"
+  # else
+  #   command nvim --listen "${socket}" "${@}"
+  # fi
+
+  command nvim --listen "${HOME}/.cache/nvim/listen/$(date +%s).pipe" "${@}"
+}
 
 [[ ! -f ~/.cargo/env ]] || source ~/.cargo/env
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -46,11 +89,13 @@ fpath+=(~/.oh-my-zsh/custom/plugins/zsh-completions/src)
 bindkey '^ ' autosuggest-accept  # space + tab  | autosuggest
 
 alias lla='ls -la'
-alias vim="nvim"
-alias vi="nvim"
+# alias nvim="nvim --listen $HOME/.cache/nvim/listen/$(date +%s).pipe"
+# alias vim="nvim"
+# alias vi="nvim"
 alias vimdiff="nvim -d"
 alias rg=$RG_COMMAND
 alias chmox="chmod +x"
+alias nvim-no-config="command nvim -u NONE"
 
 _fzf_compgen_path() {
   fd --hidden --follow --exclude ".git" . "$1"

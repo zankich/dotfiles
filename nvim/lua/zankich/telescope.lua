@@ -2,7 +2,7 @@ local M = {}
 
 M.find_files_opts = {hidden = true}
 
-local util = require('core.util')
+local util = require('zankich.util')
 local actions = require("telescope.actions")
 require("telescope").setup({
     defaults = require('telescope.themes').get_ivy {

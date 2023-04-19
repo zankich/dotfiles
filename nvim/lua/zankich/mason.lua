@@ -48,10 +48,7 @@ masonlspconfig.setup_handlers({
     function(server_name) -- default handler (optional)
         lspconfig[server_name].setup({capabilities = capabilities})
     end,
-    ["gopls"] = function()
-        local cfg = require('go.lsp').config()
-        require('lspconfig').gopls.setup(cfg)
-    end,
+    ["gopls"] = function() lspconfig.gopls.setup(require('go.lsp').config()) end,
     ["lua_ls"] = function()
         lspconfig.lua_ls.setup {
             capabilities = capabilities,
@@ -77,6 +74,35 @@ masonlspconfig.setup_handlers({
                     },
                     -- Do not send telemetry data containing a randomized but unique identifier
                     telemetry = {enable = false}
+                }
+            }
+        }
+    end,
+    ["bashls"] = function()
+        lspconfig.bashls.setup {
+            capabilities = capabilities,
+            settings = {
+                bashIde = {
+                    backgroundAnalysisMaxFiles = 99999,
+                    includeAllWorkspaceSymbols = true,
+                    explainshellEndpoint = "https://explainshell.com",
+                    shellcheckPath = ''
+                }
+            }
+        }
+    end,
+    ["yamlls"] = function()
+        lspconfig.yamlls.setup {
+            capabilities = capabilities,
+            filetypes = {'yaml', 'yaml.docker-compose', 'yml'},
+            settings = {
+                yaml = {
+                    schemaStore = {enable = true},
+                    --         format = {enable = true},
+                    --         validate = true,
+                    keyOrdering = false
+                    --         completion = true,
+                    --         hover = true
                 }
             }
         }
