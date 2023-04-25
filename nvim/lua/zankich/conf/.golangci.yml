@@ -1,0 +1,56 @@
+---
+linters:
+  enable-all: true
+  disable:
+    - deadcode # deprecated
+    - exhaustivestruct # deprecated
+    - exhaustruct # too cumbersome
+    - funlen # too cumbersome
+    - godox # too cumbersome
+    - golint # deprecated
+    - gomnd # too cumbersome
+    - gomoddirectives # deprecated
+    - ifshort # deprecated
+    - interfacebloat # too cumbersome
+    - interfacer # deprecated
+    - lll # too cumbersome
+    - maligned # deprecated
+    - musttag # due to https://github.com/golangci/golangci-lint-action/issues/714
+    - nosnakecase # deprecated
+    - scopelint # deprecated
+    - structcheck # deprecated
+    - structcheck # deprecated
+    - testpackage # too cumbersome
+    - varcheck # deprecated
+linters-settings:
+  gofmt:
+    simplify: true
+  goimports:
+    local-prefixes: stash.corp.netflix.com
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(stash.corp.netflix.com)
+      - blank
+      - dot
+  gofumpt:
+    extra-rules: true
+  staticcheck:
+    checks:
+      - all
+  tagliatelle:
+    case:
+      use-field-name: true
+      rules:
+        json: snake
+        yaml: snake
+output:
+  sort-results: true
+run:
+  timeout: 5m
+  tests: true
+  allow-parallel-runners: true
+  skip-dirs: .git|vendor
+issues:
+  max-same-issues: 100

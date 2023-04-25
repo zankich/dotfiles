@@ -1,4 +1,4 @@
-vim.cmd('source ~/.config/nvim/vimrc')
+vim.cmd("source ~/.config/nvim/vimrc")
 
 require("zankich.options")
 require("zankich.util")
@@ -17,5 +17,5 @@ require("zankich.gitsigns")
 require("zankich.diffview")
 
 require("zankich.go")
-require("zankich.null-ls")
 require("zankich.mason")
+require("zankich.null-ls")

@@ -1,0 +1,7 @@
+check-sourced=true
+source-path=SCRIPTDIR
+external-sources=true
+severity=style
+enable=all
+disable=SC2181
+color=always

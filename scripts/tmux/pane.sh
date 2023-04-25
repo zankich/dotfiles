@@ -1,7 +1,5 @@
 #!/bin/bash -eu
 
-CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 join-pane() {
   local window pane
   window="$(tmux list-windows -f '#{==:#{window_name},_background_panes}' -F \#{window_index})"

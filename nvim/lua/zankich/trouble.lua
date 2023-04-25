@@ -1,11 +1,11 @@
 require("trouble").setup({})
 
 vim.diagnostic.config({
-    virtual_text = false,
-    signs = true,
-    underline = false,
-    update_in_insert = false,
-    severity_sort = true
+	virtual_text = false,
+	signs = true,
+	underline = false,
+	update_in_insert = false,
+	severity_sort = true,
 })
 
 -- vim.cmd [[autocmd! CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false, scope="cursor"})]]

@@ -7,15 +7,17 @@ call plug#begin()
 
   Plug 'nvim-tree/nvim-tree.lua'
   Plug 'nvim-tree/nvim-web-devicons' " optional
+
   Plug 'numToStr/Comment.nvim'
 
-  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSInstall all && :TSUpdate'}
   Plug 'nvim-treesitter/playground'
 
   " https://github.com/junegunn/vim-plug/issues/1107#issuecomment-911155500
   let g:go_update_command = ":lua require('go.install').update_all()"
   Plug 'ray-x/go.nvim', {'do': g:go_update_command}
   Plug 'ray-x/guihua.lua'
+
   Plug 'mfussenegger/nvim-dap'
   Plug 'rcarriga/nvim-dap-ui'
   Plug 'theHamsta/nvim-dap-virtual-text'
@@ -23,16 +25,20 @@ call plug#begin()
   Plug 'nvim-telescope/telescope.nvim',
   Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 
-  Plug 'neovim/nvim-lspconfig'
+  Plug 'hrsh7th/nvim-cmp'
   Plug 'hrsh7th/cmp-nvim-lsp'
+  Plug 'hrsh7th/cmp-nvim-lsp-document-symbol'
+  Plug 'hrsh7th/cmp-nvim-lsp-signature-help'
   Plug 'hrsh7th/cmp-buffer'
   Plug 'hrsh7th/cmp-path'
   Plug 'hrsh7th/cmp-cmdline'
-  Plug 'hrsh7th/nvim-cmp'
-  Plug 'L3MON4D3/LuaSnip', {'do': 'make && make jsregexp && make install_jsregexp'}
+  Plug 'hrsh7th/cmp-nvim-lua'
   Plug 'saadparwaiz1/cmp_luasnip'
-  Plug 'rafamadriz/friendly-snippets'
   Plug 'petertriho/cmp-git'
+
+  Plug 'L3MON4D3/LuaSnip', {'do': 'make install_jsregexp'}
+  Plug 'L3MON4D3/cmp-luasnip-choice'
+  Plug 'rafamadriz/friendly-snippets'
 
   Plug 'TimUntersberger/neogit'
   Plug 'lewis6991/gitsigns.nvim'
@@ -41,6 +47,7 @@ call plug#begin()
   Plug 'nvim-lualine/lualine.nvim'
   Plug 'RRethy/nvim-base16'
 
+  Plug 'neovim/nvim-lspconfig'
   Plug 'williamboman/mason.nvim'
   Plug 'williamboman/mason-lspconfig.nvim'
   Plug 'jose-elias-alvarez/null-ls.nvim'
@@ -51,6 +58,3 @@ call plug#end()
 
 " outdated-plugins
 let g:outdated_plugins_silent_mode = 1
-
-" vim-gitgutter
-highlight! link SignColumn LineNr

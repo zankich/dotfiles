@@ -24,7 +24,6 @@ setup_colors() {
   if [ ! -f "${HOME}/.config/tinted-theming/base16_shell_theme" ]; then
     bash -c "shopt -s expand_aliases; . ${HOME}/.config/base16-shell/profile_helper.sh; set_theme default-dark;"
   fi
-
 }
 
 setup_dotfiles() {
@@ -650,6 +649,8 @@ __node() {
   nvm install node
   nvm use node
   npm install -g neovim
+  npm install -g markdownlint-cli2
+  npm install -g markdownlint-cli2-formatter-pretty
 }
 
 __fzf() {
@@ -693,11 +694,11 @@ __ensure_repo() {
 }
 
 main() {
-  setup_dependencies
-  setup_dotfiles
-  setup_colors
-  setup_nvim
-  setup_tmux
+ setup_dependencies
+ setup_dotfiles
+ setup_colors
+ setup_nvim
+ setup_tmux
 }
 
 main
