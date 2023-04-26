@@ -17,6 +17,12 @@ null_ls.setup({
 			})
 		end
 	end,
+	sources = {
+		null_ls.builtins.completion.luasnip,
+		null_ls.builtins.completion.spell,
+		null_ls.builtins.completion.tags,
+		null_ls.builtins.code_actions.refactoring,
+	},
 })
 
 require("mason-null-ls").setup({
@@ -92,10 +98,3 @@ else
 		end,
 	}))
 end
-
-null_ls.register({
-	null_ls.builtins.completion.luasnip,
-	null_ls.builtins.completion.spell,
-	null_ls.builtins.completion.tags,
-	null_ls.builtins.code_actions.refactoring,
-})

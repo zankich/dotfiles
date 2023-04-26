@@ -25,3 +25,5 @@ require("zankich.refactoring")
 
 require("zankich.mason")
 require("zankich.null-ls")
+
+require("zankich.which-key")

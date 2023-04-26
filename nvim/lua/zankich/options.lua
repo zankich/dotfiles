@@ -38,3 +38,5 @@ vim.opt.updatetime = 100
 vim.opt.undofile = true
 vim.g.mapleader = ","
 vim.g.mapleaderlocal = ","
+vim.o.timeout = true
+vim.o.timeoutlen = 300

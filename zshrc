@@ -119,3 +119,5 @@ _get_display() {
 }
 
 _get_display
+
+ulimit -n 4096

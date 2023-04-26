@@ -29,7 +29,7 @@
 --     mode = "test",
 --     program = "${file}"
 --   },
---   -- works with go.mod packages and sub packages 
+--   -- works with go.mod packages and sub packages
 --   {
 --     type = "delve",
 --     name = "Debug test (go.mod)",

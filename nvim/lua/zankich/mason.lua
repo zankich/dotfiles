@@ -44,73 +44,79 @@ vim.api.nvim_create_autocmd("LspAttach", {
 mason.setup()
 
 mason_lspconfig.setup({
+	ensure_installed = {
+		"gopls",
+		"lua_ls",
+		"bashls",
+		"yamlls",
+		"marksman",
+	},
 	automatic_installation = true,
-})
-
-mason_lspconfig.setup_handlers({
-	function(server_name) -- default handler (optional)
-		lspconfig[server_name].setup({ capabilities = cmp_nvim_capabilities })
-	end,
-	["gopls"] = function()
-		lspconfig.gopls.setup(require("go.lsp").config())
-	end,
-	["lua_ls"] = function()
-		lspconfig.lua_ls.setup({
-			capabilities = cmp_nvim_capabilities,
-			settings = {
-				Lua = {
-					format = { enable = false },
-					runtime = {
-						-- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
-						version = "LuaJIT",
-					},
-					diagnostics = {
-						-- Get the language server to recognize the `vim` global
-						globals = { "vim" },
-					},
-					workspace = {
-						-- Make the server aware of Neovim runtime files
-						library = {
-							vim.api.nvim_get_runtime_file("", true),
-							vim.fn.expand("$VIMRUNTIME/lua"),
-							vim.fn.stdpath("config") .. "/lua",
+	handlers = {
+		function(server_name) -- default handler (optional)
+			lspconfig[server_name].setup({ capabilities = cmp_nvim_capabilities })
+		end,
+		["gopls"] = function()
+			lspconfig.gopls.setup(require("go.lsp").config())
+		end,
+		["lua_ls"] = function()
+			lspconfig.lua_ls.setup({
+				capabilities = cmp_nvim_capabilities,
+				settings = {
+					Lua = {
+						format = { enable = false },
+						runtime = {
+							-- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
+							version = "LuaJIT",
 						},
-						checkThirdParty = false, -- THIS IS THE IMPORTANT LINE TO ADD
+						diagnostics = {
+							-- Get the language server to recognize the `vim` global
+							globals = { "vim" },
+						},
+						workspace = {
+							-- Make the server aware of Neovim runtime files
+							library = {
+								vim.api.nvim_get_runtime_file("", true),
+								vim.fn.expand("$VIMRUNTIME/lua"),
+								vim.fn.stdpath("config") .. "/lua",
+							},
+							checkThirdParty = false, -- THIS IS THE IMPORTANT LINE TO ADD
+						},
+						-- Do not send telemetry data containing a randomized but unique identifier
+						telemetry = { enable = false },
 					},
-					-- Do not send telemetry data containing a randomized but unique identifier
-					telemetry = { enable = false },
 				},
-			},
-		})
-	end,
-	["bashls"] = function()
-		lspconfig.bashls.setup({
-			capabilities = cmp_nvim_capabilities,
-			settings = {
-				bashIde = {
-					backgroundAnalysisMaxFiles = 99999,
-					includeAllWorkspaceSymbols = true,
-					explainshellEndpoint = "https://explainshell.com",
-					shellcheckPath = "",
+			})
+		end,
+		["bashls"] = function()
+			lspconfig.bashls.setup({
+				capabilities = cmp_nvim_capabilities,
+				settings = {
+					bashIde = {
+						backgroundAnalysisMaxFiles = 99999,
+						includeAllWorkspaceSymbols = true,
+						explainshellEndpoint = "https://explainshell.com",
+						shellcheckPath = "",
+					},
 				},
-			},
-		})
-	end,
-	["yamlls"] = function()
-		lspconfig.yamlls.setup({
-			capabilities = cmp_nvim_capabilities,
-			filetypes = { "yaml", "yaml.docker-compose", "yml" },
-			settings = {
-				yaml = {
-					schemaStore = { enable = true },
-					format = { enable = true },
-					keyOrdering = false,
-					completion = true,
-					hover = true,
+			})
+		end,
+		["yamlls"] = function()
+			lspconfig.yamlls.setup({
+				capabilities = cmp_nvim_capabilities,
+				filetypes = { "yaml", "yaml.docker-compose", "yml" },
+				settings = {
+					yaml = {
+						schemaStore = { enable = true },
+						format = { enable = true },
+						keyOrdering = false,
+						completion = true,
+						hover = true,
+					},
 				},
-			},
-		})
-	end,
+			})
+		end,
+	},
 })
 
 vim.api.nvim_create_autocmd("FileType", {
