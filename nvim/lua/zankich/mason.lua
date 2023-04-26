@@ -57,7 +57,9 @@ mason_lspconfig.setup({
 			lspconfig[server_name].setup({ capabilities = cmp_nvim_capabilities })
 		end,
 		["gopls"] = function()
-			lspconfig.gopls.setup(require("go.lsp").config())
+			local cfg = require("go.lsp").config()
+			cfg.capabilities = cmp_nvim_capabilities
+			lspconfig.gopls.setup(cfg)
 		end,
 		["lua_ls"] = function()
 			lspconfig.lua_ls.setup({
