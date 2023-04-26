@@ -20,6 +20,7 @@ call plug#begin()
 
   Plug 'mfussenegger/nvim-dap'
   Plug 'rcarriga/nvim-dap-ui'
+  Plug 'folke/neodev.nvim' 
   Plug 'theHamsta/nvim-dap-virtual-text'
 
   Plug 'nvim-telescope/telescope.nvim',
@@ -54,6 +55,8 @@ call plug#begin()
   Plug 'jay-babu/mason-null-ls.nvim'
 
   Plug 'folke/lsp-trouble.nvim'
+
+  Plug 'ThePrimeagen/refactoring.nvim'
 call plug#end()
 
 " outdated-plugins

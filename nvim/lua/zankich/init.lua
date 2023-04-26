@@ -2,6 +2,9 @@ vim.cmd("source ~/.config/nvim/vimrc")
 
 require("zankich.options")
 require("zankich.util")
+
+require("zankich.dap")
+
 require("zankich.base16")
 
 require("zankich.cmp")
@@ -17,5 +20,8 @@ require("zankich.gitsigns")
 require("zankich.diffview")
 
 require("zankich.go")
+
+require("zankich.refactoring")
+
 require("zankich.mason")
 require("zankich.null-ls")

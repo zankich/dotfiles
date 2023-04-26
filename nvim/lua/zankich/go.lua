@@ -9,7 +9,7 @@ require("go").setup({
 	lsp_gofumpt = true,
 	lsp_cfg = { settings = { gopls = { ["local"] = "stash.corp.netflix.com" } } },
 	run_in_floatterm = true,
-	null_ls_document_formatting_disable = true,
+	null_ls_document_formatting_disable = false,
 	trouble = true,
 	gopls_remote_auto = false,
 })

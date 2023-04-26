@@ -1,10 +1,10 @@
 require("mason").setup()
 local null_ls = require("null-ls")
 local null_ls_utils = require("null-ls.utils").make_conditional_utils()
-
 local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+
 null_ls.setup({
-  debug = true,
+	debug = true,
 	on_attach = function(client, bufnr)
 		if client.supports_method("textDocument/formatting") then
 			vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
@@ -20,6 +20,14 @@ null_ls.setup({
 })
 
 require("mason-null-ls").setup({
+	ensure_installed = {
+		"stylua",
+		"prettier",
+		"yamllint",
+		"golangci_lint",
+		"shfmt",
+		"shellcheck",
+	},
 	automatic_installation = true,
 	handlers = {
 		yamllint = function()
@@ -85,7 +93,9 @@ else
 	}))
 end
 
-null_ls.register(null_ls.builtins.completion.luasnip)
-null_ls.register(null_ls.builtins.completion.spell)
-null_ls.register(null_ls.builtins.completion.tags)
-null_ls.register(null_ls.builtins.code_actions.refactoring)
+null_ls.register({
+	null_ls.builtins.completion.luasnip,
+	null_ls.builtins.completion.spell,
+	null_ls.builtins.completion.tags,
+	null_ls.builtins.code_actions.refactoring,
+})
