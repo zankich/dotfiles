@@ -9,7 +9,7 @@ require("go").setup({
 	lsp_gofumpt = true,
 	lsp_inlay_hints = { enable = false },
 	lsp_keymaps = false,
-	luasnip = true,
+	luasnip = false,
 	null_ls_document_formatting_disable = false,
 	run_in_floatterm = true,
 	trouble = true,

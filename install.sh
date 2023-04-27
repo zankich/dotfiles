@@ -13,15 +13,15 @@ fi
 
 __nvim() {
   echo "installing nvim..."
-  local github_release
-  github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail -sq https://api.github.com/repos/neovim/neovim/releases/latest)"
+  local release_body
+  release_body="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/neovim/neovim/releases/latest | jq -r .body)"
 
-  if ! command -v nvim >/dev/null || [[ $(echo "${github_release}" | jq -r .body | grep -wc "$(nvim --version | head -n 1)") == "0" ]]; then
+  if ! command -v nvim >/dev/null || ! grep --silent "${release_body}" <(nvim --version); then
     mkdir -p "${TMP_DIR}/nvim"
 
     pushd "${TMP_DIR}/nvim" >/dev/null
     curl --fail -#qL "https://github.com/neovim/neovim/archive/refs/tags/stable.tar.gz" \
-      | tar zxv --strip-components=1
+      | tar zxv --strip-components=1 --no-same-owner
 
     make CMAKE_BUILD_TYPE=Release
     sudo make install
@@ -30,53 +30,19 @@ __nvim() {
 
   python -m pip install --upgrade --user pynvim
 
-  cargo install tree-sitter-cli
-}
-
-__bat() {
-  echo "installing bat..."
-  local github_release
-  github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail -sq https://api.github.com/repos/sharkdp/bat/releases/latest)"
-
-  if ! command -v bat >/dev/null || [[ "$(echo "${github_release}" | jq -r .tag_name | grep -c "$(bat --version | cut -d " " -f 2)")" == "0" ]]; then
-    local github_asset
-    github_asset="""$(echo "${github_release}" \
-      | jq --arg arch "$(uname -m)" -r '.assets | map(select(.name | contains($arch) and contains("linux"))) | .[0]')"""
-
-    curl --fail -#qL "$(echo "${github_asset}" | jq -r .browser_download_url)" \
-      | sudo tar zxv -C /usr/local/bin "$(basename "$(echo "${github_asset}" | jq -r .name)" .tar.gz)/bat" \
-        --strip-components=1 --no-same-owner
-  fi
-}
-
-__fd() {
-  echo "installing fd..."
-  local github_release
-  github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail -sq https://api.github.com/repos/sharkdp/fd/releases/latest)"
-
-  if ! command -v fd >/dev/null || [[ "$(echo "${github_release}" | jq -r .tag_name | grep -c "$(fd --version | cut -d " " -f 2)")" == "0" ]]; then
-    local github_asset
-    github_asset="""$(echo "${github_release}" \
-      | jq --arg arch "$(uname -m)" -r '.assets | map(select(.name | contains($arch) and contains("linux"))) | .[0]')"""
-
-    curl --fail -#qL "$(echo "${github_asset}" | jq -r .browser_download_url)" \
-      | sudo tar zxv -C /usr/local/bin "$(basename "$(echo "${github_asset}" | jq -r .name)" .tar.gz)/fd" \
-        --strip-components=1 --no-same-owner
-  fi
+  cargo install --locked tree-sitter-cli
 }
 
 __tmux() {
   echo "installing tmux..."
-  local github_release
-  github_release="""$(curl "${GITHUB_CURL_HEADERS[@]}" --fail -sq https://api.github.com/repos/tmux/tmux/releases/latest | jq -r '.assets | map(select(.name | test("tmux.*tar.gz"))) | .[0]')"""
-  local tmux_version
-  tmux_version="$(basename "$(echo "${github_release}" | jq -r .name)" .tar.gz)"
+  local version
+  version="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail -sq https://api.github.com/repos/tmux/tmux/releases/latest | jq -r .tag_name)"
 
-  if ! command -v tmux >/dev/null || [[ "$(tmux -V | cut -d ' ' -f 2)" != "$(echo "${tmux_version}" | cut -d '-' -f 2)" ]]; then
-    echo "installing tmux ${tmux_version}"
+  if ! command -v tmux >/dev/null || ! grep --silent "${version}" <(tmux -V); then
+    echo "installing tmux ${version}"
 
-    curl --fail -#qL "$(echo "${github_release}" | jq -r .browser_download_url)" | tar zxv -C "${TMP_DIR}/"
-    pushd "${TMP_DIR}/${tmux_version}"
+    curl --fail -#qL "https://github.com/tmux/tmux/releases/download/${version}/tmux-${version}.tar.gz" | tar --no-same-owner -zxv -C "${TMP_DIR}/"
+    pushd "${TMP_DIR}/tmux-${version}"
     ./configure
     make -j
     sudo make install
@@ -86,11 +52,11 @@ __tmux() {
 
 __go() {
   echo "installing go..."
-  local go_version
-  go_version="$(curl --fail -sq "https://go.dev/VERSION?m=text")"
+  local version
+  version="$(curl --fail -sq "https://go.dev/VERSION?m=text")"
 
-  if ! command -v /usr/local/bin/go >/dev/null || [[ "${go_version}" != "$(/usr/local/bin/go version | cut -d ' ' -f 3)" ]]; then
-    echo "installing go ${go_version}"
+  if ! command -v /usr/local/bin/go >/dev/null || ! grep --silent "${version}" <(/usr/local/bin/go version); then
+    echo "installing go ${version}"
     if [[ -d /usr/local/go ]]; then
       sudo rm -rfv /usr/local/go
     fi
@@ -100,7 +66,7 @@ __go() {
       arch="arm64"
     fi
 
-    curl --fail -#qL "https://dl.google.com/go/${go_version}.linux-${arch}.tar.gz" | sudo tar xzv -C /usr/local
+    curl --fail -#qL "https://dl.google.com/go/${version}.linux-${arch}.tar.gz" | sudo tar --no-same-owner -xzv -C /usr/local
   fi
 
   sudo ln -sf /usr/local/go/bin/go /usr/local/bin/go
@@ -114,12 +80,12 @@ __zsh() {
   mkdir -p "${TMP_DIR}/zsh-latest"
 
   pushd "${TMP_DIR}" >/dev/null
-  tar -xf zsh-latest.tar.xz -C zsh-latest --strip-components=1
+  tar -xf zsh-latest.tar.xz -C zsh-latest --strip-components=1 --no-same-owner
   pushd zsh-latest >/dev/null
-  local zsh_version
-  zsh_version="$(grep "VERSION=" Config/version.mk | cut -d"=" -f2)"
+  local version
+  version="$(grep "VERSION=" Config/version.mk | cut -d"=" -f2)"
 
-  if ! command -v /usr/local/bin/zsh >/dev/null || [[ "$(/usr/local/bin/zsh --version | cut -d ' ' -f 2)" != "${zsh_version}" ]]; then
+  if ! command -v /usr/local/bin/zsh >/dev/null || ! grep --silent "${version}" <(/usr/local/bin/zsh --version); then
     ./configure
     make -j
     sudo make install
@@ -154,13 +120,10 @@ __alacritty() {
     return 0
   fi
 
-  local github_release
-  github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail -sq https://api.github.com/repos/alacritty/alacritty/releases/latest)"
-  local alacritty_version
-  alacritty_version="$(echo "${github_release}" | jq -r .tag_name)"
+  local version
+  version="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/alacritty/alacritty/releases/latest | jq -r .tag_name)"
 
-  if ! command -v alacritty >/dev/null || [[ "$(echo "${alacritty_version}" | grep -c "$(alacritty --version | cut -d " " -f 2)")" == "0" ]]; then
-
+  if ! command -v alacritty >/dev/null || ! grep --silent "${version#v}" <(alacritty --version); then
     if pgrep --exact alacritty; then
       local answer
       read -rp "alacritty process running. quit to continue install(Y/n)? " answer 1>&2
@@ -179,8 +142,8 @@ __alacritty() {
     mkdir -p "${TMP_DIR}/alacritty"
 
     pushd "${TMP_DIR}" >/dev/null
-    curl --fail -#qL "https://github.com/alacritty/alacritty/archive/refs/tags/${alacritty_version}.tar.gz" \
-      | tar zxv -C alacritty --strip-components=1
+    curl --fail -#qL "https://github.com/alacritty/alacritty/archive/refs/tags/${version}.tar.gz" \
+      | tar zxv -C alacritty --strip-components=1 --no-same-owner
 
     pushd alacritty >/dev/null
     cargo build --release
@@ -204,41 +167,32 @@ __alacritty() {
 
 __direnv() {
   echo "installing direnv..."
-  # local github_release
-  # github_release="$(curl --fail -sq https://api.github.com/repos/direnv/direnv/releases/latest)"
-  # local direnv_version
-  # direnv_version="$(echo "${github_release}" | jq -r .tag_name)"
-
   local version
-  version="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/direnv/direnv/releases/latest) | jq -r .tag_name)"
+  version="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/direnv/direnv/releases/latest | jq -r .tag_name)"
 
-  if ! command -v direnv >/dev/null || [[ "$(echo "${version}" | grep -c "$(direnv --version)")" == "0" ]]; then
+  if ! command -v direnv >/dev/null || ! grep --silent "${version}" <(direnv --version); then
     local arch="amd64"
     if [[ $(uname -m) != "x86_64" ]]; then
       arch="arm64"
     fi
 
-    sudo curl --fail -#qL -o /usr/local/bin/direnv https://github.com/direnv/direnv/releases/download/"${version}"/direnv.linux-${arch}
+    sudo curl --fail -#qL -o /usr/local/bin/direnv https://github.com/direnv/direnv/releases/download/${version}/direnv.linux-${arch}
     sudo chmod +x /usr/local/bin/direnv
   fi
 }
 
 __grpcurl() {
   echo "installing grpcurl..."
-  local github_release
-  github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail -sq https://api.github.com/repos/fullstorydev/grpcurl/releases/latest)"
+  local version
+  version="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/fullstorydev/grpcurl/releases/latest | jq -r .tag_name)"
 
-  if ! command -v grpcurl >/dev/null || [[ "$(echo "${github_release}" | jq -r .tag_name | grep -c "$(grpcurl --version)")" == "0" ]]; then
+  if ! command -v grpcurl >/dev/null || ! grep "${version}" <(grpcurl --version); then
     local arch="x86_64"
     if [[ $(uname -m) != "x86_64" ]]; then
       arch="arm64"
     fi
 
-    local github_asset
-    github_asset="$(echo "${github_release}" \
-      | jq -r --arg arch "${arch}" '.assets | map(select(.name | contains($arch) and contains("linux"))) | .[0]')"
-
-    curl --fail -#qL "$(echo "${github_asset}" | jq -r .browser_download_url)" \
+    curl --fail -#qL "https://github.com/fullstorydev/grpcurl/releases/download/${version}/grpcurl_${version#v}_linux_${arch}.tar.gz" \
       | sudo tar zxv -C /usr/local/bin grpcurl --no-same-owner
   fi
 }
@@ -247,7 +201,7 @@ __logiops() {
   echo "installing logiops..."
 
   local version
-  version="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/PixlOne/logiops/releases/latest) | jq -r .tag_name)"
+  version="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/PixlOne/logiops/releases/latest | jq -r .tag_name)"
 
   __ensure_repo https://github.com/PixlOne/logiops "${TMP_DIR}/logiops"
   pushd "${TMP_DIR}/logiops" >/dev/null
@@ -271,15 +225,13 @@ __logiops() {
 
 __qemu() {
   local version
-  version="${1}"
-  shift
-  echo "installing qemu..."
+  version="$(curl -fsSLq https://download.qemu.org/ | grep -oP 'href="\Kqemu-[0-9]+\.[0-9]+\.[0-9]+\.tar\.xz' | tail -n 1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+')"
 
-  if ! command -v qemu-aarch64 >/dev/null || [[ "$(grep -c "$(qemu-aarch64 --version | head -n 1 | cut -d" " -f 3)" "${version}")" == "0" ]]; then
+  if ! command -v qemu-aarch64 >/dev/null || ! grep --silent "${version}" <(qemu-aarch64 --version); then
     mkdir -p "${TMP_DIR}/qemu"
     pushd "${TMP_DIR}/qemu" >/dev/null
     curl -OL "https://download.qemu.org/qemu-${version}.tar.xz"
-    tar xvJf "qemu-${version}.tar.xz"
+    tar --no-same-owner -xvJf "qemu-${version}.tar.xz"
     cd "qemu-${version}"
     ./configure \
       --enable-slirp \
@@ -296,9 +248,9 @@ __qemu() {
 __colima() {
   echo "installing colima..."
   local version
-  version=$(curl -fsSL https://api.github.com/repos/abiosoft/colima/releases/latest | jq -r .tag_name)
+  version=$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/abiosoft/colima/releases/latest | jq -r .tag_name)
 
-  if ! command -v colima >/dev/null || [[ "$(echo "${version}" | grep -c "$(colima --version | cut -d " " -f 3)")" == "0" ]]; then
+  if ! command -v colima >/dev/null || ! grep --silent "${version}" <(colima --version); then
     local arch="x86_64"
     if [[ $(uname -m) != "x86_64" ]]; then
       arch="aarch64"
@@ -312,10 +264,10 @@ __colima() {
 __lima() {
   echo "installing lima..."
   local version
-  version=$(curl -fsSL https://api.github.com/repos/lima-vm/lima/releases/latest | jq -r .tag_name)
+  version=$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/lima-vm/lima/releases/latest | jq -r .tag_name)
 
-  if ! command -v limactl >/dev/null || [[ "$(echo "${version}" | grep -c "$(limactl --version | cut -d " " -f 3)")" == "0" ]]; then
-    curl --fail -#qL "https://github.com/lima-vm/lima/releases/download/${version}/lima-${version:1}-$(uname -s)-$(uname -m).tar.gz" | sudo tar Cxzvm /usr/local
+  if ! command -v limactl >/dev/null || ! grep --silent "${version}" <(limactl --version); then
+    curl --fail -#qL "https://github.com/lima-vm/lima/releases/download/${version}/lima-${version:1}-linux-$(uname -m).tar.gz" | sudo tar --no-same-owner -Cxzvm /usr/local
   fi
 }
 
@@ -353,18 +305,16 @@ __lua() {
     | grep -o -m 1 'Lua [0-9]\+\.[0-9]\+\.[0-9]\+' \
     | awk '{print $2}')"
 
-  if ! command -v lua >/dev/null || [[ "${lua_version}" != "$(lua -v | awk '{print $2}')" ]]; then
+  if ! command -v lua >/dev/null || ! grep --silent "${lua_version}" <(lua -v); then
     mkdir -p "${TMP_DIR}/lua"
     pushd "${TMP_DIR}/lua" >/dev/null
     curl --fail -q -sSL -O "http://www.lua.org/ftp/lua-${lua_version}.tar.gz"
-    tar zxf "lua-${lua_version}.tar.gz"
+    tar --no-same-owner -zxf "lua-${lua_version}.tar.gz"
     pushd "lua-${lua_version}"
     sudo make all install
     popd
     popd >/dev/null
   fi
-
-  set -x
 
   if ! command -v luarocks >/dev/null; then
     local luarocks_version
@@ -380,7 +330,7 @@ __lua() {
     pushd "${TMP_DIR}/luarocks" >/dev/null
 
     curl --fail -q -sSL -O https://luarocks.org/releases/luarocks-${luarocks_version}.tar.gz
-    tar zxpf luarocks-${luarocks_version}.tar.gz
+    tar --no-same-owner -zxpf luarocks-${luarocks_version}.tar.gz
 
     pushd luarocks-${luarocks_version} >/dev/null
 
@@ -392,7 +342,7 @@ __lua() {
 
     popd >/dev/null
   else
-    luarocks install luacov
+    sudo luarocks install luarocks
   fi
 }
 
@@ -471,20 +421,18 @@ __fzf() {
 
 __shellcheck() {
   echo "installing shellcheck..."
-  echo "not implemented"
-  # exit 1
-  # local github_release
-  # github_release="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail -sq https://api.github.com/repos/koalaman/shellcheck/releases/latest)"
-  #
-  # if ! command -v shellcheck >/dev/null || [[ "$(echo "${github_release}" | jq -r .tag_name | grep -c "$(shellcheck --version | grep version | head -n1 | cut -d " " -f 2)" == "0" ]]; then
-  #   local github_asset
-  #   github_asset="""$(echo "${github_release}" \
-  #     | jq --arg arch "$(uname -m)" -r '.assets | map(select(.name | contains($arch) and contains("linux"))) | .[0]')"""
-  #
-  #   curl --fail -#qL "$(echo "${github_asset}" | jq -r .browser_download_url)" \
-  #     | sudo tar zxv -C /usr/local/bin "$(basename "$(echo "${github_asset}" | jq -r .name)" .tar.gz)/fd" \
-  #       --strip-components=1 --no-same-owner
-  # fi
+  local version
+  version=$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/koalaman/shellcheck/releases/latest | jq -r .tag_name)
+
+  if ! command -v shellcheck >/dev/null || ! grep --silent "${version#v}" <(shellcheck --version); then
+    local arch="x86_64"
+    if [[ $(uname -m) != "x86_64" ]]; then
+      arch="aarch64"
+    fi
+
+    curl --fail -#qL "https://github.com/koalaman/shellcheck/releases/download/${version}/shellcheck-${version}.linux.${arch}.tar.xz" \
+      | sudo tar --strip-components=1 --no-same-owner -C /usr/local/bin -xJv "shellcheck-${version}/shellcheck"
+  fi
 }
 
 __ensure_repo() {
@@ -556,7 +504,8 @@ setup_dependencies() {
           libxmlsec1-dev \
           libffi-dev \
           liblzma-dev \
-          wget
+          wget \
+          flex
 
       __go
       __rust
@@ -570,21 +519,22 @@ setup_dependencies() {
 
       __zsh
       __tmux
-      __bat
-      __fd
       __nvim
       __direnv
       __grpcurl
       __nvm
       __fzf
-      # _shellcheck
+      __shellcheck
 
-      if [[ ! -f "/.dockerenv" ]] || [[ -z "${INSTALL_DOCKER}" ]]; then
+      cargo install --locked bat
+      cargo install --locked fd-find
+
+      if [[ -n "${INSTALL_EXTRA:-}" ]]; then
         __logiops
         __alacritty
         __nerd-fonts
         __docker
-        __qemu "7.2.0"
+        __qemu
         __colima
         __lima
       fi

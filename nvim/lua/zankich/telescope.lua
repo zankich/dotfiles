@@ -4,9 +4,17 @@ M.find_files_opts = { hidden = true }
 
 local util = require("zankich.util")
 local actions = require("telescope.actions")
+local trouble = require("trouble.providers.telescope")
+
 require("telescope").setup({
 	defaults = require("telescope.themes").get_ivy({
-		mappings = { i = { ["<esc>"] = actions.close } },
+		mappings = {
+			i = {
+				["<esc>"] = actions.close,
+				["<c-t>"] = trouble.open_with_trouble,
+			},
+			n = { ["<c-t>"] = trouble.open_with_trouble },
+		},
 	}),
 	pickers = {
 		colorscheme = { enable_preview = true },

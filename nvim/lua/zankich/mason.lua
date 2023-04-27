@@ -59,6 +59,7 @@ mason_lspconfig.setup({
 		["gopls"] = function()
 			local cfg = require("go.lsp").config()
 			cfg.capabilities = cmp_nvim_capabilities
+			cfg.settings.gopls["local"] = "stash.corp.netflix.com"
 			lspconfig.gopls.setup(cfg)
 		end,
 		["lua_ls"] = function()

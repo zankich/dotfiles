@@ -8,12 +8,12 @@ require("zankich.dap")
 require("zankich.base16")
 
 require("zankich.cmp")
+require("zankich.trouble")
 require("zankich.telescope")
 require("zankich.comment")
 require("zankich.lualine")
 require("zankich.nvim-tree")
 require("zankich.treesitter")
-require("zankich.trouble")
 
 require("zankich.neogit")
 require("zankich.gitsigns")
