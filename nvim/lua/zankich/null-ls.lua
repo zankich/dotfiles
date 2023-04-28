@@ -151,7 +151,8 @@ require("mason-null-ls").setup({
 			end
 		end,
 		golangci_lint = function()
-			local source = golangci_lint
+			-- local source = golangci_lint
+			local source = null_ls.builtins.diagnostics.golangci_lint
 
 			if not null_ls_utils.root_has_file(".golangci.yml") then
 				source = source.with({

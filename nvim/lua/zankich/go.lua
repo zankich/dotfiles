@@ -13,6 +13,7 @@ require("go").setup({
 	null_ls_document_formatting_disable = false,
 	run_in_floatterm = true,
 	trouble = true,
+	lsp_diag_hdlr = false,
 })
 
 -- Run gofmt + goimport on save

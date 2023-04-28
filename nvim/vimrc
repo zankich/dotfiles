@@ -1,6 +1,15 @@
 filetype plugin indent on          " Load plugins according to detected filetype.
 syntax on                          " Enable syntax highlighting.
 
+function! TreesitterPostAction(info)
+  " info is a dictionary with 3 fields
+  " - name:   name of the plugin
+  " - status: 'installed', 'updated', or 'unchanged'
+  " - force:  set on PlugInstall! or PlugUpdate!
+  execute "TSInstall all"
+  execute "TSUpdate all"
+endfunction
+
 call plug#begin()
   Plug 'semanser/vim-outdated-plugins'
   Plug 'nvim-lua/plenary.nvim'
@@ -10,7 +19,7 @@ call plug#begin()
 
   Plug 'numToStr/Comment.nvim'
 
-  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSInstall all'}
+  Plug 'nvim-treesitter/nvim-treesitter', {'do': function('TreesitterPostAction')}
   Plug 'nvim-treesitter/playground'
 
   " https://github.com/junegunn/vim-plug/issues/1107#issuecomment-911155500
