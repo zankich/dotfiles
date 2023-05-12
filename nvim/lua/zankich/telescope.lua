@@ -43,7 +43,8 @@ require("telescope").setup({
 	},
 })
 
-require("telescope").load_extension("fzf")
+local telescope = require("telescope")
+telescope.load_extension("fzf")
 
 local builtin = require("telescope.builtin")
 

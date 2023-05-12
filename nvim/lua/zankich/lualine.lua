@@ -5,19 +5,34 @@ lualine.setup({
 	sections = {
 		lualine_c = {
 			{ "require('zankich.util').filePathFromBufferRootDir()", padding = 2 },
+			{ "require('lsp-status').status()" },
 		},
 	},
 	-- sections = {lualine_c = {{'filename', path = 1, padding = 2}}},
 	inactive_sections = {
 		lualine_c = {
 			{ "require('zankich.util').filePathFromBufferRootDir()", padding = 2 },
+			-- { "os.date('%a')", "data", "require('lsp-status').status()" },
 		},
 	},
 	-- inactive_winbar = {lualine_c = {{'filename', path = 1}}},
 	-- inactive_sections = {},
 	-- inactive_winbar = {},
 	tabline = {
+		lualine_a = {
+			{
+				"mode",
+				color = function()
+					for _, group in ipairs(vim.fn.getcompletion("lualine_a_*_*$", "highlight")) do
+						if string.match(group, "^lualine_a_%d+_.+") then
+							vim.api.nvim_set_hl(0, group, { link = string.gsub(group, "^lualine_a_%d+", "lualine_a") })
+						end
+					end
+				end,
+			},
+		},
 		lualine_c = { { "filename", path = 3, padding = 2 } },
+		-- lualine_c = { "os.date('%a')", "data", "require'lsp-status'.status()" },
 		lualine_z = {
 			{
 				"tabs",

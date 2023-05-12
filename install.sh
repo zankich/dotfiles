@@ -293,6 +293,7 @@ __nerd-fonts() {
 
   pushd "${TMP_DIR}/nerd-fonts" >/dev/null
   git sparse-checkout add patched-fonts/Hack
+  git sparse-checkout add patched-fonts/Inconsolata
   sudo ./install.sh -S
   popd >/dev/null
 }

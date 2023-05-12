@@ -22,10 +22,8 @@ call plug#begin()
   Plug 'nvim-treesitter/nvim-treesitter', {'do': function('TreesitterPostAction')}
   Plug 'nvim-treesitter/playground'
 
-  " https://github.com/junegunn/vim-plug/issues/1107#issuecomment-911155500
-  let g:go_update_command = ":lua require('go.install').update_all()"
-  Plug 'ray-x/go.nvim', {'do': g:go_update_command}
-  Plug 'ray-x/guihua.lua'
+  Plug 'rcarriga/nvim-notify'
+  Plug 'mrded/nvim-lsp-notify'
 
   Plug 'mfussenegger/nvim-dap'
   Plug 'rcarriga/nvim-dap-ui'
@@ -49,11 +47,13 @@ call plug#begin()
   Plug 'L3MON4D3/LuaSnip', {'do': 'make install_jsregexp'}
   Plug 'L3MON4D3/cmp-luasnip-choice'
   Plug 'rafamadriz/friendly-snippets'
+  Plug 'honza/vim-snippets'
 
   Plug 'TimUntersberger/neogit'
   Plug 'lewis6991/gitsigns.nvim'
   Plug 'sindrets/diffview.nvim'
 
+  Plug 'nvim-lua/lsp-status.nvim'
   Plug 'nvim-lualine/lualine.nvim'
   Plug 'RRethy/nvim-base16'
 
@@ -66,9 +66,14 @@ call plug#begin()
 
   Plug 'folke/lsp-trouble.nvim'
 
-  Plug 'ThePrimeagen/refactoring.nvim'
-
   Plug 'folke/which-key.nvim'
+
+  Plug 'nvim-neotest/neotest'
+  " pinning due to https://github.com/nvim-neotest/neotest-go/issues/47
+  " Plug 'nvim-neotest/neotest-go', {'commit': '2148ad794e7a5c30c7385a3281f4be91e6b113c4'}
+  " Plug 'nvim-neotest/neotest-go', {'dir': '/home/azankich/code/github.com/nvim-neotest/neotest-go'}
+  " Plug 'zankich/neotest-go', {'branch': 'gh-issue-47', 'dir': '/home/azankich/code/github.com/zankich/neotest-go'}
+  Plug 'zankich/neotest-go', {'dir': '/home/azankich/code/github.com/zankich/neotest-go'}
 call plug#end()
 
 " outdated-plugins

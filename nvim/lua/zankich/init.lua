@@ -1,7 +1,9 @@
 vim.cmd("source ~/.config/nvim/vimrc")
 
-require("zankich.options")
 require("zankich.util")
+require("zankich.options")
+require("zankich.nvim-notify")
+require("zankich.neotest")
 
 require("zankich.dap")
 
@@ -13,7 +15,6 @@ require("zankich.telescope")
 require("zankich.comment")
 require("zankich.lualine")
 require("zankich.nvim-tree")
-require("zankich.treesitter")
 
 require("zankich.neogit")
 require("zankich.gitsigns")
@@ -21,9 +22,9 @@ require("zankich.diffview")
 
 require("zankich.go")
 
-require("zankich.refactoring")
-
 require("zankich.mason")
 require("zankich.null-ls")
 
 require("zankich.which-key")
+
+require("zankich.treesitter")

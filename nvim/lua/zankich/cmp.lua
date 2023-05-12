@@ -1,7 +1,6 @@
 local cmp = require("cmp")
 local luasnip = require("luasnip")
 
-require("luasnip.loaders.from_vscode").lazy_load()
 require("cmp_luasnip_choice").setup({
 	auto_open = true, -- Automatically open nvim-cmp on choice node (default: true)
 })
@@ -35,6 +34,7 @@ cmp.setup({
 			-- You could replace the expand_or_jumpable() calls with expand_or_locally_jumpable()
 			-- they way you will only jump inside the snippet region
 			elseif luasnip.expand_or_jumpable() then
+				-- elseif luasnip.expand_or_locally_jumpable() then
 				luasnip.expand_or_jump()
 			elseif has_words_before() then
 				cmp.complete()
@@ -89,3 +89,17 @@ cmp.setup.cmdline(":", {
 		},
 	}),
 })
+
+luasnip.config.setup({
+	store_selection_keys = "<C-s>",
+	enable_autosnippets = true,
+})
+
+require("luasnip.loaders.from_vscode").lazy_load()
+require("luasnip.loaders.from_snipmate").lazy_load()
+
+-- set keybinds for both INSERT and VISUAL.
+-- vim.api.nvim_set_keymap("i", "<C-n>", "<Plug>luasnip-next-choice", {})
+-- vim.api.nvim_set_keymap("s", "<C-n>", "<Plug>luasnip-next-choice", {})
+-- vim.api.nvim_set_keymap("i", "<C-p>", "<Plug>luasnip-prev-choice", {})
+-- vim.api.nvim_set_keymap("s", "<C-p>", "<Plug>luasnip-prev-choice", {})

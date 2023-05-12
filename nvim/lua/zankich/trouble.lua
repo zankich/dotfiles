@@ -1,15 +1,25 @@
-require("trouble").setup({})
-
-vim.diagnostic.config({
-	virtual_text = false,
-	signs = true,
-	underline = false,
-	update_in_insert = false,
-	severity_sort = true,
+require("trouble").setup({
+	use_diagnostic_signs = false,
 })
 
--- vim.cmd [[autocmd! CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false, scope="cursor"})]]
--- You will likely want to reduce updatetime which affects CursorHold
--- note: this setting is global and should be set only once
--- vim.o.updatetime = 250
--- vim.cmd [[autocmd! CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
+vim.keymap.set("n", "<space>t", ":Trouble<CR>", { silent = true, noremap = true })
+
+local do_trouble = function(action)
+	vim.cmd(":Trouble " .. action)
+end
+
+vim.api.nvim_create_user_command("LspDefinitions", function()
+	do_trouble("lsp_definitions")
+end, {})
+
+vim.api.nvim_create_user_command("LspReferences", function()
+	do_trouble("lsp_references")
+end, {})
+
+vim.api.nvim_create_user_command("LspImplementations", function()
+	do_trouble("lsp_implementations")
+end, {})
+
+vim.api.nvim_create_user_command("LspTypeDefinitions", function()
+	do_trouble("lsp_type_definitions")
+end, {})

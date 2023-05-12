@@ -76,9 +76,14 @@ nvim() {
   # else
   #   command nvim --listen "${socket}" "${@}"
   # fi
-  local dir="${HOME}/.cache/nvim/listen"
-  mkdir -p "${dir}"
-  command nvim --listen "${dir}/$(date +%s).pipe" "${@}"
+
+  mkdir -p "${HOME}/.cache/nvim/listen/"
+
+  local socket
+  socket="${HOME}/.cache/nvim/listen/$(date +%s).pipe"
+  command nvim --listen "${socket}" "${@}"
+
+  rm "${pipe}" >& /dev/null || true
 }
 
 [[ ! -f ~/.cargo/env ]] || source ~/.cargo/env

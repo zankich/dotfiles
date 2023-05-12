@@ -48,4 +48,7 @@ end
 vim.api.nvim_create_autocmd("BufEnter", { command = vim.cmd.lcd(M.bufferRootDir()) })
 vim.keymap.set("n", "<space>r", M.reload, { silent = true, noremap = true })
 
+vim.keymap.set("n", "<Leader>s", ":%s/<C-r><C-w>//gc<Left><Left><Left>")
+vim.keymap.set("v", "<Leader>s", '"hy:%s/<C-r>h//gc<left><left><left>')
+
 return M

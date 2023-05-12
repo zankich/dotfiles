@@ -67,6 +67,6 @@ vim.api.nvim_set_hl(0, "@variable.builtin", { nocombine = true })
 vim.api.nvim_set_hl(0, "luaError", { nocombine = true })
 
 -- Hide all semantic highlights
-for _, group in ipairs(vim.fn.getcompletion("@lsp", "highlight")) do
-	vim.api.nvim_set_hl(0, group, {})
-end
+-- for _, group in ipairs(vim.fn.getcompletion("@lsp", "highlight")) do
+-- 	vim.api.nvim_set_hl(0, group, {})
+-- end
