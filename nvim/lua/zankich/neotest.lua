@@ -13,7 +13,7 @@ local spinner_frames = { "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" 
 local function update_spinner(id)
 	local notif_data = get_notif_data(id)
 
-	if notif_data.spinner then
+	if notif_data.spinner and notif_data.notification then
 		notif_data.spinner = ((notif_data.spinner + 1) % #spinner_frames)
 		if notif_data.spinner == 0 then
 			notif_data.spinner = 8

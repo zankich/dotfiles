@@ -87,6 +87,7 @@ local go_imports = function(client, bufnr)
 		"--section=prefix(stash.corp.netflix.com)",
 		"--section=blank",
 		"--section=dot",
+		"--skip-generated",
 	}, vim.api.nvim_buf_get_lines(bufnr, 0, -1, true))
 
 	if not vim.v.shell_error == 1 then
