@@ -29,6 +29,7 @@ call plug#begin()
   Plug 'rcarriga/nvim-dap-ui'
   Plug 'folke/neodev.nvim' 
   Plug 'theHamsta/nvim-dap-virtual-text'
+  Plug 'leoluz/nvim-dap-go'
 
   Plug 'nvim-telescope/telescope.nvim',
   Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
@@ -46,8 +47,8 @@ call plug#begin()
 
   Plug 'L3MON4D3/LuaSnip', {'do': 'make install_jsregexp'}
   Plug 'L3MON4D3/cmp-luasnip-choice'
-  Plug 'rafamadriz/friendly-snippets'
-  Plug 'honza/vim-snippets'
+  " Plug 'rafamadriz/friendly-snippets'
+  " Plug 'honza/vim-snippets'
 
   Plug 'TimUntersberger/neogit'
   Plug 'lewis6991/gitsigns.nvim'
@@ -62,7 +63,6 @@ call plug#begin()
   Plug 'williamboman/mason.nvim'
   Plug 'williamboman/mason-lspconfig.nvim'
   Plug 'jay-babu/mason-null-ls.nvim'
-  Plug 'jay-babu/mason-nvim-dap.nvim'
 
   Plug 'folke/lsp-trouble.nvim'
 
@@ -70,10 +70,8 @@ call plug#begin()
 
   Plug 'nvim-neotest/neotest'
   " pinning due to https://github.com/nvim-neotest/neotest-go/issues/47
-  " Plug 'nvim-neotest/neotest-go', {'commit': '2148ad794e7a5c30c7385a3281f4be91e6b113c4'}
-  " Plug 'nvim-neotest/neotest-go', {'dir': '/home/azankich/code/github.com/nvim-neotest/neotest-go'}
-  " Plug 'zankich/neotest-go', {'branch': 'gh-issue-47', 'dir': '/home/azankich/code/github.com/zankich/neotest-go'}
-  Plug 'zankich/neotest-go', {'dir': '/home/azankich/code/github.com/zankich/neotest-go'}
+  " Plug 'nvim-neotest/neotest-go'
+  Plug 'zankich/neotest-go', {'branch': 'gh-issue-47'}
 call plug#end()
 
 " outdated-plugins

@@ -1,8 +1,24 @@
-require("trouble").setup({
+local trouble = require("trouble")
+trouble.setup({
+	auto_preview = false,
+	-- auto_fold = true,
 	use_diagnostic_signs = false,
+	sort_keys = {
+		"filename",
+		"lnum",
+		"col",
+		"severity",
+	},
 })
 
 vim.keymap.set("n", "<space>t", ":Trouble<CR>", { silent = true, noremap = true })
+
+vim.keymap.set("n", "[t", function()
+	trouble.previous({ skip_groups = true, jump = true })
+end)
+vim.keymap.set("n", "]t", function()
+	trouble.next({ skip_groups = true, jump = true })
+end)
 
 local do_trouble = function(action)
 	vim.cmd(":Trouble " .. action)

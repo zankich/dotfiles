@@ -1,32 +1,54 @@
 ---
+issues:
+  max-issues-per-linter: 0 # no limit
+  max-same-issues: 0 # no limit
 linters:
-  enable-all: true
   disable:
+    - cyclop # reviewers should make the appropriate determination
     - deadcode # deprecated
+    - dogsled # too pedantic
+    - dupl # too many false positives
     - exhaustivestruct # deprecated
     - exhaustruct # too cumbersome
     - funlen # too cumbersome
+    - gochecknoglobals # reviewers should make the appropriate determination
+    - gocognit # reviewers should make the appropriate determination
+    - gocyclo # reviewers should make the appropriate determination
     - godox # too cumbersome
+    - goerr113 # duplicate of errorlint
     - golint # deprecated
     - gomnd # too cumbersome
     - gomoddirectives # deprecated
     - ifshort # deprecated
     - interfacebloat # too cumbersome
     - interfacer # deprecated
+    - ireturn # too pedantic
     - lll # too cumbersome
+    - maintidx # reviewers should make the appropriate determination
     - maligned # deprecated
     - musttag # due to https://github.com/golangci/golangci-lint-action/issues/714
+    - nestif # reviewers should make the appropriate determination
+    - nilerr # reviewers should make the appropriate determination
+    - nlreturn # duplicated behavior of wsl
+    - nonamedreturns # too pedantic
     - nosnakecase # deprecated
+    - paralleltest # too cumbersome
     - scopelint # deprecated
     - structcheck # deprecated
-    - structcheck # deprecated
     - testpackage # too cumbersome
+    - thelper # too pedantic
+    - unparam # reviewers should make the appropriate determination
     - varcheck # deprecated
+    - varnamelen # too cumbersome
+    - wastedassign # too pedantic
+    - wsl # too pedantic
+  enable-all: true
 linters-settings:
-  gofmt:
-    simplify: true
-  goimports:
-    local-prefixes: stash.corp.netflix.com
+  errorlint:
+    asserts: true
+    comparison: true
+    errorf: true
+    errorf-multi: true
   gci:
     sections:
       - standard
@@ -34,23 +56,40 @@ linters-settings:
       - prefix(stash.corp.netflix.com)
       - blank
       - dot
+  goconst:
+    ignore-tests: true
+    match-constant: true
+    min-occurrences: 10
+    numbers: false
+  gofmt:
+    simplify: true
   gofumpt:
     extra-rules: true
+  goimports:
+    local-prefixes: stash.corp.netflix.com
+  nolintlint:
+    allow-unused: false
+    require-explanation: false
+    require-specific: true
+  revive:
+    rules:
+      - disabled: true
+        name: unused-parameter
   staticcheck:
     checks:
       - all
   tagliatelle:
     case:
-      use-field-name: true
       rules:
         json: snake
         yaml: snake
+      use-field-name: true
+  wrapcheck:
+    ignorePackageGlobs:
+      - google.golang.org/grpc/status
 output:
   sort-results: true
 run:
-  timeout: 5m
-  tests: true
-  allow-parallel-runners: true
   skip-dirs: .git|vendor
-issues:
-  max-same-issues: 100
+  tests: true
+  timeout: 5m

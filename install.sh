@@ -530,15 +530,15 @@ setup_dependencies() {
       cargo install --locked bat
       cargo install --locked fd-find
 
-      if [[ -n "${INSTALL_EXTRA:-}" ]]; then
-        __logiops
-        __alacritty
-        __nerd-fonts
-        __docker
-        __qemu
-        __colima
-        __lima
-      fi
+      # if [[ -n "${INSTALL_EXTRA:-}" ]]; then
+      __logiops
+      __alacritty
+      __nerd-fonts
+      __docker
+      # __qemu
+      # __colima
+      # __lima
+      # fi
 
       ;;
     Darwin)

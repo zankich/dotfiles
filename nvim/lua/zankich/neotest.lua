@@ -1,3 +1,6 @@
+local notify = require("notify")
+local neotest = require("neotest")
+
 local notifications = {}
 
 local function get_notif_data(id)
@@ -13,17 +16,22 @@ local spinner_frames = { "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" 
 local function update_spinner(id)
 	local notif_data = get_notif_data(id)
 
-	if notif_data.spinner and notif_data.notification then
+	if notif_data.spinner then
 		notif_data.spinner = ((notif_data.spinner + 1) % #spinner_frames)
 		if notif_data.spinner == 0 then
 			notif_data.spinner = 8
 		end
 
-		notif_data.notification = vim.notify(nil, nil, {
-			hide_from_history = true,
-			icon = spinner_frames[notif_data.spinner],
-			replace = notif_data.notification.id,
-		})
+		if notif_data.notification.id then
+			notif_data.notification = vim.notify(nil, nil, {
+				hide_from_history = true,
+				icon = spinner_frames[notif_data.spinner],
+				replace = notif_data.notification.id,
+			})
+		else
+			notify.dismiss({ pending = false })
+			return nil
+		end
 
 		vim.defer_fn(function()
 			update_spinner(id)
@@ -35,6 +43,8 @@ local function update_spinner(id)
 			replace = notif_data.notification.id,
 			timeout = 0,
 		})
+
+		return nil
 	end
 end
 
@@ -42,8 +52,8 @@ local function format_title(title)
 	return (#title > 0 and ": " .. title or "")
 end
 
-require("neotest").setup({
-	log_level = "trace",
+neotest.setup({
+	log_level = "info",
 	quickfix = {
 		open = false,
 	},
@@ -83,24 +93,43 @@ require("neotest").setup({
 
 				local notif_data = get_notif_data(adapter_id)
 				local failures = 0
-				local message = "Passed!"
+				local passed = 0
+				local skipped = 0
+				local messages = {}
 				local level = vim.log.levels.INFO
 				local icons = {}
 				icons[vim.log.levels.ERROR] = ""
 				icons[vim.log.levels.INFO] = ""
+				icons[vim.log.levels.WARN] = ""
 
 				for _, result in pairs(results) do
 					if result.status == "failed" then
 						failures = failures + 1
 					end
+					if result.status == "passed" then
+						passed = passed + 1
+					end
+					if result.status == "skipped" then
+						skipped = skipped + 1
+					end
+				end
+
+				if passed > 0 then
+					table.insert(messages, passed .. " tests passed")
+					level = vim.log.levels.INFO
+				end
+
+				if skipped > 0 then
+					table.insert(messages, skipped .. " tests skipped")
+					level = vim.log.levels.WARN
 				end
 
 				if failures > 0 then
-					message = "There were " .. failures .. " test failures!"
+					table.insert(messages, failures .. " tests failed")
 					level = vim.log.levels.ERROR
 				end
 
-				vim.notify(message, level, {
+				vim.notify(table.concat(messages, "\n"), level, {
 					title = title,
 					icon = icons[level],
 					hide_from_history = false,
@@ -131,15 +160,15 @@ local open_buffers_and_test = function(path)
 		vim.api.nvim_command(string.format("buffer %s", bufnr))
 	end
 
-	require("neotest").run.run(path)
+	neotest.run.run(path)
 end
 
 vim.api.nvim_create_user_command("TestFunc", function()
-	require("neotest").run.run()
+	neotest.run.run()
 end, {})
 
 vim.api.nvim_create_user_command("TestFile", function()
-	require("neotest").run.run(vim.fn.expand("%:p"))
+	neotest.run.run(vim.fn.expand("%:p"))
 end, {})
 
 vim.api.nvim_create_user_command("TestDir", function()
@@ -151,19 +180,23 @@ vim.api.nvim_create_user_command("TestProject", function()
 end, {})
 
 vim.api.nvim_create_user_command("TestOutput", function()
-	require("neotest").output.open({ enter = true, quiet = true, auto_close = true })
+	neotest.output.open({ enter = true, quiet = true, auto_close = true })
+end, {})
+
+vim.api.nvim_create_user_command("TestOutputPanel", function()
+	neotest.output_panel.toggle()
 end, {})
 
 vim.api.nvim_create_user_command("TestSummary", function()
-	require("neotest").summary.toggle()
+	neotest.summary.toggle()
 end, {})
 
 vim.keymap.set("n", "[t", function()
-	require("neotest").jump.prev({ status = "failed" })
+	neotest.jump.prev({ status = "failed" })
 end)
 
 vim.keymap.set("n", "]t", function()
-	require("neotest").jump.next({ status = "failed" })
+	neotest.jump.next({ status = "failed" })
 end)
 
 vim.keymap.set("n", "<space>o", ":TestOutput<CR>")

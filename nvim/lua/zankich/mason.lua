@@ -1,8 +1,3 @@
--- IMPORTANT: make sure to setup neodev BEFORE lspconfig
-require("neodev").setup({
-	library = { plugins = { "neotest" }, types = true },
-})
-
 local lsp_status = require("lsp-status")
 lsp_status.config({
 	current_function = false,
@@ -97,9 +92,10 @@ local go_imports = function(client, bufnr)
 end
 
 vim.diagnostic.config({
-	virtual_text = false,
+	-- virtual_text = false,
+	virtual_text = true,
 	float = {
-		source = "if_many",
+		source = "always",
 		border = "rounded",
 		style = "minimal",
 	},
@@ -174,9 +170,8 @@ mason_lspconfig.setup({
 						gofumpt = true,
 						semanticTokens = true,
 						analyses = {
-							unusedwrite = true,
 							useany = true,
-							unusedvariable = true,
+							unusedparams = false,
 						},
 					},
 				},
@@ -249,6 +244,15 @@ mason_lspconfig.setup({
 						hover = true,
 					},
 				},
+			})
+		end,
+		["ltex"] = function()
+			lspconfig.ltex.setup({
+				capabilities = cmp_nvim_capabilities,
+				on_attach = function(client, bufnr)
+					lsp_status.on_attach(client)
+				end,
+				filetypes = { "bib", "gitcommit", "org", "plaintex", "rst", "rnoweb", "tex", "pandoc" },
 			})
 		end,
 	},

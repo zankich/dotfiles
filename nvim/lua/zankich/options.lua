@@ -46,5 +46,5 @@ local util = require("zankich.util")
 vim.api.nvim_create_autocmd("BufEnter", { command = vim.cmd.lcd(util.bufferRootDir()) })
 vim.keymap.set("n", "<space>r", util.reload, { silent = true, noremap = true })
 
-vim.keymap.set("n", "<Leader>s", ":%s/<C-r><C-w>//gc<Left><Left><Left>")
-vim.keymap.set("v", "<Leader>s", '"hy:%s/<C-r>h//gc<left><left><left>')
+vim.keymap.set("n", "<Leader>s", ":%sno/<C-r><C-w>/<C-r><C-w>/gc<Left><Left><Left>")
+vim.keymap.set("v", "<Leader>s", '"hy:%sno/<C-r>h/<C-r>h/gc<left><left><left>')

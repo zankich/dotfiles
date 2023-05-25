@@ -1,10 +1,13 @@
 require("mason").setup()
+
 local null_ls = require("null-ls")
 local null_ls_utils = require("null-ls.utils").make_conditional_utils()
-local null_ls_helpers = require("null-ls.helpers")
-local null_ls_methods = require("null-ls.methods")
-local null_ls_log = require("null-ls.logger")
+-- local null_ls_helpers = require("null-ls.helpers")
+-- local null_ls_methods = require("null-ls.methods")
+-- local null_ls_log = require("null-ls.logger")
 
+-- https://github.com/jose-elias-alvarez/null-ls.nvim/issues/1564
+require("null-ls.client").retry_add = require("null-ls.client").try_add
 -- local gci = null_ls_helpers.make_builtin({
 -- 	name = "gci",
 -- 	meta = {
@@ -84,7 +87,9 @@ local null_ls_log = require("null-ls.logger")
 
 local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 null_ls.setup({
-	debug = true,
+	debug = false,
+	debounce = 1000,
+	timeout = 15000,
 	on_attach = function(client, bufnr)
 		if client.supports_method("textDocument/formatting") then
 			vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
@@ -111,7 +116,7 @@ require("mason-null-ls").setup({
 		"stylua",
 		"prettier",
 		"yamllint",
-		-- "golangci_lint",
+		"golangci_lint",
 		"shfmt",
 		"shellcheck",
 	},
@@ -153,7 +158,6 @@ require("mason-null-ls").setup({
 			end
 		end,
 		golangci_lint = function()
-			-- local source = golangci_lint
 			local source = null_ls.builtins.diagnostics.golangci_lint
 
 			if not null_ls_utils.root_has_file(".golangci.yml") then

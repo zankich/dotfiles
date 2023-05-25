@@ -8,16 +8,11 @@ lualine.setup({
 			{ "require('lsp-status').status()" },
 		},
 	},
-	-- sections = {lualine_c = {{'filename', path = 1, padding = 2}}},
 	inactive_sections = {
 		lualine_c = {
 			{ "require('zankich.util').filePathFromBufferRootDir()", padding = 2 },
-			-- { "os.date('%a')", "data", "require('lsp-status').status()" },
 		},
 	},
-	-- inactive_winbar = {lualine_c = {{'filename', path = 1}}},
-	-- inactive_sections = {},
-	-- inactive_winbar = {},
 	tabline = {
 		lualine_a = {
 			{
@@ -32,7 +27,6 @@ lualine.setup({
 			},
 		},
 		lualine_c = { { "filename", path = 3, padding = 2 } },
-		-- lualine_c = { "os.date('%a')", "data", "require'lsp-status'.status()" },
 		lualine_z = {
 			{
 				"tabs",
@@ -43,13 +37,21 @@ lualine.setup({
 					local winnr = vim.fn.tabpagewinnr(context.tabnr)
 					local bufnr = buflist[winnr]
 					local fileName = vim.api.nvim_buf_get_name(bufnr)
+					local root = vim.fn.fnamemodify(require("zankich.util").bufferRootDir(fileName), ":p:h:t")
 
-					return vim.fn.fnamemodify(require("zankich.util").bufferRootDir(fileName), ":p:h:t")
+					if context.current then
+						vim.api.nvim_tabpage_set_var(context.tabId, "tabname", root)
+					end
+
+					local ok, tabname = pcall(vim.api.nvim_tabpage_get_var, context.tabId, "tabname")
+					if ok then
+						return tabname
+					else
+						return root
+					end
 				end,
 			},
 		},
 	},
 	extensions = { "quickfix", "nvim-tree", "trouble" },
 })
-
--- vim.api.nvim_create_autocmd('CursorMoved', {callback = lualine.refresh})
