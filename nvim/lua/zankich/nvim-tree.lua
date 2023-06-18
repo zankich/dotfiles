@@ -13,6 +13,18 @@ local function copy_file_to(node)
 	vim.fn.system({ "cp", "-R", file_src, file_out })
 end
 
+local function move_file_to(node)
+	local file_src = node["absolute_path"]
+	-- The args of input are {prompt}, {default}, {completion}
+	-- Read in the new file path using the existing file's path as the baseline.
+	local file_out = vim.fn.input("MOVE TO: ", file_src, "file")
+	-- Create any parent dirs as required
+	local dir = vim.fn.fnamemodify(file_out, ":h")
+	vim.fn.system({ "mkdir", "-p", dir })
+	-- Copy the file
+	vim.fn.system({ "mv", file_src, file_out })
+end
+
 local function on_attach(bufnr)
 	local api = require("nvim-tree.api")
 
@@ -29,6 +41,10 @@ local function on_attach(bufnr)
 		local node = api.tree.get_node_under_cursor()
 		copy_file_to(node)
 	end, opts("copy_file_to"))
+	vim.keymap.set("n", "mv", function()
+		local node = api.tree.get_node_under_cursor()
+		move_file_to(node)
+	end, opts("move_file_to"))
 end
 
 require("nvim-tree").setup({
@@ -65,6 +81,9 @@ require("nvim-tree").setup({
 	renderer = { group_empty = true },
 	filters = { dotfiles = false, git_clean = false, no_buffer = false },
 	actions = { open_file = { window_picker = { enable = false } } },
+	git = {
+		ignore = false,
+	},
 })
 
 local function open_nvim_tree(data)

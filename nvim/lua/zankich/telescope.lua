@@ -3,17 +3,21 @@ local M = {}
 M.find_files_opts = { hidden = true }
 
 local util = require("zankich.util")
+local telescope = require("telescope")
 local actions = require("telescope.actions")
 local trouble = require("trouble.providers.telescope")
+local lga_actions = require("telescope-live-grep-args.actions")
+telescope.load_extension("live_grep_args")
 
-require("telescope").setup({
+telescope.setup({
 	defaults = require("telescope.themes").get_ivy({
 		mappings = {
 			i = {
 				["<esc>"] = actions.close,
 				["<c-t>"] = trouble.open_with_trouble,
+				["<C-k>"] = lga_actions.quote_prompt(),
 			},
-			n = { ["<c-t>"] = trouble.open_with_trouble },
+			n = { ["<c-t>"] = trouble.open_with_trouble, ["<C-k>"] = lga_actions.quote_prompt() },
 		},
 	}),
 	pickers = {
@@ -41,10 +45,16 @@ require("telescope").setup({
 			},
 		},
 	},
+	extensions = {
+		["ui-select"] = {
+			require("telescope.themes").get_dropdown({}),
+		},
+	},
 })
 
-local telescope = require("telescope")
 telescope.load_extension("fzf")
+telescope.load_extension("ui-select")
+telescope.load_extension("live_grep_args")
 
 local builtin = require("telescope.builtin")
 
@@ -59,6 +69,9 @@ function M.search_root()
 end
 
 vim.keymap.set("n", "<leader>f", M.search_root, { noremap = true, silent = true })
-vim.keymap.set("n", "<leader>rg", builtin.live_grep, {})
+-- vim.keymap.set("n", "<leader>rg", builtin.live_grep, {})
+vim.keymap.set("n", "<leader>rg", function()
+	telescope.extensions.live_grep_args.live_grep_args()
+end)
 vim.keymap.set("n", "<leader>b", builtin.buffers, {})
 vim.keymap.set("n", "<leader>h", builtin.help_tags, {})

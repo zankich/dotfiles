@@ -48,3 +48,8 @@ vim.keymap.set("n", "<space>r", util.reload, { silent = true, noremap = true })
 
 vim.keymap.set("n", "<Leader>s", ":%sno/<C-r><C-w>/<C-r><C-w>/gc<Left><Left><Left>")
 vim.keymap.set("v", "<Leader>s", '"hy:%sno/<C-r>h/<C-r>h/gc<left><left><left>')
+
+vim.api.nvim_create_user_command("PlugInstallReload", function()
+	vim.cmd("source " .. "~/.config/nvim/vimrc")
+	vim.cmd("PlugInstall")
+end, {})

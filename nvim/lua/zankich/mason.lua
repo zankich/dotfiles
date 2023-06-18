@@ -56,20 +56,15 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 local go_imports = function(client, bufnr)
-	local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
-	params.context = { only = { "source.organizeImports" } }
-
-	local params = vim.lsp.util.make_range_params(0, vim.lsp.util._get_offset_encoding())
+	local params = vim.lsp.util.make_range_params(0, vim.lsp.util._get_offset_encoding(bufnr))
 	params.context = { only = { "source.organizeImports" } }
 
 	local result = vim.lsp.buf_request_sync(bufnr, "textDocument/codeAction", params, 5000)
 	for _, res in pairs(result or {}) do
 		for _, r in pairs(res.result or {}) do
-			-- print(vim.inspect(r.command))
+			-- print(vim.inspect(r))
 			if r.edit then
-				vim.lsp.util.apply_workspace_edit(r.edit, vim.lsp.util._get_offset_encoding())
-				-- else
-				-- vim.lsp.buf.execute_command(r.command)
+				vim.lsp.util.apply_workspace_edit(r.edit, vim.lsp.util._get_offset_encoding(bufnr))
 			end
 		end
 	end
@@ -167,11 +162,17 @@ mason_lspconfig.setup({
 					gopls = {
 						["local"] = "stash.corp.netflix.com",
 						allExperiments = true,
+						allowImplicitNetworkAccess = true,
 						gofumpt = true,
 						semanticTokens = true,
+						usePlaceholders = true,
 						analyses = {
 							useany = true,
-							unusedparams = false,
+							unusedparams = true,
+							nilness = true,
+							shadow = true,
+							unusedvariable = true,
+							stubmethods = true,
 						},
 					},
 				},

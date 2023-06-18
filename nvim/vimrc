@@ -33,6 +33,8 @@ call plug#begin()
 
   Plug 'nvim-telescope/telescope.nvim',
   Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+  Plug 'nvim-telescope/telescope-ui-select.nvim'
+  Plug 'nvim-telescope/telescope-live-grep-args.nvim'
 
   Plug 'hrsh7th/nvim-cmp'
   Plug 'hrsh7th/cmp-nvim-lsp'
@@ -63,6 +65,7 @@ call plug#begin()
   Plug 'williamboman/mason.nvim'
   Plug 'williamboman/mason-lspconfig.nvim'
   Plug 'jay-babu/mason-null-ls.nvim'
+  Plug 'davidmh/cspell.nvim'
 
   Plug 'folke/lsp-trouble.nvim'
 

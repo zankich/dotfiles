@@ -1,11 +1,10 @@
 [alias]
-  diff = auto
-  status = auto
-  branch = auto
-  interactive = auto
-  ui = true
-  pager = true
   lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+	co = checkout
+	d = diff
+	dc = diff --cached
+  ci = commit -v
+  last = show --format=full
 
 [color]
   branch = auto
@@ -13,6 +12,7 @@
   interactive = auto
   status = auto
   ui = auto
+  pager = true
 
 [user]
 	name = Adrian Zankich

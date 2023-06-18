@@ -262,12 +262,15 @@ __colima() {
 }
 
 __lima() {
+  set -x
   echo "installing lima..."
   local version
   version=$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/lima-vm/lima/releases/latest | jq -r .tag_name)
 
   if ! command -v limactl >/dev/null || ! grep --silent "${version}" <(limactl --version); then
-    curl --fail -#qL "https://github.com/lima-vm/lima/releases/download/${version}/lima-${version:1}-linux-$(uname -m).tar.gz" | sudo tar --no-same-owner -Cxzvm /usr/local
+    curl --fail -#qL "https://github.com/lima-vm/lima/releases/download/${version}/lima-${version:1}-linux-$(uname -m).tar.gz" \
+      | sudo tar zxv -C /usr/local --no-same-owner
+
   fi
 }
 
@@ -294,7 +297,7 @@ __nerd-fonts() {
   pushd "${TMP_DIR}/nerd-fonts" >/dev/null
   git sparse-checkout add patched-fonts/Hack
   git sparse-checkout add patched-fonts/Inconsolata
-  sudo ./install.sh -S
+  sudo ./install.sh --clean --install-to-system-path
   popd >/dev/null
 }
 
@@ -535,9 +538,9 @@ setup_dependencies() {
       __alacritty
       __nerd-fonts
       __docker
-      # __qemu
-      # __colima
-      # __lima
+      __qemu
+      __colima
+      __lima
       # fi
 
       ;;

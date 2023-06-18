@@ -1,0 +1,41 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "dictionaries": [
+    "en_US",
+    "en-gb",
+    "companies",
+    "softwareTerms",
+    "misc",
+    "typescript",
+    "node",
+    "php",
+    "go",
+    "python",
+    "powershell",
+    "html",
+    "css",
+    "cpp",
+    "csharp",
+    "latex",
+    "bash",
+    "fonts",
+    "filetypes",
+    "npm"
+  ],
+  "language": "en",
+  "version": "0.2",
+  "words": [
+    "bufname",
+    "bufnr",
+    "findfile",
+    "golangci",
+    "isempty",
+    "lnum",
+    "luassert",
+    "nvim",
+    "readfile",
+    "realpath",
+    "writefile",
+    "zankich"
+  ]
+}
