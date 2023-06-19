@@ -8,8 +8,9 @@ fi
 if [[ "$(uname -s)" == "Darwin" ]]; then
  export HOMEBREW_NO_ANALYTICS=1
  export LS_COLORS=$LSCOLORS
- export NVM_HOMEBREW="/opt/homebrew/opt/nvm"
 fi
+
+export N_PREFIX=~/.local
 
 export ZSH_PYENV_QUIET="true"
 export COMPLETION_WAITING_DOTS=true
@@ -24,14 +25,10 @@ export FZF_CTRL_T_OPTS="${FZF_DEFAULT_OPTS} --preview '$HOME/.vim/plugged/fzf.vi
 export FZF_CTRL_R_OPTS="${FZF_DEFAULT_OPTS}"
 export FZF_TMUX_OPTS='-p 90%,60%'
 
-
-export GOPROXY="http://goproxy.test.netflix.net"
-export GOVULNDB="https://go.vuldb.oc.prod.netflix.net"
-export GOPRIVATE="*.corp.netflix.com"
 export GOPATH=$HOME/code/go
 
 export EDITOR="nvim"
-export PATH=$HOME/bin:$GOPATH/bin:$PATH
+export PATH=$HOME/bin:$GOPATH/bin:~/.local/bin:$PATH
 export TERM="xterm-256color"
 
 export BAT_THEME="base16-256"
@@ -39,8 +36,7 @@ export BAT_THEME="base16-256"
 export ZSH=$HOME/.oh-my-zsh
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_THEME="powerlevel10k/powerlevel10k"
-# zstyle ':omz:plugins:nvm' lazy yes
-plugins=(git fzf base16-shell autojump direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions brew nvm pyenv rbenv)
+plugins=(git fzf base16-shell autojump direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions brew pyenv rbenv)
 
 source $ZSH/oh-my-zsh.sh
 

@@ -1,3 +1,5 @@
+local settings = require("zankich.settings")
+
 local lsp_status = require("lsp-status")
 lsp_status.config({
 	current_function = false,
@@ -69,16 +71,15 @@ local go_imports = function(client, bufnr)
 		end
 	end
 
-	local gci_output = vim.fn.systemlist({
-		"gci",
-		"print",
-		"--section=standard",
-		"--section=default",
-		"--section=prefix(stash.corp.netflix.com)",
-		"--section=blank",
-		"--section=dot",
-		"--skip-generated",
-	}, vim.api.nvim_buf_get_lines(bufnr, 0, -1, true))
+	local gci_output = vim.fn.systemlist(
+		vim.list_extend({
+			"gci",
+			"print",
+		}, settings.go.gci_flags),
+		vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
+	)
+
+	print(vim.inspect(vim.v.shell_error))
 
 	if not vim.v.shell_error == 1 then
 		-- Get the current buffer and set its contents to the output
@@ -160,7 +161,7 @@ mason_lspconfig.setup({
 				end,
 				settings = {
 					gopls = {
-						["local"] = "stash.corp.netflix.com",
+						["local"] = settings.go.imports["local"],
 						allExperiments = true,
 						allowImplicitNetworkAccess = true,
 						gofumpt = true,

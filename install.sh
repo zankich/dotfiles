@@ -16,7 +16,7 @@ __nvim() {
   local release_body
   release_body="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/neovim/neovim/releases/latest | jq -r .body)"
 
-  if ! command -v nvim >/dev/null || ! grep --silent "${release_body}" <(nvim --version); then
+  if ! command -v nvim >/dev/null || ! grep --silent "$(nvim --version)" <(echo "${release_body}"); then
     mkdir -p "${TMP_DIR}/nvim"
 
     pushd "${TMP_DIR}/nvim" >/dev/null
@@ -262,7 +262,6 @@ __colima() {
 }
 
 __lima() {
-  set -x
   echo "installing lima..."
   local version
   version=$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/lima-vm/lima/releases/latest | jq -r .tag_name)
@@ -395,23 +394,23 @@ __python() {
   python -m pip install --upgrade --user setuptools
 }
 
-__nvm() {
-  echo "installing nvm..."
-  if [ ! -d "${HOME}/.nvm" ]; then
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+__n() {
+  echo "installing n..."
+  if ! command -v n >&/dev/null; then
+    curl --fail -#qLo "${HOME}/.local/bin/n" \
+      --create-dirs \
+      https://raw.githubusercontent.com/tj/n/master/bin/n
+
+    chmod +x ~/.local/bin/n
   fi
 }
 
 __node() {
   echo "installing node..."
 
-  if ! command -v nvm >/dev/null; then
-    # shellcheck source=/dev/null
-    source "${HOME}/.nvm/nvm.sh"
-  fi
+  export PATH=~/.local/bin:$PATH
 
-  nvm install node
-  nvm use node
+  n install latest
   npm install -g neovim
   npm install -g markdownlint-cli2
   npm install -g markdownlint-cli2-formatter-pretty
@@ -459,8 +458,8 @@ setup_dependencies() {
   echo "installing dependencies..."
   case "$(uname -s)" in
     Linux)
-      sudo apt-get update \
-        && sudo apt-get install -y \
+      sudo apt update \
+        && sudo apt install -y \
           libevent-dev \
           ncurses-dev \
           build-essential \
@@ -516,7 +515,7 @@ setup_dependencies() {
       __lua
       __rbenv
       __pyenv
-      __nvm
+      __n
       __ruby
       __python
       __node
@@ -526,22 +525,26 @@ setup_dependencies() {
       __nvim
       __direnv
       __grpcurl
-      __nvm
       __fzf
       __shellcheck
+
+      __nerd-fonts
 
       cargo install --locked bat
       cargo install --locked fd-find
 
-      # if [[ -n "${INSTALL_EXTRA:-}" ]]; then
-      __logiops
-      __alacritty
-      __nerd-fonts
-      __docker
+      if command -v Xorg; then
+        __logiops
+        __alacritty
+      fi
+
+      if ! command -v docker; then
+        __docker
+      fi
+
       __qemu
       __colima
       __lima
-      # fi
 
       ;;
     Darwin)
@@ -570,11 +573,11 @@ setup_dependencies() {
         luarocks \
         rbenv \
         ruby-build \
-        nvm \
         pyenv \
         fzf \
         libyaml \
-        wget
+        wget \
+        n
 
       brew install homebrew/cask-fonts/font-hack-nerd-font
       brew install --cask alacritty

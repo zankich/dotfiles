@@ -1,2 +1,3 @@
 tmux-client*.log
 nvim/site
+nvim/lua/zankich/settings.lua
