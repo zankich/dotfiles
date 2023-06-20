@@ -1,0 +1,16 @@
+local M = {
+	go = {
+		gci_flags = {
+			"--section=standard",
+			"--section=default",
+			"--section=blank",
+			"--section=dot",
+			"--skip-generated",
+		},
+		imports = {
+			["local"] = "",
+		},
+	},
+}
+
+return M

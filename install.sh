@@ -412,7 +412,8 @@ __node() {
   export N_PREFIX=~/.local
 
   n install latest
-
+  npm config set cache ~/.cache/npm --global
+  npm --global cache verify
   npm install -g neovim
   npm install -g markdownlint-cli2
   npm install -g markdownlint-cli2-formatter-pretty
@@ -555,6 +556,7 @@ setup_dependencies() {
       fi
       brew analytics off
 
+      brew upgrade
       brew install \
         neovim \
         tmux \
@@ -648,6 +650,7 @@ setup_nvim() {
   echo "setting up nvim..."
 
   ln -sfn "${SCRIPT_DIR}/nvim" "${HOME}/.config/nvim"
+  ln -sfn "${HOME}/.config/nvim/lua/zankich/settings.lua.template" "${HOME}/.config/nvim/lua/zankich/settings.lua"
 
   if [[ ! -f "$HOME/.local/share/nvim/site/autoload/plug.vim" ]]; then
     curl -fLo "$HOME/.local/share/nvim/site/autoload/plug.vim" \
