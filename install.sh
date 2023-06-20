@@ -409,8 +409,10 @@ __node() {
   echo "installing node..."
 
   export PATH=~/.local/bin:$PATH
+  export N_PREFIX=~/.local
 
   n install latest
+
   npm install -g neovim
   npm install -g markdownlint-cli2
   npm install -g markdownlint-cli2-formatter-pretty
