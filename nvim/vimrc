@@ -6,8 +6,8 @@ function! TreesitterPostAction(info)
   " - name:   name of the plugin
   " - status: 'installed', 'updated', or 'unchanged'
   " - force:  set on PlugInstall! or PlugUpdate!
-  execute "TSInstall all"
-  execute "TSUpdate all"
+  execute "TSInstallSync all"
+  execute "TSUpdateSync all"
 endfunction
 
 call plug#begin()

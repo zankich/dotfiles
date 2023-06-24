@@ -36,7 +36,7 @@ export BAT_THEME="base16-256"
 export ZSH=$HOME/.oh-my-zsh
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(git fzf base16-shell autojump direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions brew pyenv rbenv)
+plugins=(git fzf base16-shell direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions brew pyenv rbenv zoxide sdk)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -92,12 +92,15 @@ bindkey '^ ' autosuggest-accept  # space + tab  | autosuggest
 
 alias lla='ls -la'
 # alias nvim="nvim --listen $HOME/.cache/nvim/listen/$(date +%s).pipe"
-# alias vim="nvim"
-# alias vi="nvim"
 alias vimdiff="nvim -d"
 alias rg=$RG_COMMAND
 alias chmox="chmod +x"
 alias nvim-no-config="command nvim -u NONE"
+alias j="z"
+
+bash_help() {
+  bash -c "help ${1}"
+}
 
 _fzf_compgen_path() {
   fd --hidden --follow --exclude ".git" . "$1"

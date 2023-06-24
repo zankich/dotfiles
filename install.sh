@@ -349,6 +349,11 @@ __lua() {
   fi
 }
 
+__sdkman() {
+  echo "installing sdkman..."
+  curl -s "https://get.sdkman.io?rcupdate=false" | bash
+}
+
 __rbenv() {
   echo "installing rbenv..."
   curl -qfsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash
@@ -484,7 +489,6 @@ setup_dependencies() {
           unzip \
           autoconf \
           ripgrep \
-          autojump \
           xclip \
           libudev-dev \
           libconfig++-dev \
@@ -522,6 +526,7 @@ setup_dependencies() {
       __ruby
       __python
       __node
+      __sdkman
 
       __zsh
       __tmux
@@ -532,9 +537,6 @@ setup_dependencies() {
       __shellcheck
 
       __nerd-fonts
-
-      cargo install --locked bat
-      cargo install --locked fd-find
 
       if command -v Xorg; then
         __logiops
@@ -548,6 +550,10 @@ setup_dependencies() {
       __qemu
       __colima
       __lima
+
+      cargo install --locked bat
+      cargo install --locked fd-find
+      cargo install --locked zoxide
 
       ;;
     Darwin)
@@ -568,7 +574,6 @@ setup_dependencies() {
         zsh \
         curl \
         jq \
-        autojump \
         direnv \
         grpcurl \
         reattach-to-user-namespace \
@@ -581,11 +586,13 @@ setup_dependencies() {
         fzf \
         libyaml \
         wget \
-        n
+        n \
+        zoxide
 
       brew install homebrew/cask-fonts/font-hack-nerd-font
       brew install --cask alacritty
 
+      __sdkman
       __rust
       __ruby
       __python

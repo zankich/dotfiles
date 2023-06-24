@@ -142,6 +142,7 @@ require("mason-null-ls").setup({
 		"golangci_lint",
 		"shfmt",
 		"shellcheck",
+		"hadolint",
 		-- "cspell",
 		-- "buf",
 	},
