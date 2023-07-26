@@ -20,11 +20,13 @@ __nvim() {
     mkdir -p "${TMP_DIR}/nvim"
 
     pushd "${TMP_DIR}/nvim" >/dev/null
-    curl --fail -#qL "https://github.com/neovim/neovim/archive/refs/tags/stable.tar.gz" \
-      | tar zxv --strip-components=1 --no-same-owner
+    {
+      curl --fail -#qL "https://github.com/neovim/neovim/archive/refs/tags/stable.tar.gz" \
+        | tar zxv --strip-components=1 --no-same-owner
 
-    make CMAKE_BUILD_TYPE=Release
-    sudo make install
+      make CMAKE_BUILD_TYPE=Release
+      sudo make install
+    }
     popd >/dev/null
   fi
 
@@ -43,9 +45,11 @@ __tmux() {
 
     curl --fail -#qL "https://github.com/tmux/tmux/releases/download/${version}/tmux-${version}.tar.gz" | tar --no-same-owner -zxv -C "${TMP_DIR}/"
     pushd "${TMP_DIR}/tmux-${version}"
-    ./configure
-    make -j
-    sudo make install
+    {
+      ./configure
+      make -j
+      sudo make install
+    }
     popd
   fi
 }
@@ -80,17 +84,21 @@ __zsh() {
   mkdir -p "${TMP_DIR}/zsh-latest"
 
   pushd "${TMP_DIR}" >/dev/null
-  tar -xf zsh-latest.tar.xz -C zsh-latest --strip-components=1 --no-same-owner
-  pushd zsh-latest >/dev/null
-  local version
-  version="$(grep "VERSION=" Config/version.mk | cut -d"=" -f2)"
+  {
+    tar -xf zsh-latest.tar.xz -C zsh-latest --strip-components=1 --no-same-owner
+    pushd zsh-latest >/dev/null
+    {
+      local version
+      version="$(grep "VERSION=" Config/version.mk | cut -d"=" -f2)"
 
-  if ! command -v /usr/local/bin/zsh >/dev/null || ! grep --silent "${version}" <(/usr/local/bin/zsh --version); then
-    ./configure
-    make -j
-    sudo make install
-  fi
-  popd >/dev/null
+      if ! command -v /usr/local/bin/zsh >/dev/null || ! grep --silent "${version}" <(/usr/local/bin/zsh --version); then
+        ./configure
+        make -j
+        sudo make install
+      fi
+    }
+    popd >/dev/null
+  }
   popd >/dev/null
 
   if [[ $(grep -cw "/usr/local/bin/zsh" /etc/shells) == "0" ]]; then
@@ -124,43 +132,48 @@ __alacritty() {
   version="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/alacritty/alacritty/releases/latest | jq -r .tag_name)"
 
   if ! command -v alacritty >/dev/null || ! grep --silent "${version#v}" <(alacritty --version); then
-    if pgrep --exact alacritty; then
-      local answer
-      read -rp "alacritty process running. quit to continue install(Y/n)? " answer 1>&2
-      answer=${answer:-y}
-      case ${answer:0:1} in
-        y | Y)
-          pkill --exact alacritty
-          ;;
-        *)
-          echo "alacritty has not been updated"
-          return 0
-          ;;
-      esac
-    fi
 
     mkdir -p "${TMP_DIR}/alacritty"
 
     pushd "${TMP_DIR}" >/dev/null
-    curl --fail -#qL "https://github.com/alacritty/alacritty/archive/refs/tags/${version}.tar.gz" \
-      | tar zxv -C alacritty --strip-components=1 --no-same-owner
+    {
+      curl --fail -#qL "https://github.com/alacritty/alacritty/archive/refs/tags/${version}.tar.gz" \
+        | tar zxv -C alacritty --strip-components=1 --no-same-owner
 
-    pushd alacritty >/dev/null
-    cargo build --release
+      pushd alacritty >/dev/null
+      {
 
-    sudo tic -xe alacritty,alacritty-direct extra/alacritty.info
-    sudo cp target/release/alacritty /usr/local/bin # or anywhere else in $PATH
-    sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
-    sudo desktop-file-install extra/linux/Alacritty.desktop
-    sudo update-desktop-database
+        if pgrep --exact alacritty; then
+          local answer
+          read -rp "alacritty process running. quit to continue install(Y/n)? " answer 1>&2
+          answer=${answer:-y}
+          case ${answer:0:1} in
+            y | Y)
+              pkill --exact alacritty
+              ;;
+            *)
+              echo "alacritty has not been updated"
+              return 0
+              ;;
+          esac
+        fi
+        cargo build --release
 
-    sudo mkdir -p /usr/local/share/man/man1
-    gzip -c extra/alacritty.man | sudo tee /usr/local/share/man/man1/alacritty.1.gz >/dev/null
-    gzip -c extra/alacritty-msg.man | sudo tee /usr/local/share/man/man1/alacritty-msg.1.gz >/dev/null
+        sudo tic -xe alacritty,alacritty-direct extra/alacritty.info
+        sudo cp target/release/alacritty /usr/local/bin # or anywhere else in $PATH
+        sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
+        sudo desktop-file-install extra/linux/Alacritty.desktop
+        sudo update-desktop-database
 
-    mkdir -p "${HOME}/.zsh_functions"
-    cp extra/completions/_alacritty "${HOME}/.zsh_functions/_alacritty"
-    popd >/dev/null
+        sudo mkdir -p /usr/local/share/man/man1
+        gzip -c extra/alacritty.man | sudo tee /usr/local/share/man/man1/alacritty.1.gz >/dev/null
+        gzip -c extra/alacritty-msg.man | sudo tee /usr/local/share/man/man1/alacritty-msg.1.gz >/dev/null
+
+        mkdir -p "${HOME}/.zsh_functions"
+        cp extra/completions/_alacritty "${HOME}/.zsh_functions/_alacritty"
+      }
+      popd >/dev/null
+    }
     popd >/dev/null
   fi
 }
@@ -205,21 +218,25 @@ __logiops() {
 
   __ensure_repo https://github.com/PixlOne/logiops "${TMP_DIR}/logiops"
   pushd "${TMP_DIR}/logiops" >/dev/null
-  git fetch --all --tags
-  git checkout "${version}"
-  if ! command -v logid >/dev/null || [[ $(logid --version | awk -F "-g" '{print $2}' | grep -c "$(git rev-parse --short HEAD)") == 0 ]]; then
-    mkdir -p build
-    pushd build >/dev/null
-    cmake ..
-    make
-    sudo make install
-    popd >/dev/null
+  {
+    git fetch --all --tags
+    git checkout "${version}"
+    if ! command -v logid >/dev/null || [[ $(logid --version | awk -F "-g" '{print $2}' | grep -c "$(git rev-parse --short HEAD)") == 0 ]]; then
+      mkdir -p build
+      pushd build >/dev/null
+      {
+        cmake ..
+        make
+        sudo make install
+      }
+      popd >/dev/null
 
-    if systemctl --version; then
-      sudo systemctl enable --now logid
-      sudo systemctl restart logid
+      if systemctl --version; then
+        sudo systemctl enable --now logid
+        sudo systemctl restart logid
+      fi
     fi
-  fi
+  }
   popd >/dev/null
 }
 
@@ -230,17 +247,19 @@ __qemu() {
   if ! command -v qemu-aarch64 >/dev/null || ! grep --silent "${version}" <(qemu-aarch64 --version); then
     mkdir -p "${TMP_DIR}/qemu"
     pushd "${TMP_DIR}/qemu" >/dev/null
-    curl -OL "https://download.qemu.org/qemu-${version}.tar.xz"
-    tar --no-same-owner -xvJf "qemu-${version}.tar.xz"
-    cd "qemu-${version}"
-    ./configure \
-      --enable-slirp \
-      --enable-linux-user \
-      --enable-curses \
-      --enable-libssh \
-      --enable-gtk
-    make -j "$(nproc)"
-    sudo make install
+    {
+      curl -OL "https://download.qemu.org/qemu-${version}.tar.xz"
+      tar --no-same-owner -xvJf "qemu-${version}.tar.xz"
+      cd "qemu-${version}"
+      ./configure \
+        --enable-slirp \
+        --enable-linux-user \
+        --enable-curses \
+        --enable-libssh \
+        --enable-gtk
+      make -j "$(nproc)"
+      sudo make install
+    }
     popd >/dev/null
   fi
 }
@@ -294,9 +313,11 @@ __nerd-fonts() {
   git clone --filter=blob:none --sparse https://github.com/ryanoasis/nerd-fonts "${TMP_DIR}/nerd-fonts"
 
   pushd "${TMP_DIR}/nerd-fonts" >/dev/null
-  git sparse-checkout add patched-fonts/Hack
-  git sparse-checkout add patched-fonts/Inconsolata
-  sudo ./install.sh --clean --install-to-system-path
+  {
+    git sparse-checkout add patched-fonts/Hack
+    git sparse-checkout add patched-fonts/Inconsolata
+    sudo ./install.sh --clean --install-to-system-path
+  }
   popd >/dev/null
 }
 
@@ -311,11 +332,15 @@ __lua() {
   if ! command -v lua >/dev/null || ! grep --silent "${lua_version}" <(lua -v); then
     mkdir -p "${TMP_DIR}/lua"
     pushd "${TMP_DIR}/lua" >/dev/null
-    curl --fail -q -sSL -O "http://www.lua.org/ftp/lua-${lua_version}.tar.gz"
-    tar --no-same-owner -zxf "lua-${lua_version}.tar.gz"
-    pushd "lua-${lua_version}"
-    sudo make all install
-    popd
+    {
+      curl --fail -q -sSL -O "http://www.lua.org/ftp/lua-${lua_version}.tar.gz"
+      tar --no-same-owner -zxf "lua-${lua_version}.tar.gz"
+      pushd "lua-${lua_version}"
+      {
+        sudo make all install
+      }
+      popd
+    }
     popd >/dev/null
   fi
 
@@ -331,18 +356,22 @@ __lua() {
 
     mkdir -p "${TMP_DIR}/luarocks"
     pushd "${TMP_DIR}/luarocks" >/dev/null
+    {
 
-    curl --fail -q -sSL -O https://luarocks.org/releases/luarocks-${luarocks_version}.tar.gz
-    tar --no-same-owner -zxpf luarocks-${luarocks_version}.tar.gz
+      curl --fail -q -sSL -O https://luarocks.org/releases/luarocks-${luarocks_version}.tar.gz
+      tar --no-same-owner -zxpf luarocks-${luarocks_version}.tar.gz
 
-    pushd luarocks-${luarocks_version} >/dev/null
+      pushd luarocks-${luarocks_version} >/dev/null
+      {
 
-    ./configure --with-lua=/usr/local/
-    make
-    sudo make install
+        ./configure --with-lua=/usr/local/
+        make
+        sudo make install
 
-    popd >/dev/null
+      }
+      popd >/dev/null
 
+    }
     popd >/dev/null
   else
     sudo luarocks install luarocks
@@ -457,7 +486,9 @@ __ensure_repo() {
     git clone --depth 1 "${src}" "${dest}"
   else
     pushd "${dest}" >/dev/null
-    git pull -r
+    {
+      git pull -r
+    }
     popd >/dev/null
   fi
 }
@@ -587,7 +618,8 @@ setup_dependencies() {
         libyaml \
         wget \
         n \
-        zoxide
+        zoxide \
+        coreutils
 
       brew install homebrew/cask-fonts/font-hack-nerd-font
       brew install --cask alacritty
@@ -633,6 +665,7 @@ setup_dotfiles() {
   ln -sf "${SCRIPT_DIR}/p10k.zsh" "${HOME}/.p10k.zsh"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
   ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
+  ln -sf "${SCRIPT_DIR}/ideavimrc" "${HOME}/.ideavimrc"
 
   if [[ "$(uname -s)" == "Linux" ]]; then
     sudo ln -sf "${SCRIPT_DIR}/logid.cfg" /etc/logid.cfg

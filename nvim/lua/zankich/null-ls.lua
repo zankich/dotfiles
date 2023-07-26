@@ -85,25 +85,25 @@ require("null-ls.client").retry_add = require("null-ls.client").try_add
 -- 	factory = null_ls_helpers.generator_factory,
 -- })
 
--- local Path = require("plenary.path")
--- local cspell = require("cspell")
--- local cspell_config = {
--- 	config_file_preferred_name = "cspell.json",
--- 	find_json = function(cwd)
--- 		return Path:new("~/.config/nvim/lua/zankich/conf/cspell.json"):expand()
--- 	end,
--- 	on_success = function(cspell_config_file_path, params, action_name)
--- 		if action_name == "add_to_json" then
--- 			os.execute(
--- 				string.format(
--- 					"cat %s | jq -S '.words |= sort' | tee %s > /dev/null",
--- 					cspell_config_file_path,
--- 					cspell_config_file_path
--- 				)
--- 			)
--- 		end
--- 	end,
--- }
+local Path = require("plenary.path")
+local cspell = require("cspell")
+local cspell_config = {
+	config_file_preferred_name = "cspell.json",
+	find_json = function(_)
+		return Path:new("~/.config/nvim/lua/zankich/conf/cspell.json"):expand()
+	end,
+	on_success = function(cspell_config_file_path, _, action_name)
+		if action_name == "add_to_json" then
+			os.execute(
+				string.format(
+					"cat %s | jq -S '.words |= sort' | tee %s > /dev/null",
+					cspell_config_file_path,
+					cspell_config_file_path
+				)
+			)
+		end
+	end,
+}
 
 local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 null_ls.setup({
@@ -123,9 +123,10 @@ null_ls.setup({
 		end
 	end,
 	sources = {
-		-- cspell.code_actions.with({ config = cspell_config }),
+		cspell.code_actions.with({ config = cspell_config }),
 		-- cspell.diagnostics.with({ config = cspell_config }),
 		null_ls.builtins.code_actions.gitsigns,
+		null_ls.builtins.code_actions.proselint,
 		null_ls.builtins.completion.luasnip,
 		null_ls.builtins.completion.spell,
 		null_ls.builtins.completion.tags,
@@ -143,11 +144,18 @@ require("mason-null-ls").setup({
 		"shfmt",
 		"shellcheck",
 		"hadolint",
-		-- "cspell",
+		"standardjs",
+		"cspell",
+		"proselint",
 		-- "buf",
 	},
 	automatic_installation = true,
 	handlers = {
+		prettier = function()
+			null_ls.register(null_ls.builtins.formatting.prettier.with({
+				disabled_filetypes = { "javascript" },
+			}))
+		end,
 		yamllint = function()
 			if null_ls_utils.root_has_file(".yamllint.yml") then
 				null_ls.register(null_ls.builtins.diagnostics.yamllint)

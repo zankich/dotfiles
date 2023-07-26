@@ -100,7 +100,9 @@ vim.diagnostic.config({
 	severity_sort = true,
 })
 
-mason.setup()
+mason.setup({
+	-- PATH = "skip",
+})
 mason_lspconfig.setup({
 	ensure_installed = {
 		"gopls",
@@ -113,6 +115,14 @@ mason_lspconfig.setup({
 	handlers = {
 		function(server_name) -- default handler (optional)
 			lspconfig[server_name].setup({
+				capabilities = cmp_nvim_capabilities,
+				on_attach = function(client, bufnr)
+					lsp_status.on_attach(client)
+				end,
+			})
+		end,
+		["cucumber_language_server"] = function()
+			lspconfig.cucumber_language_server.setup({
 				capabilities = cmp_nvim_capabilities,
 				on_attach = function(client, bufnr)
 					lsp_status.on_attach(client)

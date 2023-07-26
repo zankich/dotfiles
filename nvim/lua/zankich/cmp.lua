@@ -12,6 +12,9 @@ local has_words_before = function()
 end
 
 cmp.setup({
+	enabled = function()
+		return vim.api.nvim_buf_get_option(0, "buftype") ~= "prompt" or require("cmp_dap").is_dap_buffer()
+	end,
 	snippet = {
 		expand = function(args)
 			require("luasnip").lsp_expand(args.body) -- For `luasnip` users.
@@ -88,6 +91,12 @@ cmp.setup.cmdline(":", {
 			},
 		},
 	}),
+})
+
+cmp.setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, {
+	sources = {
+		{ name = "dap" },
+	},
 })
 
 luasnip.config.setup({

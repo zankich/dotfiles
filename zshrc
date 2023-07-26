@@ -7,7 +7,6 @@ fi
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
  export HOMEBREW_NO_ANALYTICS=1
- export LS_COLORS=$LSCOLORS
 fi
 
 export N_PREFIX=~/.local
@@ -28,7 +27,7 @@ export FZF_TMUX_OPTS='-p 90%,60%'
 export GOPATH=$HOME/code/go
 
 export EDITOR="nvim"
-export PATH=$HOME/bin:$GOPATH/bin:~/.local/bin:$PATH
+export PATH=$HOME/bin:$HOME/.local/bin:$GOPATH/bin:$PATH
 export TERM="xterm-256color"
 
 export BAT_THEME="base16-256"
