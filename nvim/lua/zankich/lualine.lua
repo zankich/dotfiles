@@ -4,13 +4,13 @@ lualine.setup({
 	options = { refresh = {}, theme = "base16", globalstatus = false },
 	sections = {
 		lualine_c = {
-			{ "require('zankich.util').filePathFromBufferRootDir()", padding = 2 },
+			{ "require('zankich.util').file_path_from_buffer_root_dir()", padding = 2 },
 			{ "require('lsp-status').status()" },
 		},
 	},
 	inactive_sections = {
 		lualine_c = {
-			{ "require('zankich.util').filePathFromBufferRootDir()", padding = 2 },
+			{ "require('zankich.util').file_path_from_buffer_root_dir()", padding = 2 },
 		},
 	},
 	tabline = {
@@ -37,7 +37,7 @@ lualine.setup({
 					local winnr = vim.fn.tabpagewinnr(context.tabnr)
 					local bufnr = buflist[winnr]
 					local fileName = vim.api.nvim_buf_get_name(bufnr)
-					local root = vim.fn.fnamemodify(require("zankich.util").bufferRootDir(fileName), ":p:h:t")
+					local root = vim.fn.fnamemodify(require("zankich.util").buffer_root_dir(fileName), ":p:h:t")
 
 					if context.current then
 						vim.api.nvim_tabpage_set_var(context.tabId, "tabname", root)

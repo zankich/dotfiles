@@ -1,13 +1,13 @@
 require("mason").setup()
 
-local null_ls = require("null-ls")
-local null_ls_utils = require("null-ls.utils").make_conditional_utils()
+-- local null_ls = require("null-ls")
+-- local null_ls_utils = require("null-ls.utils").make_conditional_utils()
 -- local null_ls_helpers = require("null-ls.helpers")
 -- local null_ls_methods = require("null-ls.methods")
 -- local null_ls_log = require("null-ls.logger")
 
 -- https://github.com/jose-elias-alvarez/null-ls.nvim/issues/1564
-require("null-ls.client").retry_add = require("null-ls.client").try_add
+-- require("null-ls.client").retry_add = require("null-ls.client").try_add
 -- local gci = null_ls_helpers.make_builtin({
 -- 	name = "gci",
 -- 	meta = {
@@ -85,138 +85,141 @@ require("null-ls.client").retry_add = require("null-ls.client").try_add
 -- 	factory = null_ls_helpers.generator_factory,
 -- })
 
-local Path = require("plenary.path")
-local cspell = require("cspell")
-local cspell_config = {
-	config_file_preferred_name = "cspell.json",
-	find_json = function(_)
-		return Path:new("~/.config/nvim/lua/zankich/conf/cspell.json"):expand()
-	end,
-	on_success = function(cspell_config_file_path, _, action_name)
-		if action_name == "add_to_json" then
-			os.execute(
-				string.format(
-					"cat %s | jq -S '.words |= sort' | tee %s > /dev/null",
-					cspell_config_file_path,
-					cspell_config_file_path
-				)
-			)
-		end
-	end,
-}
+-- local Path = require("plenary.path")
+-- local cspell = require("cspell")
+-- local cspell_config = {
+-- 	config_file_preferred_name = "cspell.json",
+-- 	find_json = function(_)
+-- 		return Path:new("~/.config/nvim/lua/zankich/conf/cspell.json"):expand()
+-- 	end,
+-- 	on_success = function(cspell_config_file_path, _, action_name)
+-- 		if action_name == "add_to_json" then
+-- 			os.execute(
+-- 				string.format(
+-- 					"cat %s | jq -S '.words |= sort' | tee %s > /dev/null",
+-- 					cspell_config_file_path,
+-- 					cspell_config_file_path
+-- 				)
+-- 			)
+-- 		end
+-- 	end,
+-- }
 
-local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-null_ls.setup({
-	debug = false,
-	debounce = 1000,
-	timeout = 15000,
-	on_attach = function(client, bufnr)
-		if client.supports_method("textDocument/formatting") then
-			vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-			vim.api.nvim_create_autocmd("BufWritePre", {
-				group = augroup,
-				buffer = bufnr,
-				callback = function()
-					vim.lsp.buf.format({ bufnr = bufnr })
-				end,
-			})
-		end
-	end,
-	sources = {
-		cspell.code_actions.with({ config = cspell_config }),
-		-- cspell.diagnostics.with({ config = cspell_config }),
-		null_ls.builtins.code_actions.gitsigns,
-		null_ls.builtins.code_actions.proselint,
-		null_ls.builtins.completion.luasnip,
-		null_ls.builtins.completion.spell,
-		null_ls.builtins.completion.tags,
-		-- null_ls.builtins.diagnostics.buf,
-		-- gci,
-	},
-})
-
-require("mason-null-ls").setup({
-	ensure_installed = {
-		"stylua",
-		"prettier",
-		"yamllint",
-		"golangci_lint",
-		"shfmt",
-		"shellcheck",
-		"hadolint",
-		"standardjs",
-		"cspell",
-		"proselint",
-		-- "buf",
-	},
-	automatic_installation = true,
-	handlers = {
-		prettier = function()
-			null_ls.register(null_ls.builtins.formatting.prettier.with({
-				disabled_filetypes = { "javascript" },
-			}))
-		end,
-		yamllint = function()
-			if null_ls_utils.root_has_file(".yamllint.yml") then
-				null_ls.register(null_ls.builtins.diagnostics.yamllint)
-			else
-				null_ls.register(null_ls.builtins.diagnostics.yamllint.with({
-					extra_args = {
-						"-c",
-						vim.fn.expand("~/.config/nvim/lua/zankich/conf/.yamllint.yml"),
-					},
-				}))
-			end
-		end,
-		shfmt = function()
-			null_ls.register(null_ls.builtins.formatting.shfmt.with({
-				extra_args = {
-					"--binary-next-line",
-					"--case-indent",
-					"--indent",
-					"2",
-				},
-			}))
-		end,
-		shellcheck = function()
-			null_ls.register(null_ls.builtins.code_actions.shellcheck)
-
-			if null_ls_utils.root_has_file(".shellcheckrc") then
-				null_ls.register(null_ls.builtins.diagnostics.shellcheck)
-			else
-				null_ls.register(null_ls.builtins.diagnostics.shellcheck.with({
-					cwd = function()
-						return vim.fn.expand("~/.config/nvim/lua/zankich/conf")
-					end,
-				}))
-			end
-		end,
-		golangci_lint = function()
-			local source = null_ls.builtins.diagnostics.golangci_lint
-
-			if not null_ls_utils.root_has_file(".golangci.yml") then
-				source = source.with({
-					extra_args = {
-						"--config",
-						vim.fn.expand("~/.config/nvim/lua/zankich/conf/.golangci.yml"),
-					},
-				})
-			end
-
-			null_ls.register(source)
-		end,
-	},
-})
-
-if null_ls_utils.root_has_file(".markdownlint-cli2.jsonc") then
-	null_ls.register(null_ls.builtins.diagnostics.markdownlint_cli2.with({
-		args = { "$FILENAME" },
-	}))
-else
-	null_ls.register(null_ls.builtins.diagnostics.markdownlint_cli2.with({
-		args = { "$FILENAME" },
-		cwd = function()
-			return vim.fn.expand("~/.config/nvim/lua/zankich/conf")
-		end,
-	}))
-end
+-- local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+-- null_ls.setup({
+-- 	debug = false,
+-- 	debounce = 1000,
+-- 	timeout = 15000,
+-- 	on_attach = function(client, bufnr)
+-- 		if client.supports_method("textDocument/formatting") then
+-- 			vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+-- 			vim.api.nvim_create_autocmd("BufWritePre", {
+-- 				group = augroup,
+-- 				buffer = bufnr,
+-- 				callback = function()
+-- 					vim.lsp.buf.format({ bufnr = bufnr })
+-- 				end,
+-- 			})
+-- 		end
+-- 	end,
+-- 	sources = {
+-- 		-- cspell.code_actions.with({ config = cspell_config }),
+-- 		-- cspell.diagnostics.with({ config = cspell_config }),
+-- 		null_ls.builtins.code_actions.gitsigns,
+-- 		null_ls.builtins.code_actions.proselint,
+-- 		null_ls.builtins.completion.luasnip,
+-- 		null_ls.builtins.completion.spell,
+-- 		null_ls.builtins.completion.tags,
+-- 		null_ls.builtins.formatting.standardts,
+-- 		null_ls.builtins.diagnostics.eslint,
+-- 		-- null_ls.builtins.diagnostics.buf,
+-- 		-- gci,
+-- 	},
+-- })
+--
+-- require("mason-null-ls").setup({
+-- 	ensure_installed = {
+-- 		"stylua",
+-- 		"prettier",
+-- 		"yamllint",
+-- 		"golangci_lint",
+-- 		"shfmt",
+-- 		"shellcheck",
+-- 		"standardts",
+-- 		"hadolint",
+-- 		"standardjs",
+-- 		-- "cspell",
+-- 		"proselint",
+-- 		-- "buf",
+-- 	},
+-- 	automatic_installation = true,
+-- 	handlers = {
+-- 		prettier = function()
+-- 			null_ls.register(null_ls.builtins.formatting.prettier.with({
+-- 				disabled_filetypes = { "javascript", "typescript" },
+-- 			}))
+-- 		end,
+-- 		yamllint = function()
+-- 			if null_ls_utils.root_has_file(".yamllint.yml") then
+-- 				null_ls.register(null_ls.builtins.diagnostics.yamllint)
+-- 			else
+-- 				null_ls.register(null_ls.builtins.diagnostics.yamllint.with({
+-- 					extra_args = {
+-- 						"-c",
+-- 						vim.fn.expand("~/.config/nvim/lua/zankich/conf/.yamllint.yml"),
+-- 					},
+-- 				}))
+-- 			end
+-- 		end,
+-- 		shfmt = function()
+-- 			null_ls.register(null_ls.builtins.formatting.shfmt.with({
+-- 				extra_args = {
+-- 					"--binary-next-line",
+-- 					"--case-indent",
+-- 					"--indent",
+-- 					"2",
+-- 				},
+-- 			}))
+-- 		end,
+-- 		shellcheck = function()
+-- 			null_ls.register(null_ls.builtins.code_actions.shellcheck)
+--
+-- 			if null_ls_utils.root_has_file(".shellcheckrc") then
+-- 				null_ls.register(null_ls.builtins.diagnostics.shellcheck)
+-- 			else
+-- 				null_ls.register(null_ls.builtins.diagnostics.shellcheck.with({
+-- 					cwd = function()
+-- 						return vim.fn.expand("~/.config/nvim/lua/zankich/conf")
+-- 					end,
+-- 				}))
+-- 			end
+-- 		end,
+-- 		golangci_lint = function()
+-- 			local source = null_ls.builtins.diagnostics.golangci_lint
+--
+-- 			if not null_ls_utils.root_has_file(".golangci.yml") then
+-- 				source = source.with({
+-- 					extra_args = {
+-- 						"--config",
+-- 						vim.fn.expand("~/.config/nvim/lua/zankich/conf/.golangci.yml"),
+-- 					},
+-- 				})
+-- 			end
+--
+-- 			null_ls.register(source)
+-- 		end,
+-- 	},
+-- })
+--
+-- if null_ls_utils.root_has_file(".markdownlint-cli2.jsonc") then
+-- 	null_ls.register(null_ls.builtins.diagnostics.markdownlint_cli2.with({
+-- 		args = { "$FILENAME" },
+-- 	}))
+-- else
+-- 	null_ls.register(null_ls.builtins.diagnostics.markdownlint_cli2.with({
+-- 		args = { "$FILENAME" },
+-- 		cwd = function()
+-- 			return vim.fn.expand("~/.config/nvim/lua/zankich/conf")
+-- 		end,
+-- 	}))
+-- end

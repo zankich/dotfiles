@@ -43,7 +43,7 @@ vim.o.timeout = true
 vim.o.timeoutlen = 300
 
 local util = require("zankich.util")
-vim.api.nvim_create_autocmd("BufEnter", { command = vim.cmd.lcd(util.bufferRootDir()) })
+vim.api.nvim_create_autocmd("BufEnter", { command = vim.cmd.lcd(util.buffer_root_dir()) })
 vim.keymap.set("n", "<space>r", util.reload, { silent = true, noremap = true })
 
 vim.keymap.set("n", "<Leader>s", ":%sno/<C-r><C-w>/<C-r><C-w>/gc<Left><Left><Left>")

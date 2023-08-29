@@ -22,7 +22,7 @@ require("zankich.diffview")
 
 require("zankich.go")
 
-require("zankich.mason")
+require("zankich.lsp")
 require("zankich.null-ls")
 
 require("zankich.which-key")

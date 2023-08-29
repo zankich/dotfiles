@@ -1,5 +1,3 @@
-set nocompatible
-
 set number
 set showmode
 set showcmd
@@ -10,43 +8,51 @@ set visualbell
 set notimeout
 set clipboard+=unnamed,unnamedplus,ideaput
 let mapleader=","
-
-" ideavim plugins
-set nerdtree
-set matchit
-set highlightedyank
-set sneak
-set ReplaceWithRegister
-set which-key
 set ideajoin
 
-set noeasymotion
+" ideavim plugins
+Plug 'preservim/nerdtree'
+Plug 'chrisbra/matchit'
+Plug 'machakann/vim-highlightedyank'
+Plug 'vim-scripts/ReplaceWithRegister'
+Plug 'tpope/vim-surround'
+set sneak
 
 "nnoremap <leader>s :%sno/<c-r>h/<c-r>h/gc<left><left><left>
 "nnoremap <leader>s :%s/\<<C-r><C-w>\>//g<left><left>
 "nnoremap <Leader>s :%sno/<C-R><C-W>/<C-R><C-W>/gc
 "nnoremap <Leader>s :%sno/<C-r><C-w>/<C-r><C-w>/gc<Left><Left><Left>
 "xnoremap <Leader>s hy:%sno/<C-r>h/<C-r>h/gc<left><left><left>
+nnoremap <Leader>s :action Replace<CR>
+"xnoremap <Leader>s :action Replace<CR>
 
-" commentary
-"xnoremap <Leader>/  :Commentary<CR>
+"vim.keymap.set("n", "<Leader>s", ":%sno/<C-r><C-w>/<C-r><C-w>/gc<Left><Left><Left>")
+"vim.keymap.set("v", "<Leader>s", '"hy:%sno/<C-r>h/<C-r>h/gc<left><left><left>')
+
 " nerdtree
-nnoremap - :NERDTreeFocus<CR>
+nnoremap - :NERDTreeFind<CR>
 
 " intellij action maps
 nnoremap <leader>r :action Run<CR>
-nnoremap <Leader>/  :action CommentByLineComment<CR>
-xnoremap <Leader>/  :action CommentByBlockComment<CR>
+nnoremap <Leader>/ :action CommentByLineComment<CR>
+xnoremap <Leader>/ :action CommentByLineComment<CR>
+nnoremap <leader>rg :action TextSearchAction<CR>
+nnoremap <leader>f :action GotoFile<CR>
+nnoremap <leader>b :action RecentFiles<CR>
 
 " LSP style maps
 nnoremap <space>ca :action ShowIntentionActions<CR>
+nnoremap <space>e :action ShowErrorDescription<CR>
 nnoremap <space>rn :action Refactorings.QuickListPopupAction<CR>
+nnoremap <space>q :action ActivateProblemsViewToolWindow<CR>
+nnoremap gi :action GotoImplementation<CR>
 nnoremap [d :action GotoPreviousError<CR>
 nnoremap ]d :action GotoNextError<CR>
 
 " tmuxish maps
-nnoremap <c-a><s-2> :action ActivateTerminalToolWindow<CR>
+nnoremap <space>t :action ActivateTerminalToolWindow<CR>
+"sethandler <c-a><s-2> a:ide
 
 " whichkey
-let g:WhichKey_ShowVimActions = "true"
-let g:WhichKey_SortOrder = "by_key_prefix_first"
+"let g:WhichKey_ShowVimActions = "true"
+"let g:WhichKey_SortOrder = "by_key_prefix_first"

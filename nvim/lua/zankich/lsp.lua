@@ -1,4 +1,5 @@
 local settings = require("zankich.settings")
+local util = require("zankich.util")
 
 local lsp_status = require("lsp-status")
 lsp_status.config({
@@ -64,7 +65,6 @@ local go_imports = function(client, bufnr)
 	local result = vim.lsp.buf_request_sync(bufnr, "textDocument/codeAction", params, 5000)
 	for _, res in pairs(result or {}) do
 		for _, r in pairs(res.result or {}) do
-			-- print(vim.inspect(r))
 			if r.edit then
 				vim.lsp.util.apply_workspace_edit(r.edit, vim.lsp.util._get_offset_encoding(bufnr))
 			end
@@ -79,8 +79,6 @@ local go_imports = function(client, bufnr)
 		vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
 	)
 
-	print(vim.inspect(vim.v.shell_error))
-
 	if not vim.v.shell_error == 1 then
 		-- Get the current buffer and set its contents to the output
 		vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, gci_output)
@@ -88,7 +86,6 @@ local go_imports = function(client, bufnr)
 end
 
 vim.diagnostic.config({
-	-- virtual_text = false,
 	virtual_text = true,
 	float = {
 		source = "always",
@@ -100,17 +97,9 @@ vim.diagnostic.config({
 	severity_sort = true,
 })
 
-mason.setup({
-	-- PATH = "skip",
-})
+mason.setup({})
+
 mason_lspconfig.setup({
-	ensure_installed = {
-		"gopls",
-		"lua_ls",
-		"bashls",
-		"yamlls",
-		"marksman",
-	},
 	automatic_installation = true,
 	handlers = {
 		function(server_name) -- default handler (optional)
@@ -119,6 +108,89 @@ mason_lspconfig.setup({
 				on_attach = function(client, bufnr)
 					lsp_status.on_attach(client)
 				end,
+			})
+		end,
+		["efm"] = function()
+			local augroup = vim.api.nvim_create_augroup("efm", {})
+			lspconfig.efm.setup({
+				cmd = {
+					"efm-langserver",
+					"-loglevel=4",
+					"-logfile=" .. vim.fs.normalize("~/.local/state/nvim/efm.log"),
+				},
+				filetypes = { "lua", "typescript", "javascript" },
+				init_options = {
+					documentFormatting = true,
+					documentRangeFormatting = true,
+					hover = true,
+					documentSymbol = true,
+					codeAction = true,
+					completion = true,
+				},
+				capabilities = cmp_nvim_capabilities,
+				on_attach = function(client, bufnr)
+					vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+
+					vim.api.nvim_create_autocmd("BufWritePre", {
+						group = augroup,
+						buffer = bufnr,
+						callback = function()
+							if util.value_in_array(vim.api.nvim_buf_get_option(bufnr, "filetype"), { "lua" }) then
+								vim.lsp.buf.format({ bufnr = bufnr, id = client.id })
+							end
+						end,
+					})
+
+					lsp_status.on_attach(client)
+				end,
+				settings = {
+					rootMarkers = { ".git/" },
+					languages = {
+						lua = {
+							{
+								formatCommand = "stylua -",
+								formatStdin = true,
+							},
+						},
+						typescript = {
+							{
+								formatCommand = "npx -y prettier-eslint-cli --stdin --stdin-filepath ${INPUT} -",
+								formatStdin = true,
+								rootMarkers = {
+									"eslint.config.js",
+									".eslintrc",
+									".eslintrc.js",
+									".eslintrc.cjs",
+									".eslintrc.yaml",
+									".eslintrc.yml",
+									".eslintrc.json",
+									"package.json",
+									"eslint.config.js",
+									".tsconfig.json",
+								},
+								requireMarkers = true,
+							},
+							{
+								lintCommand = "npx -y eslint --cache=true --no-color --format visualstudio --stdin --stdin-filename ${INPUT} -",
+								lintFormats = { "%f(%l,%c): %trror %m", "%f(%l,%c): %tarning %m" },
+								lintStdin = true,
+								lintIgnoreExitCode = true,
+								rootMarkers = {
+									"eslint.config.js",
+									".eslintrc",
+									".eslintrc.js",
+									".eslintrc.cjs",
+									".eslintrc.yaml",
+									".eslintrc.yml",
+									".eslintrc.json",
+									"package.json",
+									".tsconfig.json",
+								},
+								requireMarkers = true,
+							},
+						},
+					},
+				},
 			})
 		end,
 		["cucumber_language_server"] = function()
@@ -265,6 +337,75 @@ mason_lspconfig.setup({
 					lsp_status.on_attach(client)
 				end,
 				filetypes = { "bib", "gitcommit", "org", "plaintex", "rst", "rnoweb", "tex", "pandoc" },
+			})
+		end,
+		["tsserver"] = function()
+			local augroup = vim.api.nvim_create_augroup("tsserver", {})
+			lspconfig.tsserver.setup({
+				capabilities = cmp_nvim_capabilities,
+				on_attach = function(client, bufnr)
+					vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+
+					vim.api.nvim_create_autocmd("BufWritePre", {
+						group = augroup,
+						buffer = bufnr,
+						callback = function()
+							vim.lsp.buf.format({ bufnr = bufnr, id = client.id })
+						end,
+					})
+
+					vim.api.nvim_create_autocmd("BufWritePre", {
+						group = augroup,
+						buffer = bufnr,
+						callback = function()
+							for _, action in ipairs({
+								"source.fixAll",
+								"source.removeUnused",
+								"source.addMissingImports",
+								"source.removeUnusedImports",
+								"source.sortImports",
+								"source.organizeImports",
+							}) do
+								local params =
+									vim.lsp.util.make_range_params(0, vim.lsp.util._get_offset_encoding(bufnr))
+								params.context = {
+									only = { action },
+								}
+
+								local result = vim.lsp.buf_request_sync(bufnr, "textDocument/codeAction", params, 5000)
+								for _, res in pairs(result or {}) do
+									for _, r in pairs(res.result or {}) do
+										if r.edit then
+											vim.lsp.util.apply_workspace_edit(
+												r.edit,
+												vim.lsp.util._get_offset_encoding(bufnr)
+											)
+										end
+									end
+								end
+							end
+						end,
+					})
+					lsp_status.on_attach(client)
+				end,
+				settings = {
+					typescript = {
+						format = {
+							insertSpaceAfterFunctionKeywordForAnonymousFunctions = true,
+							insertSpaceBeforeFunctionParenthesis = true,
+						},
+						inlayHints = {
+							includeInlayParameterNameHints = "all",
+							includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+							includeInlayFunctionParameterTypeHints = true,
+							includeInlayVariableTypeHints = true,
+							includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+							includeInlayPropertyDeclarationTypeHints = true,
+							includeInlayFunctionLikeReturnTypeHints = true,
+							includeInlayEnumMemberValueHints = true,
+						},
+					},
+				},
 			})
 		end,
 	},
