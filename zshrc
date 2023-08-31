@@ -7,6 +7,9 @@ fi
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
  export HOMEBREW_NO_ANALYTICS=1
+else
+  alias pbcopy='xclip -selection clipboard'
+  alias pbpaste='xclip -selection clipboard -o'
 fi
 
 export N_PREFIX=~/.local
@@ -27,7 +30,7 @@ export FZF_TMUX_OPTS='-p 90%,60%'
 export GOPATH=$HOME/code/go
 
 export EDITOR="nvim"
-export PATH=$HOME/bin:$HOME/.local/bin:$GOPATH/bin:$PATH
+export PATH=$HOME/.local/bin/dotfiles:$HOME/.local/bin:$GOPATH/bin:$PATH
 export TERM="xterm-256color"
 
 export BAT_THEME="base16-256"
@@ -42,45 +45,6 @@ source $ZSH/oh-my-zsh.sh
 # colors
 source $HOME/.config/tinted-theming/base16_shell_theme
 # force fzf theme change
-fzf() {
-  source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/theme_name).config
-  command fzf "${@}"
-}
-
-fzf-tmux() {
-  source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/theme_name).config
-  command fzf-tmux "${@}"
-}
-
-nvim() {
-  # local socket
-  # socket="${HOME}/.cache/nvim/listen/socket"
-  #
-  # if [[ -e "${socket}" ]];then
-  #   if [[ -n "${TMUX}" ]]; then
-  #     local ids window_id pane_id
-  #
-  #     ids="$(tmux list-panes -a -F '#{pane_current_command} #{window_id} #{pane_id}' | awk '/^nvim / {print $2" "$3; exit}')"
-  #     window_id="$ids[(w)1]"
-  #     pane_id="$ids[(w)2]"
-  #
-  #     [[ -n "$pane_id" ]] && tmux select-window -t "$window_id" && tmux select-pane -t "$pane_id"
-  #   fi
-  #
-  #   command nvim --server "${socket}" --remote-tab-silent "${@}"
-  # else
-  #   command nvim --listen "${socket}" "${@}"
-  # fi
-
-  mkdir -p "${HOME}/.cache/nvim/listen/"
-
-  local socket
-  socket="${HOME}/.cache/nvim/listen/$(date +%s).pipe"
-  command nvim --listen "${socket}" "${@}"
-
-  rm "${pipe}" >& /dev/null || true
-}
-
 [[ ! -f ~/.cargo/env ]] || source ~/.cargo/env
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -90,14 +54,11 @@ fpath+=(~/.oh-my-zsh/custom/plugins/zsh-completions/src)
 bindkey '^ ' autosuggest-accept  # space + tab  | autosuggest
 
 alias lla='ls -la'
-# alias nvim="nvim --listen $HOME/.cache/nvim/listen/$(date +%s).pipe"
 alias vimdiff="nvim -d"
 alias rg=$RG_COMMAND
 alias chmox="chmod +x"
-alias nvim-no-config="command nvim -u NONE"
+alias nvi="command nvim -u NONE"
 alias j="z"
-alias pbcopy='xclip -selection clipboard'
-alias pbpaste='xclip -selection clipboard -o'
 
 bash_help() {
   bash -c "help ${1}"
@@ -122,6 +83,26 @@ _get_display() {
   if [ -n "${pid}" ]; then
     export DISPLAY="$(awk 'BEGIN{FS="="; RS="\0"}  $1=="DISPLAY" {print $2; exit}' /proc/${pid}/environ)"
   fi
+}
+
+fzf() {
+  source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/theme_name).config
+  command fzf "${@}"
+}
+
+fzf-tmux() {
+  source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/theme_name).config
+  command fzf-tmux "${@}"
+}
+
+nvim() {
+  mkdir -p "${HOME}/.cache/nvim/listen/"
+
+  local socket
+  socket="${HOME}/.cache/nvim/listen/$(date +%s).pipe"
+  trap "rm -f -- ${socket}" EXIT
+
+  command nvim --listen "${socket}" "${@}"
 }
 
 _get_display

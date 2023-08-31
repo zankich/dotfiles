@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-#
-set -eu
+
+set -eu -o pipefail
 
 reload_nvim() {
   pushd $HOME/.cache/nvim/listen >/dev/null

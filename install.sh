@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eu -o pipefail
 
@@ -666,6 +666,7 @@ setup_dotfiles() {
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
   ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
   ln -sf "${SCRIPT_DIR}/ideavimrc" "${HOME}/.ideavimrc"
+  ln -sf "${SCRIPT_DIR}/bin" "${HOME}/.local/bin/dotfiles"
 
   if [[ "$(uname -s)" == "Linux" ]]; then
     sudo ln -sf "${SCRIPT_DIR}/logid.cfg" /etc/logid.cfg
@@ -678,7 +679,7 @@ setup_tmux() {
   mkdir -p "${HOME}/.tmux/plugins/"
 
   ln -sf "${SCRIPT_DIR}/tmux.conf" "${HOME}/.tmux.conf"
-  ln -sfn "${SCRIPT_DIR}/scripts/tmux" "${HOME}/.tmux/scripts"
+  ln -sfn "${SCRIPT_DIR}/tmux/bin" "${HOME}/.tmux/bin"
 
   __ensure_repo https://github.com/tmux-plugins/tpm "${HOME}/.tmux/plugins/tpm"
 
