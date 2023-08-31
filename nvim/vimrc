@@ -58,7 +58,6 @@ call plug#begin()
   Plug 'lewis6991/gitsigns.nvim'
   Plug 'sindrets/diffview.nvim'
 
-  Plug 'lvimuser/lsp-inlayhints.nvim'
   Plug 'nvim-lua/lsp-status.nvim'
   Plug 'nvim-lualine/lualine.nvim'
   Plug 'RRethy/nvim-base16'
