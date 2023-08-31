@@ -244,7 +244,17 @@ mason_lspconfig.setup({
 		end,
 		["cucumber_language_server"] = function()
 			lspconfig.cucumber_language_server.setup({
-				cmd = { "npx", "-y", "/home/azankich/code/github.com/zankich/cucumber-language-server", "--stdio" },
+				-- running a forked version of the language server https://github.com/zankich/cucumber-language-server
+				-- see https://github.com/cucumber/language-server/pull/74
+				cmd = {
+					"n",
+					"exec",
+					"16",
+					"npx",
+					"-y",
+					vim.fs.normalize("~/.local/share/nvim/zankich/cucumber-language-server"),
+					"--stdio",
+				},
 				capabilities = cmp_nvim_capabilities,
 				on_attach = function(client, bufnr)
 					lsp_status.on_attach(client)
