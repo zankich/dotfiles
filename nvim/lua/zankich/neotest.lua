@@ -176,7 +176,7 @@ vim.api.nvim_create_user_command("TestDir", function()
 end, {})
 
 vim.api.nvim_create_user_command("TestProject", function()
-	open_buffers_and_test(require("zankich.util").bufferRootDir())
+	open_buffers_and_test(require("zankich.util").buffer_root_dir())
 end, {})
 
 vim.api.nvim_create_user_command("TestOutput", function()

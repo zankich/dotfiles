@@ -20,11 +20,9 @@ require("zankich.neogit")
 require("zankich.gitsigns")
 require("zankich.diffview")
 
-require("zankich.go")
-
 require("zankich.lsp")
-require("zankich.null-ls")
 
 require("zankich.which-key")
+require("zankich.surround")
 
 require("zankich.treesitter")

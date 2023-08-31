@@ -97,10 +97,43 @@ vim.diagnostic.config({
 	severity_sort = true,
 })
 
-mason.setup({})
+-- require("lsp-inlayhints").setup({})
+-- vim.api.nvim_create_augroup("LspAttach_inlayhints", {})
+-- vim.api.nvim_create_autocmd("LspAttach", {
+-- 	group = "LspAttach_inlayhints",
+-- 	callback = function(args)
+-- 		if not (args.data and args.data.client_id) then
+-- 			return
+-- 		end
+--
+-- 		local bufnr = args.buf
+-- 		local client = vim.lsp.get_client_by_id(args.data.client_id)
+-- 		require("lsp-inlayhints").on_attach(client, bufnr)
+-- 	end,
+-- })
+
+mason.setup({
+	-- PATH = "prepend",
+})
+
+require("mason-tool-installer").setup({
+	ensure_installed = {
+		"golangci-lint",
+		"efm",
+		"gopls",
+		"stylua",
+		"gofumpt",
+		"shellcheck",
+		"shfmt",
+		"yamllint",
+	},
+	auto_update = true,
+	run_on_start = true,
+})
 
 mason_lspconfig.setup({
 	automatic_installation = true,
+	ensure_installed = { "efm" },
 	handlers = {
 		function(server_name) -- default handler (optional)
 			lspconfig[server_name].setup({
@@ -118,7 +151,7 @@ mason_lspconfig.setup({
 					"-loglevel=4",
 					"-logfile=" .. vim.fs.normalize("~/.local/state/nvim/efm.log"),
 				},
-				filetypes = { "lua", "typescript", "javascript" },
+				filetypes = { "lua", "typescript", "javascript", "sh" },
 				init_options = {
 					documentFormatting = true,
 					documentRangeFormatting = true,
@@ -135,7 +168,7 @@ mason_lspconfig.setup({
 						group = augroup,
 						buffer = bufnr,
 						callback = function()
-							if util.value_in_array(vim.api.nvim_buf_get_option(bufnr, "filetype"), { "lua" }) then
+							if util.value_in_array(vim.api.nvim_buf_get_option(bufnr, "filetype"), { "lua", "sh" }) then
 								vim.lsp.buf.format({ bufnr = bufnr, id = client.id })
 							end
 						end,
@@ -146,6 +179,22 @@ mason_lspconfig.setup({
 				settings = {
 					rootMarkers = { ".git/" },
 					languages = {
+						sh = {
+							{
+								lintCommand = "shellcheck --color=never --format=gcc --external-sources -",
+								lintStdin = true,
+								lintIgnoreExitCode = true,
+								lintFormats = {
+									"-:%l:%c: %trror: %m",
+									"-:%l:%c: %tarning: %m",
+									"-:%l:%c: %tote: %m",
+								},
+							},
+							{
+								formatCommand = "shfmt --case-indent --binary-next-line --indent 2 -",
+								formatStdin = true,
+							},
+						},
 						lua = {
 							{
 								formatCommand = "stylua -",
@@ -171,7 +220,7 @@ mason_lspconfig.setup({
 								requireMarkers = true,
 							},
 							{
-								lintCommand = "npx -y eslint --cache=true --no-color --format visualstudio --stdin --stdin-filename ${INPUT} -",
+								lintCommand = "npx -y eslint_d --cache=true --no-color --format visualstudio --stdin --stdin-filename ${INPUT} -",
 								lintFormats = { "%f(%l,%c): %trror %m", "%f(%l,%c): %tarning %m" },
 								lintStdin = true,
 								lintIgnoreExitCode = true,
@@ -195,6 +244,7 @@ mason_lspconfig.setup({
 		end,
 		["cucumber_language_server"] = function()
 			lspconfig.cucumber_language_server.setup({
+				cmd = { "npx", "-y", "/home/azankich/code/github.com/zankich/cucumber-language-server", "--stdio" },
 				capabilities = cmp_nvim_capabilities,
 				on_attach = function(client, bufnr)
 					lsp_status.on_attach(client)
@@ -360,7 +410,7 @@ mason_lspconfig.setup({
 						callback = function()
 							for _, action in ipairs({
 								"source.fixAll",
-								"source.removeUnused",
+								-- "source.removeUnused",
 								"source.addMissingImports",
 								"source.removeUnusedImports",
 								"source.sortImports",
@@ -391,19 +441,21 @@ mason_lspconfig.setup({
 				settings = {
 					typescript = {
 						format = {
+							insertSpaceAfterConstructor = true,
 							insertSpaceAfterFunctionKeywordForAnonymousFunctions = true,
 							insertSpaceBeforeFunctionParenthesis = true,
+							semicolons = "remove",
 						},
-						inlayHints = {
-							includeInlayParameterNameHints = "all",
-							includeInlayParameterNameHintsWhenArgumentMatchesName = true,
-							includeInlayFunctionParameterTypeHints = true,
-							includeInlayVariableTypeHints = true,
-							includeInlayVariableTypeHintsWhenTypeMatchesName = true,
-							includeInlayPropertyDeclarationTypeHints = true,
-							includeInlayFunctionLikeReturnTypeHints = true,
-							includeInlayEnumMemberValueHints = true,
-						},
+						-- inlayHints = {
+						-- 	includeInlayEnumMemberValueHints = true,
+						-- 	includeInlayFunctionLikeReturnTypeHints = true,
+						-- 	includeInlayFunctionParameterTypeHints = true,
+						-- 	includeInlayParameterNameHints = "all",
+						-- 	includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+						-- 	includeInlayPropertyDeclarationTypeHints = true,
+						-- 	includeInlayVariableTypeHints = true,
+						-- 	includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+						-- },
 					},
 				},
 			})

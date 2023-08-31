@@ -15,7 +15,7 @@ call plug#begin()
   Plug 'nvim-lua/plenary.nvim'
 
   Plug 'nvim-tree/nvim-tree.lua'
-  Plug 'nvim-tree/nvim-web-devicons' " optional
+  Plug 'nvim-tree/nvim-web-devicons' "
 
   Plug 'numToStr/Comment.nvim'
 
@@ -58,20 +58,20 @@ call plug#begin()
   Plug 'lewis6991/gitsigns.nvim'
   Plug 'sindrets/diffview.nvim'
 
+  Plug 'lvimuser/lsp-inlayhints.nvim'
   Plug 'nvim-lua/lsp-status.nvim'
   Plug 'nvim-lualine/lualine.nvim'
   Plug 'RRethy/nvim-base16'
 
   Plug 'neovim/nvim-lspconfig'
-  Plug 'jose-elias-alvarez/null-ls.nvim'
   Plug 'williamboman/mason.nvim'
   Plug 'williamboman/mason-lspconfig.nvim'
-  Plug 'jay-babu/mason-null-ls.nvim'
-  Plug 'davidmh/cspell.nvim'
+  Plug 'WhoIsSethDaniel/mason-tool-installer.nvim'
 
   Plug 'folke/lsp-trouble.nvim'
 
   Plug 'folke/which-key.nvim'
+  Plug 'kylechui/nvim-surround'
 
   Plug 'nvim-neotest/neotest'
   " pinning due to https://github.com/nvim-neotest/neotest-go/issues/47

@@ -66,66 +66,66 @@
 -- 	return "no test function found"
 -- end
 
-local get_diagnostic_namespace = function(bufnr)
-	-- local clients = vim.lsp.get_active_clients({ bufnr = bufnr })
-	local clients = vim.lsp.get_active_clients()
-	if clients == nil or #clients == 0 then
-		return nil
-	end
-
-	return vim.api.nvim_create_namespace(string.format("vim.lsp.%s.%d", clients[1].name, bufnr))
-end
-
-local golanci_lint = function(package)
-	if package == nil then
-		package = require("zankich.util").bufferRootDir() .. "/..."
-	end
-
-	vim.fn.jobstart({
-		"golangci-lint",
-		"run",
-		"--out-format=json",
-		package,
-	}, {
-		on_stdout = function(chan_id, data, name)
-			local output = vim.fn.json_decode(data)
-			local issues = output["Issues"]
-			local diags_by_buf = {}
-			if type(issues) == "table" then
-				for _, issue in ipairs(issues) do
-					vim.api.nvim_command("silent! badd " .. issue.Pos.Filename)
-					local bufnr = vim.fn.bufnr(issue.Pos.Filename)
-
-					if diags_by_buf[bufnr] == nil then
-						diags_by_buf[bufnr] = {}
-					end
-
-					table.insert(diags_by_buf[bufnr], {
-						source = string.format("golangci-lint:%s", issue.FromLinter),
-						lnum = issue.Pos.Line - 1,
-						end_lnum = issue.Pos.Line - 1,
-						col = issue.Pos.Column - 1,
-						end_col = issue.Pos.Column - 1,
-						message = issue.Text,
-						severity = vim.diagnostic.severity.WARN,
-						bufnr = bufnr,
-					})
-				end
-
-				for bufnr, diags in pairs(diags_by_buf) do
-					vim.diagnostic.reset(nil, bufnr)
-					print("bufnr: " .. bufnr .. "\ndiags: " .. vim.inspect(diags))
-					vim.diagnostic.set(get_diagnostic_namespace(bufnr), bufnr, diags)
-				end
-			end
-		end,
-		stdout_buffered = true,
-		on_stderr = function(chan_id, data, name)
-			print(vim.inspect(data))
-		end,
-		stderr_buffered = true,
-	})
-end
+-- local get_diagnostic_namespace = function(bufnr)
+-- 	-- local clients = vim.lsp.get_active_clients({ bufnr = bufnr })
+-- 	local clients = vim.lsp.get_active_clients()
+-- 	if clients == nil or #clients == 0 then
+-- 		return nil
+-- 	end
+--
+-- 	return vim.api.nvim_create_namespace(string.format("vim.lsp.%s.%d", clients[1].name, bufnr))
+-- end
+--
+-- local golanci_lint = function(package)
+-- 	if package == nil then
+-- 		package = require("zankich.util").bufferRootDir() .. "/..."
+-- 	end
+--
+-- 	vim.fn.jobstart({
+-- 		"golangci-lint",
+-- 		"run",
+-- 		"--out-format=json",
+-- 		package,
+-- 	}, {
+-- 		on_stdout = function(chan_id, data, name)
+-- 			local output = vim.fn.json_decode(data)
+-- 			local issues = output["Issues"]
+-- 			local diags_by_buf = {}
+-- 			if type(issues) == "table" then
+-- 				for _, issue in ipairs(issues) do
+-- 					vim.api.nvim_command("silent! badd " .. issue.Pos.Filename)
+-- 					local bufnr = vim.fn.bufnr(issue.Pos.Filename)
+--
+-- 					if diags_by_buf[bufnr] == nil then
+-- 						diags_by_buf[bufnr] = {}
+-- 					end
+--
+-- 					table.insert(diags_by_buf[bufnr], {
+-- 						source = string.format("golangci-lint:%s", issue.FromLinter),
+-- 						lnum = issue.Pos.Line - 1,
+-- 						end_lnum = issue.Pos.Line - 1,
+-- 						col = issue.Pos.Column - 1,
+-- 						end_col = issue.Pos.Column - 1,
+-- 						message = issue.Text,
+-- 						severity = vim.diagnostic.severity.WARN,
+-- 						bufnr = bufnr,
+-- 					})
+-- 				end
+--
+-- 				for bufnr, diags in pairs(diags_by_buf) do
+-- 					vim.diagnostic.reset(nil, bufnr)
+-- 					print("bufnr: " .. bufnr .. "\ndiags: " .. vim.inspect(diags))
+-- 					vim.diagnostic.set(get_diagnostic_namespace(bufnr), bufnr, diags)
+-- 				end
+-- 			end
+-- 		end,
+-- 		stdout_buffered = true,
+-- 		on_stderr = function(chan_id, data, name)
+-- 			print(vim.inspect(data))
+-- 		end,
+-- 		stderr_buffered = true,
+-- 	})
+-- end
 
 -- vim.api.nvim_create_user_command("GoTestFunc", function()
 -- 	test_func()

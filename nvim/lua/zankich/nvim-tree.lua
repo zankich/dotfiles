@@ -95,7 +95,7 @@ local function open_nvim_tree(data)
 	end
 
 	-- change to the directory
-	vim.cmd.cd(require("zankich.util").bufferRootDir())
+	vim.cmd.cd(require("zankich.util").buffer_root_dir())
 
 	require("nvim-tree.api").tree.focus()
 end

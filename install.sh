@@ -57,7 +57,7 @@ __tmux() {
 __go() {
   echo "installing go..."
   local version
-  version="$(curl --fail -sq "https://go.dev/VERSION?m=text")"
+  version="$(curl --fail -sq "https://go.dev/VERSION?m=text" | head -n1)"
 
   if ! command -v /usr/local/bin/go >/dev/null || ! grep --silent "${version}" <(/usr/local/bin/go version); then
     echo "installing go ${version}"
@@ -264,33 +264,33 @@ __qemu() {
   fi
 }
 
-__colima() {
-  echo "installing colima..."
-  local version
-  version=$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/abiosoft/colima/releases/latest | jq -r .tag_name)
+# __colima() {
+#   echo "installing colima..."
+#   local version
+#   version=$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/abiosoft/colima/releases/latest | jq -r .tag_name)
+#
+#   if ! command -v colima >/dev/null || ! grep --silent "${version}" <(colima --version); then
+#     local arch="x86_64"
+#     if [[ $(uname -m) != "x86_64" ]]; then
+#       arch="aarch64"
+#     fi
+#
+#     sudo curl --fail -#qL -o /usr/local/bin/colima https://github.com/abiosoft/colima/releases/download/"${version}"/colima-Linux-"${arch}"
+#     sudo chmod +x /usr/local/bin/colima
+#   fi
+# }
 
-  if ! command -v colima >/dev/null || ! grep --silent "${version}" <(colima --version); then
-    local arch="x86_64"
-    if [[ $(uname -m) != "x86_64" ]]; then
-      arch="aarch64"
-    fi
-
-    sudo curl --fail -#qL -o /usr/local/bin/colima https://github.com/abiosoft/colima/releases/download/"${version}"/colima-Linux-"${arch}"
-    sudo chmod +x /usr/local/bin/colima
-  fi
-}
-
-__lima() {
-  echo "installing lima..."
-  local version
-  version=$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/lima-vm/lima/releases/latest | jq -r .tag_name)
-
-  if ! command -v limactl >/dev/null || ! grep --silent "${version}" <(limactl --version); then
-    curl --fail -#qL "https://github.com/lima-vm/lima/releases/download/${version}/lima-${version:1}-linux-$(uname -m).tar.gz" \
-      | sudo tar zxv -C /usr/local --no-same-owner
-
-  fi
-}
+# __lima() {
+#   echo "installing lima..."
+#   local version
+#   version=$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/lima-vm/lima/releases/latest | jq -r .tag_name)
+#
+#   if ! command -v limactl >/dev/null || ! grep --silent "${version}" <(limactl --version); then
+#     curl --fail -#qL "https://github.com/lima-vm/lima/releases/download/${version}/lima-${version:1}-linux-$(uname -m).tar.gz" \
+#       | sudo tar zxv -C /usr/local --no-same-owner
+#
+#   fi
+# }
 
 __docker() {
   curl -qfsSL https://get.docker.com | bash
@@ -579,8 +579,8 @@ setup_dependencies() {
       fi
 
       __qemu
-      __colima
-      __lima
+      # __colima
+      # __lima
 
       cargo install --locked bat
       cargo install --locked fd-find

@@ -30,7 +30,7 @@ telescope.setup({
 						local opts = vim.deepcopy(M.find_files_opts)
 
 						if current_picker.prompt_title == "~/code" then
-							local bufferRootDir = util.bufferRootDir()
+							local bufferRootDir = util.buffer_root_dir()
 							opts.cwd = bufferRootDir
 							opts.prompt_title = bufferRootDir
 						else
@@ -55,7 +55,7 @@ local builtin = require("telescope.builtin")
 function M.search_root()
 	local opts = vim.deepcopy(M.find_files_opts)
 
-	local bufferRootDir = util.bufferRootDir()
+	local bufferRootDir = util.buffer_root_dir()
 	opts.cwd = bufferRootDir
 	opts.prompt_title = bufferRootDir
 
@@ -63,7 +63,6 @@ function M.search_root()
 end
 
 vim.keymap.set("n", "<leader>f", M.search_root, { noremap = true, silent = true })
--- vim.keymap.set("n", "<leader>rg", builtin.live_grep, {})
 vim.keymap.set("n", "<leader>rg", function()
 	telescope.extensions.live_grep_args.live_grep_args()
 end)

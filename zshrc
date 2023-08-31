@@ -96,6 +96,8 @@ alias rg=$RG_COMMAND
 alias chmox="chmod +x"
 alias nvim-no-config="command nvim -u NONE"
 alias j="z"
+alias pbcopy='xclip -selection clipboard'
+alias pbpaste='xclip -selection clipboard -o'
 
 bash_help() {
   bash -c "help ${1}"
