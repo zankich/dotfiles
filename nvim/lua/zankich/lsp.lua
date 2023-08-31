@@ -12,13 +12,14 @@ lsp_status.config({
 lsp_status.register_progress()
 
 local mason = require("mason")
+mason.setup({})
+
 local mason_lspconfig = require("mason-lspconfig")
 local lspconfig = require("lspconfig")
 local cmp_nvim_capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
+
 -- Set default client capabilities plus window/workDoneProgress
 cmp_nvim_capabilities = vim.tbl_extend("keep", cmp_nvim_capabilities, lsp_status.capabilities)
-
--- vim.lsp.set_log_level("debug")
 
 -- Global mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
@@ -95,25 +96,6 @@ vim.diagnostic.config({
 	signs = true,
 	underline = false,
 	severity_sort = true,
-})
-
--- require("lsp-inlayhints").setup({})
--- vim.api.nvim_create_augroup("LspAttach_inlayhints", {})
--- vim.api.nvim_create_autocmd("LspAttach", {
--- 	group = "LspAttach_inlayhints",
--- 	callback = function(args)
--- 		if not (args.data and args.data.client_id) then
--- 			return
--- 		end
---
--- 		local bufnr = args.buf
--- 		local client = vim.lsp.get_client_by_id(args.data.client_id)
--- 		require("lsp-inlayhints").on_attach(client, bufnr)
--- 	end,
--- })
-
-mason.setup({
-	-- PATH = "prepend",
 })
 
 require("mason-tool-installer").setup({
@@ -291,14 +273,7 @@ mason_lspconfig.setup({
 						legend = { tokenModifiers = semantic.tokenModifiers, tokenTypes = semantic.tokenTypes },
 						range = true,
 					}
-					-- vim.api.nvim_buf_create_user_command(bufnr, "TestDir", function()
-					-- 	open_buffers_and_test(vim.fn.expand("%:p:h"))
-					-- end, {})
-					--
-					-- vim.api.nvim_buf_create_user_command(bufnr, "TestProject", function()
-					-- 	open_buffers_and_test(vim.fn.getcwd())
-					-- end, {})
-					--
+
 					lsp_status.on_attach(client)
 				end,
 				settings = {
@@ -456,16 +431,6 @@ mason_lspconfig.setup({
 							insertSpaceBeforeFunctionParenthesis = true,
 							semicolons = "remove",
 						},
-						-- inlayHints = {
-						-- 	includeInlayEnumMemberValueHints = true,
-						-- 	includeInlayFunctionLikeReturnTypeHints = true,
-						-- 	includeInlayFunctionParameterTypeHints = true,
-						-- 	includeInlayParameterNameHints = "all",
-						-- 	includeInlayParameterNameHintsWhenArgumentMatchesName = true,
-						-- 	includeInlayPropertyDeclarationTypeHints = true,
-						-- 	includeInlayVariableTypeHints = true,
-						-- 	includeInlayVariableTypeHintsWhenTypeMatchesName = true,
-						-- },
 					},
 				},
 			})
@@ -502,9 +467,3 @@ vim.lsp.handlers["workspace/diagnostic/refresh"] = function(_, _, ctx)
 	pcall(vim.diagnostic.reset, ns)
 	return true
 end
-
--- vim.lsp.handlers["window/showMessage"] = function(err, method, params)
--- 	vim.notify(method.message, params.type, {
--- 		title = vim.lsp.get_client_by_id(params.client_id).name,
--- 	})
--- end

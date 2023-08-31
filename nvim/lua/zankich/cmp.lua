@@ -103,12 +103,3 @@ luasnip.config.setup({
 	store_selection_keys = "<C-s>",
 	enable_autosnippets = true,
 })
-
--- require("luasnip.loaders.from_vscode").lazy_load()
--- require("luasnip.loaders.from_snipmate").lazy_load()
-
--- set keybinds for both INSERT and VISUAL.
--- vim.api.nvim_set_keymap("i", "<C-n>", "<Plug>luasnip-next-choice", {})
--- vim.api.nvim_set_keymap("s", "<C-n>", "<Plug>luasnip-next-choice", {})
--- vim.api.nvim_set_keymap("i", "<C-p>", "<Plug>luasnip-prev-choice", {})
--- vim.api.nvim_set_keymap("s", "<C-p>", "<Plug>luasnip-prev-choice", {})
