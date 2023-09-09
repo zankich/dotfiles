@@ -16,7 +16,7 @@ __nvim() {
   local release_body
   release_body="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/neovim/neovim/releases/latest | jq -r .body)"
 
-  if ! command -v nvim >/dev/null || ! grep --silent "$(nvim --version)" <(echo "${release_body}"); then
+  if ! command -v nvim >/dev/null || ! grep --silent "$(nvim --version | head -n 1 | awk '{print $2}')" <(echo "${release_body}"); then
     mkdir -p "${TMP_DIR}/nvim"
 
     pushd "${TMP_DIR}/nvim" >/dev/null
@@ -95,17 +95,17 @@ __zsh() {
         ./configure
         make -j
         sudo make install
+
+        if [[ $(grep -cw "/usr/local/bin/zsh" /etc/shells) == "0" ]]; then
+          echo "/usr/local/bin/zsh" | sudo tee -a /etc/shells
+        fi
+
+        chsh -s /usr/local/bin/zsh
       fi
     }
     popd >/dev/null
   }
   popd >/dev/null
-
-  if [[ $(grep -cw "/usr/local/bin/zsh" /etc/shells) == "0" ]]; then
-    echo "/usr/local/bin/zsh" | sudo tee -a /etc/shells
-  fi
-
-  chsh -s /usr/local/bin/zsh
 }
 
 __rust() {
@@ -131,7 +131,7 @@ __alacritty() {
   local version
   version="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/alacritty/alacritty/releases/latest | jq -r .tag_name)"
 
-  if ! command -v alacritty >/dev/null || ! grep --silent "${version#v}" <(alacritty --version); then
+  if ! command -v alacritty >/dev/null || ! grep --silent "${version#v}" <(alacritty --version | awk '{print $2}'); then
 
     mkdir -p "${TMP_DIR}/alacritty"
 
@@ -199,7 +199,7 @@ __grpcurl() {
   local version
   version="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/fullstorydev/grpcurl/releases/latest | jq -r .tag_name)"
 
-  if ! command -v grpcurl >/dev/null || ! grep "${version}" <(grpcurl --version); then
+  if ! command -v grpcurl >/dev/null || ! grep "${version}" <(grpcurl --version | awk '{print $2}'); then
     local arch="x86_64"
     if [[ $(uname -m) != "x86_64" ]]; then
       arch="arm64"
@@ -221,7 +221,7 @@ __logiops() {
   {
     git fetch --all --tags
     git checkout "${version}"
-    if ! command -v logid >/dev/null || [[ $(logid --version | awk -F "-g" '{print $2}' | grep -c "$(git rev-parse --short HEAD)") == 0 ]]; then
+    if ! command -v logid >/dev/null || ! grep --silent "${version}" <(logid --version); then
       mkdir -p build
       pushd build >/dev/null
       {
@@ -244,7 +244,7 @@ __qemu() {
   local version
   version="$(curl -fsSLq https://download.qemu.org/ | grep -oP 'href="\Kqemu-[0-9]+\.[0-9]+\.[0-9]+\.tar\.xz' | tail -n 1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+')"
 
-  if ! command -v qemu-aarch64 >/dev/null || ! grep --silent "${version}" <(qemu-aarch64 --version); then
+  if ! command -v qemu-aarch64 >/dev/null || ! grep --silent "${version}" <(qemu-aarch64 --version | head -n 1 | awk '{print $3}'); then
     mkdir -p "${TMP_DIR}/qemu"
     pushd "${TMP_DIR}/qemu" >/dev/null
     {
@@ -293,18 +293,20 @@ __qemu() {
 # }
 
 __docker() {
-  curl -qfsSL https://get.docker.com | bash
+  if ! command -v docker >/dev/null; then
+    curl -qfsSL https://get.docker.com | bash
 
-  if ! getent group docker; then
-    sudo groupadd docker
+    if ! getent group docker; then
+      sudo groupadd docker
+    fi
+
+    if ! groups "${USER}" | grep docker; then
+      sudo usermod -aG docker "${USER}"
+    fi
+
+    sudo systemctl enable docker.service
+    sudo systemctl enable containerd.service
   fi
-
-  if ! groups "${USER}" | grep docker; then
-    sudo usermod -aG docker "${USER}"
-  fi
-
-  sudo systemctl enable docker.service
-  sudo systemctl enable containerd.service
 }
 
 __nerd-fonts() {
@@ -464,7 +466,7 @@ __shellcheck() {
   local version
   version=$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/koalaman/shellcheck/releases/latest | jq -r .tag_name)
 
-  if ! command -v shellcheck >/dev/null || ! grep --silent "${version#v}" <(shellcheck --version); then
+  if ! command -v shellcheck >/dev/null || ! grep --silent "${version#v}" <(shellcheck --version | head -n 2 | tail -n 1 | awk '{print $2}'); then
     local arch="x86_64"
     if [[ $(uname -m) != "x86_64" ]]; then
       arch="aarch64"

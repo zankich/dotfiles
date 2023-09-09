@@ -3,9 +3,11 @@
 set -eu -o pipefail
 
 reload_nvim() {
-  pushd $HOME/.cache/nvim/listen >/dev/null
+  pushd "${HOME}/.cache/nvim/listen" >/dev/null
   for file in *.pipe; do
+    set +e
     nvim --server "${file}" --remote-send '<space>r'
+    set -e
   done
   popd >/dev/null
 }
@@ -21,7 +23,7 @@ set_theme() {
     theme="base16_equilibrium-gray-light"
   fi
 
-  tmux new-window -a "zsh -i -c '${theme};omz reload &;exit'"
+  tmux new-window -a "zsh -i -c '${theme};omz reload &; exit'"
 }
 
 main() {

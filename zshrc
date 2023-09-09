@@ -8,8 +8,23 @@ fi
 if [[ "$(uname -s)" == "Darwin" ]]; then
  export HOMEBREW_NO_ANALYTICS=1
 else
-  alias pbcopy='xclip -selection clipboard'
   alias pbpaste='xclip -selection clipboard -o'
+  pbcopy() {
+    # copy to osc52
+    local input=$(cat)
+    local encoded=$(printf "$input" | base64 | tr -d '\n')
+
+    if [[ -z "$encoded" ]]; then
+      return
+    fi
+
+    # Check if we are running in a terminal
+    if [ -t 1 ]; then
+      printf "\033]52;c;$encoded\007"
+    else
+      printf "\033Ptmux;\033\033]52;c;$encoded\007\033\\"
+    fi
+  }
 fi
 
 export N_PREFIX=~/.local
@@ -73,18 +88,6 @@ _fzf_compgen_dir() {
   fd --type d --hidden --follow --exclude ".git" . "$1"
 }
 
-_get_display() {
-  if [ "$(uname -s)" != "Linux" ]; then
-    return
-  fi
-
-  local pid
-  pid="$(pgrep --newest --uid $(id -u) gnome-session)"
-  if [ -n "${pid}" ]; then
-    export DISPLAY="$(awk 'BEGIN{FS="="; RS="\0"}  $1=="DISPLAY" {print $2; exit}' /proc/${pid}/environ)"
-  fi
-}
-
 fzf() {
   source $HOME/.config/base16-fzf/bash/base16-$(cat $HOME/.config/tinted-theming/theme_name).config
   command fzf "${@}"
@@ -105,6 +108,18 @@ nvim() {
   command nvim --listen "${socket}" "${@}"
 }
 
-_get_display
+# _get_display() {
+#   if [ "$(uname -s)" != "Linux" ]; then
+#     return
+#   fi
+#
+#   local pid
+#   pid="$(pgrep --newest --uid $(id -u) gnome-session)"
+#   if [ -n "${pid}" ]; then
+#     export DISPLAY="$(awk 'BEGIN{FS="="; RS="\0"}  $1=="DISPLAY" {print $2; exit}' /proc/${pid}/environ)"
+#   fi
+# }
+
+# _get_display
 
 ulimit -n 4096

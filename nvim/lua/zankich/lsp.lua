@@ -185,7 +185,7 @@ mason_lspconfig.setup({
 						},
 						typescript = {
 							{
-								formatCommand = "npx -y prettier-eslint-cli --stdin --stdin-filepath ${INPUT} -",
+								formatCommand = "n exec 20 npx -y prettier-eslint-cli --stdin --stdin-filepath ${INPUT} -",
 								formatStdin = true,
 								rootMarkers = {
 									"eslint.config.js",
@@ -202,7 +202,7 @@ mason_lspconfig.setup({
 								requireMarkers = true,
 							},
 							{
-								lintCommand = "npx -y eslint_d --cache=true --no-color --format visualstudio --stdin --stdin-filename ${INPUT} -",
+								lintCommand = "n exec 20 npx -y eslint_d --cache=true --no-color --format visualstudio --stdin --stdin-filename ${INPUT} -",
 								lintFormats = { "%f(%l,%c): %trror %m", "%f(%l,%c): %tarning %m" },
 								lintStdin = true,
 								lintIgnoreExitCode = true,
@@ -377,6 +377,15 @@ mason_lspconfig.setup({
 		["tsserver"] = function()
 			local augroup = vim.api.nvim_create_augroup("tsserver", {})
 			lspconfig.tsserver.setup({
+				cmd = {
+					"n",
+					"exec",
+					"20",
+					"npx",
+					"-y",
+					"typescript-language-server",
+					"--stdio",
+				},
 				capabilities = cmp_nvim_capabilities,
 				on_attach = function(client, bufnr)
 					vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
@@ -394,7 +403,7 @@ mason_lspconfig.setup({
 						buffer = bufnr,
 						callback = function()
 							for _, action in ipairs({
-								"source.fixAll",
+								-- "source.fixAll",
 								-- "source.removeUnused",
 								"source.addMissingImports",
 								"source.removeUnusedImports",
