@@ -382,7 +382,18 @@ __lua() {
 
 __sdkman() {
   echo "installing sdkman..."
-  curl -s "https://get.sdkman.io?rcupdate=false" | bash
+  set +u
+  if [[ -f ~/.sdkman/bin/sdkman-init.sh ]]; then
+    source ~/.sdkman/bin/sdkman-init.sh
+    sdk selfupdate force
+  else
+    curl -s "https://get.sdkman.io" | bash
+    source ~/.sdkman/bin/sdkman-init.sh
+  fi
+
+  sdk install java 17-open
+  sdk default java 17-open
+  set -u
 }
 
 __rbenv() {
@@ -448,6 +459,9 @@ __node() {
   export N_PREFIX=~/.local
 
   n install latest
+  n install 18
+  n install 16
+
   npm config set cache ~/.cache/npm --global
   npm --global cache verify
   npm install -g neovim
@@ -704,15 +718,37 @@ setup_nvim() {
   mkdir -p "${HOME}/.local/share/nvim/zankich"
   pushd "${HOME}/.local/share/nvim/zankich" &>/dev/null
   {
-    __ensure_repo https://github.com/zankich/cucumber-language-server.git "cucumber-language-server"
+    __ensure_repo https://github.com/zankich/cucumber-language-server.git cucumber-language-server
     pushd cucumber-language-server &>/dev/null
     {
       n exec 16 npm install
       n exec 16 npm run build
     }
     popd &>/dev/null
+
+    __ensure_repo https://github.com/microsoft/java-debug java-debug
+    pushd java-debug &>/dev/null
+    {
+      ./mvnw clean install
+    }
+    popd &>/dev/null
+
+    __ensure_repo https://github.com/microsoft/vscode-java-test vscode-java-test
+    pushd vscode-java-test &>/dev/null
+    {
+      npm install
+      npm run build-plugin
+    }
+    popd &>/dev/null
   }
   popd &>/dev/null
+
+  set +e
+  nvim -u "${SCRIPT_DIR}/nvim/vimrc" --headless +PlugInstall +qall
+  nvim -u "${SCRIPT_DIR}/nvim/vimrc" --headless +PlugUpdate +qall
+  nvim -u "${SCRIPT_DIR}/nvim/vimrc" --headless +PlugUpgrade +qall
+  echo
+  set -e
 }
 
 main() {

@@ -58,11 +58,12 @@ plugins=(git fzf base16-shell direnv fd golang rust tmux sudo docker docker-comp
 source $ZSH/oh-my-zsh.sh
 
 # colors
-source $HOME/.config/tinted-theming/base16_shell_theme
 # force fzf theme change
-[[ ! -f ~/.cargo/env ]] || source ~/.cargo/env
+source $HOME/.config/tinted-theming/base16_shell_theme
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+[[ ! -f ~/.sdkman/bin/sdkman-init.sh ]] || source ~/.sdkman/bin/sdkman-init.sh
+[[ ! -f ~/.cargo/env ]] || source ~/.cargo/env
 
 fpath+=(~/.zsh_functions)
 fpath+=(~/.oh-my-zsh/custom/plugins/zsh-completions/src)
