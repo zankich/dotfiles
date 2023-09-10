@@ -78,6 +78,8 @@ call plug#begin()
   " pinning due to https://github.com/nvim-neotest/neotest-go/issues/47
   " Plug 'nvim-neotest/neotest-go'
   Plug 'zankich/neotest-go', {'branch': 'gh-issue-47'}
+
+  Plug 'mfussenegger/nvim-jdtls'
 call plug#end()
 
 " outdated-plugins

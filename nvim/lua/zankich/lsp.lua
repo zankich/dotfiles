@@ -125,6 +125,9 @@ mason_lspconfig.setup({
 				end,
 			})
 		end,
+		["jdtls"] = function()
+			-- config is handled by nvim-jdtls in the ftplugin dir
+		end,
 		["efm"] = function()
 			local augroup = vim.api.nvim_create_augroup("efm", {})
 			lspconfig.efm.setup({
@@ -377,15 +380,15 @@ mason_lspconfig.setup({
 		["tsserver"] = function()
 			local augroup = vim.api.nvim_create_augroup("tsserver", {})
 			lspconfig.tsserver.setup({
-				cmd = {
-					"n",
-					"exec",
-					"20",
-					"npx",
-					"-y",
-					"typescript-language-server",
-					"--stdio",
-				},
+				-- cmd = {
+				-- 	"n",
+				-- 	"exec",
+				-- 	"20",
+				-- 	"npx",
+				-- 	"-y",
+				-- 	"typescript-language-server",
+				-- 	"--stdio",
+				-- },
 				capabilities = cmp_nvim_capabilities,
 				on_attach = function(client, bufnr)
 					vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
