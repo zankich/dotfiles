@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eu -o pipefail
+set -u -o pipefail
 
 main() {
   local -a status=()
@@ -10,13 +10,21 @@ main() {
     status+=("vpn: ")
   fi
 
-  if (($(resolvectl dns tun0 | wc -w) == 5)); then
-    status+=("nflx dns: ")
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    if [[ -n "$(dig +short stash.corp.netflix.com)" ]]; then
+      status+=("nflx dns: ")
+    else
+      status+=("nflx dns: ")
+    fi
   else
-    status+=("nflx dns: ")
+    if (($(resolvectl dns tun0 | wc -w) == 5)); then
+      status+=("nflx dns: ")
+    else
+      status+=("nflx dns: ")
+    fi
   fi
 
-  if containers="$(docker ps -q | wc -l)"; then
+  if containers="$(docker ps -q | wc -l | xargs)"; then
     status+=("containers: ${containers}")
   fi
 
