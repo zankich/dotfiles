@@ -17,13 +17,24 @@ set_theme() {
   theme="${1}"
   shift
 
-  if [[ "${theme}" == "dark" ]]; then
-    theme="base16_onedark"
-  else
-    theme="base16_equilibrium-gray-light"
-  fi
+  case "${theme}" in
+    dark)
+      theme="base16_onedark"
+      ;;
+    light)
+
+      theme="base16_equilibrium-gray-light"
+      ;;
+    *)
+      theme="base16_${theme}"
+      ;;
+
+  esac
 
   tmux new-window -a "zsh -i -c '${theme};omz reload &; exit'"
+
+  # it could take a bit of time for the theme change to take affect and reaload the shell
+  sleep 1
 }
 
 main() {
