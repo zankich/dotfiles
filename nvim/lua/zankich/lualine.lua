@@ -5,7 +5,7 @@ lualine.setup({
 	sections = {
 		lualine_c = {
 			{ "require('zankich.util').file_path_from_buffer_root_dir()", padding = 2 },
-			{ "require('lsp-status').status()" },
+			{ "require('lualine.util.').stl_escape(require('lsp-status').status())" },
 		},
 	},
 	inactive_sections = {
