@@ -11,12 +11,57 @@ if [[ ${GITHUB_API_TOKEN:+1} ]]; then
   GITHUB_CURL_HEADERS+=(--header "Authorization: Bearer ${GITHUB_API_TOKEN}")
 fi
 
+__ensure_repo() {
+  local src dest branch
+  src="${1}"
+  shift
+  dest="${1}"
+  shift
+  branch="${1:-}"
+  shift || true
+
+  if [[ "${branch}" == "latest" ]]; then
+    branch="$(__latest_tag "$(echo "${src}" | awk -F/ '{printf "%s/%s",$4,$5}')")"
+  fi
+
+  echo "setting up ${src}"
+  if [[ ! -d "${dest}" ]]; then
+
+    local flags=(--depth=1)
+    if [[ -n "${branch}" ]]; then
+      flags+=("--branch=${branch}" --single-branch)
+    fi
+    git clone "${flags[@]}" "${src}" "${dest}"
+  else
+    pushd "${dest}" >/dev/null
+    {
+      if [[ -n "${branch}" ]]; then
+        git fetch --all --tags
+        git checkout "${branch}"
+      else
+        git pull -r
+      fi
+    }
+    popd >/dev/null
+  fi
+}
+
+__latest_tag() {
+  local repo
+  repo="${1}"
+  shift
+
+  curl -fsSLq "https://api.github.com/repos/${repo}/releases" \
+    | jq -r '.[] | select(.draft == false and .prerelease == false) | .tag_name' \
+    | head -n 1
+}
+
 __nvim() {
   echo "installing nvim..."
-  local release_body
-  release_body="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/neovim/neovim/releases/latest | jq -r .body)"
+  local latest
+  latest="$(__latest_tag "neovim/neovim")"
 
-  if ! command -v nvim >/dev/null || ! grep --silent "$(nvim --version | head -n 1 | awk '{print $2}')" <(echo "${release_body}"); then
+  if ! command -v nvim >/dev/null || ! grep --silent "$(nvim --version | head -n 1 | awk '{print $2}')" <(echo "${latest}"); then
     mkdir -p "${TMP_DIR}/nvim"
 
     pushd "${TMP_DIR}/nvim" >/dev/null
@@ -37,14 +82,14 @@ __nvim() {
 
 __tmux() {
   echo "installing tmux..."
-  local version
-  version="$(curl "${GITHUB_CURL_HEADERS[@]}" --fail -sq https://api.github.com/repos/tmux/tmux/releases/latest | jq -r .tag_name)"
+  local latest_version
+  latest_version="$(__latest_tag "tmux/tmux")"
 
-  if ! command -v tmux >/dev/null || ! grep --silent "${version}" <(tmux -V); then
-    echo "installing tmux ${version}"
+  if ! command -v tmux >/dev/null || ! grep --silent "${latest_version}" <(tmux -V); then
+    echo "installing tmux ${latest_version}"
 
-    curl --fail -#qL "https://github.com/tmux/tmux/releases/download/${version}/tmux-${version}.tar.gz" | tar --no-same-owner -zxv -C "${TMP_DIR}/"
-    pushd "${TMP_DIR}/tmux-${version}"
+    curl --fail -#qL "https://github.com/tmux/tmux/releases/download/${latest_version}/tmux-${latest_version}.tar.gz" | tar --no-same-owner -zxv -C "${TMP_DIR}/"
+    pushd "${TMP_DIR}/tmux-${latest_version}"
     {
       ./configure
       make -j
@@ -129,7 +174,7 @@ __alacritty() {
   fi
 
   local version
-  version="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/alacritty/alacritty/releases/latest | jq -r .tag_name)"
+  version="$(__latest_tag alacritty/alacritty)"
 
   if ! command -v alacritty >/dev/null || ! grep --silent "${version#v}" <(alacritty --version | awk '{print $2}'); then
 
@@ -181,7 +226,7 @@ __alacritty() {
 __direnv() {
   echo "installing direnv..."
   local version
-  version="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/direnv/direnv/releases/latest | jq -r .tag_name)"
+  version="$(__latest_tag "direnv/direnv")"
 
   if ! command -v direnv >/dev/null || ! grep --silent "${version}" <(direnv --version); then
     local arch="amd64"
@@ -197,7 +242,7 @@ __direnv() {
 __grpcurl() {
   echo "installing grpcurl..."
   local version
-  version="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/fullstorydev/grpcurl/releases/latest | jq -r .tag_name)"
+  version="$(__latest_tag "fullstorydev/grpcurl")"
 
   if ! command -v grpcurl >/dev/null || ! grep "${version}" <(grpcurl --version | awk '{print $2}'); then
     local arch="x86_64"
@@ -214,9 +259,9 @@ __logiops() {
   echo "installing logiops..."
 
   local version
-  version="$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/PixlOne/logiops/releases/latest | jq -r .tag_name)"
+  version="$(__latest_tag "PixlOne/logiops")"
 
-  __ensure_repo https://github.com/PixlOne/logiops "${TMP_DIR}/logiops"
+  __ensure_repo https://github.com/PixlOne/logiops "${TMP_DIR}/logiops" latest
   pushd "${TMP_DIR}/logiops" >/dev/null
   {
     git fetch --all --tags
@@ -423,9 +468,9 @@ __pyenv() {
   if ! command -v pyenv >/dev/null; then
     export PYENV_ROOT="$HOME/.pyenv"
     command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
   fi
 
+  eval "$(pyenv init -)"
   pyenv update
 }
 
@@ -473,14 +518,14 @@ __node() {
 
 __fzf() {
   echo "installing fzf.."
-  __ensure_repo https://github.com/junegunn/fzf.git "${HOME}/.fzf"
+  __ensure_repo https://github.com/junegunn/fzf "${HOME}/.fzf" latest
   "${HOME}/.fzf/install" --bin
 }
 
 __shellcheck() {
   echo "installing shellcheck..."
   local version
-  version=$(curl "${GITHUB_CURL_HEADERS[@]}" -fsSLq https://api.github.com/repos/koalaman/shellcheck/releases/latest | jq -r .tag_name)
+  version="$(__latest_tag "koalaman/shellcheck")"
 
   if ! command -v shellcheck >/dev/null || ! grep --silent "${version#v}" <(shellcheck --version | head -n 2 | tail -n 1 | awk '{print $2}'); then
     local arch="x86_64"
@@ -490,24 +535,6 @@ __shellcheck() {
 
     curl --fail -#qL "https://github.com/koalaman/shellcheck/releases/download/${version}/shellcheck-${version}.linux.${arch}.tar.xz" \
       | sudo tar --strip-components=1 --no-same-owner -C /usr/local/bin -xJv "shellcheck-${version}/shellcheck"
-  fi
-}
-
-__ensure_repo() {
-  src="${1}"
-  shift
-  dest="${1}"
-  shift
-
-  echo "setting up ${src}"
-  if [[ ! -d "${dest}" ]]; then
-    git clone --depth 1 "${src}" "${dest}"
-  else
-    pushd "${dest}" >/dev/null
-    {
-      git pull -r
-    }
-    popd >/dev/null
   fi
 }
 
@@ -564,7 +591,8 @@ setup_dependencies() {
           libffi-dev \
           liblzma-dev \
           wget \
-          flex
+          flex \
+          zip
 
       __go
       __rust
@@ -720,7 +748,7 @@ setup_nvim() {
   mkdir -p "${HOME}/.local/share/nvim/zankich"
   pushd "${HOME}/.local/share/nvim/zankich" &>/dev/null
   {
-    __ensure_repo https://github.com/zankich/cucumber-language-server.git cucumber-language-server
+    __ensure_repo https://github.com/zankich/cucumber-language-server cucumber-language-server
     pushd cucumber-language-server &>/dev/null
     {
       n exec 16 npm install
@@ -728,7 +756,7 @@ setup_nvim() {
     }
     popd &>/dev/null
 
-    __ensure_repo https://github.com/microsoft/java-debug java-debug
+    __ensure_repo https://github.com/microsoft/java-debug java-debug latest
     pushd java-debug &>/dev/null
     {
       ./mvnw clean install
