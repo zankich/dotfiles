@@ -462,6 +462,8 @@ __node() {
   n install 18
   n install 16
 
+  n latest
+
   npm config set cache ~/.cache/npm --global
   npm --global cache verify
   npm install -g neovim
