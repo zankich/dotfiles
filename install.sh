@@ -39,6 +39,7 @@ __ensure_repo() {
         git fetch --all --tags
         git checkout "${branch}"
       else
+        git reset --hard
         git pull -r
       fi
     }
@@ -748,10 +749,19 @@ setup_nvim() {
   mkdir -p "${HOME}/.local/share/nvim/zankich"
   pushd "${HOME}/.local/share/nvim/zankich" &>/dev/null
   {
+    __ensure_repo https://github.com/zankich/cucumber-language-service cucumber-language-service
+    pushd cucumber-language-service &>/dev/null
+    {
+      n exec 16 npm install
+      n exec 16 npm run build
+    }
+    popd &>/dev/null
+
     __ensure_repo https://github.com/zankich/cucumber-language-server cucumber-language-server
     pushd cucumber-language-server &>/dev/null
     {
       n exec 16 npm install
+      n exec 16 npm install ../cucumber-language-service
       n exec 16 npm run build
     }
     popd &>/dev/null
