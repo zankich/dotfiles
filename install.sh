@@ -167,6 +167,42 @@ __rust() {
   rustup update stable
 }
 
+__foot() {
+  echo "installing foot..."
+  if [[ "${XDG_SESSION_TYPE:-}" != "wayland" ]]; then
+    echo "foot requires an active wayland session skipping installation..."
+    return 0
+  fi
+
+  local version
+  version="$(__latest_tag alacritty/alacritty)"
+
+  version="$(curl -X 'GET' 'https://codeberg.org/api/v1/repos/dnkl/foot/releases/latest' -H 'accept: application/json' | jq -r '.tag_name')"
+
+  if ! command -v foot >/dev/null || ! grep --silent "${version}" <(foot --version | awk '{print $3}'); then
+    sudo python -m pip install --upgrade meson
+
+    pushd "${TMP_DIR}" >/dev/null
+    {
+      curl --fail -#qL https://codeberg.org/dnkl/foot/archive/1.16.1.tar.gz | tar -zx -C .
+      pushd foot >/dev/null
+      {
+        git config --global --add safe.directory "*"
+        ./pgo/pgo.sh \
+          full-current-session \
+          . \
+          build \
+          --prefix=/usr/local
+
+        ninja -C build test
+        sudo ninja -C build install
+      }
+      popd >/dev/null
+    }
+    popd >/dev/null
+  fi
+}
+
 __alacritty() {
   echo "installing alacritty..."
   if ! command -v Xorg; then
@@ -256,6 +292,38 @@ __grpcurl() {
   fi
 }
 
+__lazygit() {
+  echo "installing lazygit..."
+  local version
+  version="$(__latest_tag "jesseduffield/lazygit")"
+
+  if ! command -v lazygit >/dev/null || ! grep "${version}" <(lazygit --version | awk '{print $6}'); then
+    local arch="x86_64"
+    if [[ $(uname -m) != "x86_64" ]]; then
+      arch="arm64"
+    fi
+
+    curl --fail -#qL "https://github.com/jesseduffield/lazygit/releases/download/${version}/lazygit_${version#v}_Linux_${arch}.tar.gz" \
+      | sudo tar zxv -C /usr/local/bin lazygit --no-same-owner
+  fi
+}
+
+__lazydocker() {
+  echo "installing lazydocker..."
+  local version
+  version="$(__latest_tag "jesseduffield/lazydocker")"
+
+  if ! command -v lazydocker >/dev/null || ! grep "${version}" <(lazydocker --version | awk '{print $6}'); then
+    local arch="x86_64"
+    if [[ $(uname -m) != "x86_64" ]]; then
+      arch="arm64"
+    fi
+
+    curl --fail -#qL "https://github.com/jesseduffield/lazydocker/releases/download/${version}/lazydocker_${version#v}_Linux_${arch}.tar.gz" \
+      | sudo tar zxv -C /usr/local/bin lazydocker --no-same-owner
+  fi
+}
+
 __logiops() {
   echo "installing logiops..."
 
@@ -271,7 +339,7 @@ __logiops() {
       mkdir -p build
       pushd build >/dev/null
       {
-        cmake ..
+        cmake -DCMAKE_BUILD_TYPE=Release ..
         make
         sudo make install
       }
@@ -545,64 +613,79 @@ setup_dependencies() {
     Linux)
       sudo apt update \
         && sudo apt install -y \
-          libevent-dev \
-          ncurses-dev \
-          build-essential \
+          autoconf \
+          automake \
           bison \
-          pkg-config \
+          build-essential \
+          bundler \
+          cmake \
           curl \
+          flex \
+          gettext \
+          git \
           git \
           jq \
-          cmake \
-          libfreetype6-dev \
-          libfontconfig1-dev \
-          libxcb-xfixes0-dev \
-          libxkbcommon-dev \
-          automake \
-          gettext \
-          libtool-bin \
-          locales \
-          ninja-build \
-          unzip \
-          autoconf \
-          ripgrep \
-          xclip \
-          libudev-dev \
+          libbz2-dev \
           libconfig++-dev \
-          libevdev-dev \
-          xsel \
-          libpixman-1-dev \
-          libslirp-dev \
-          libssh-dev \
+          libevent-dev \
+          libffi-dev \
+          libfontconfig-dev \
+          libfontconfig1-dev \
+          libfreetype-dev \
+          libfreetype6-dev \
           libgtk-3-dev \
           libluajit-5.1-dev \
-          libreadline-dev \
-          unzip \
-          libyaml-dev \
-          libssl-dev \
-          zlib1g-dev \
-          libbz2-dev \
-          libsqlite3-dev \
-          curl \
+          liblzma-dev \
           libncursesw5-dev \
-          xz-utils \
-          tk-dev \
+          libpixman-1-dev \
+          libreadline-dev \
+          libslirp-dev \
+          libsqlite3-dev \
+          libssh-dev \
+          libssl-dev \
+          libtool-bin \
+          libudev-dev \
+          libutempter-dev \
+          libutf8proc-dev \
+          libwayland-dev \
+          libxcb-xfixes0-dev \
+          libxkbcommon-dev \
           libxml2-dev \
           libxmlsec1-dev \
-          libffi-dev \
-          liblzma-dev \
+          libyaml-dev \
+          llvm \
+          locales \
+          lua5.1 \
+          luajit \
+          luarocks \
+          ncurses-dev \
+          ninja-build \
+          pkg-config \
+          python-is-python3 \
+          python3 \
+          python3-pip \
+          python3-setuptools \
+          python3-wheel \
+          ripgrep \
+          ruby-full \
+          scdoc \
+          tk-dev \
+          unzip \
           wget \
-          flex \
-          zip
+          xclip \
+          xsel \
+          xz-utils \
+          zip \
+          zlib1g-dev
 
       __go
       __rust
-      __lua
-      __rbenv
-      __pyenv
+      # __lua
+      # __rbenv
+      # __pyenv
       __n
-      __ruby
-      __python
+      # __ruby
+      # __python
       __node
       __sdkman
 
@@ -613,19 +696,22 @@ setup_dependencies() {
       __grpcurl
       __fzf
       __shellcheck
+      __lazydocker
+      __lazygit
 
       __nerd-fonts
 
-      if command -v Xorg; then
+      if command -v Xorg &>/dev/null; then
         __logiops
         __alacritty
+        __foot
       fi
 
-      if ! command -v docker; then
+      if ! command -v docker &>/dev/null; then
         __docker
       fi
 
-      __qemu
+      # __qemu
       # __colima
       # __lima
 
@@ -658,15 +744,17 @@ setup_dependencies() {
         luajit \
         lua \
         luarocks \
-        rbenv \
-        ruby-build \
-        pyenv \
+        \ # rbenv \
+        \ # ruby-build \
+        \ # pyenv \
         fzf \
         libyaml \
         wget \
         n \
         zoxide \
-        coreutils
+        coreutils \
+        lazydocker \
+        lazygit
 
       brew install homebrew/cask-fonts/font-hack-nerd-font
       brew install --cask alacritty
@@ -674,7 +762,7 @@ setup_dependencies() {
       __sdkman
       __rust
       __ruby
-      __python
+      # __python
       __node
       ;;
   esac
@@ -707,11 +795,13 @@ setup_colors() {
 setup_dotfiles() {
   echo "setting up dotfiles..."
   mkdir -p "${HOME}/.config/alacritty"
+  mkdir -p "${HOME}/.config/foot"
 
   ln -sf "${SCRIPT_DIR}/zshrc" "${HOME}/.zshrc"
   ln -sf "${SCRIPT_DIR}/p10k.zsh" "${HOME}/.p10k.zsh"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
   ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
+  ln -sf "${SCRIPT_DIR}/foot.ini" "${HOME}/.config/foot/foot.ini"
   ln -sf "${SCRIPT_DIR}/ideavimrc" "${HOME}/.ideavimrc"
   ln -sf "${SCRIPT_DIR}/bin" "${HOME}/.local/bin/dotfiles"
 

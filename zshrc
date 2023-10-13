@@ -29,7 +29,6 @@ fi
 
 export N_PREFIX=~/.local
 
-export ZSH_PYENV_QUIET="true"
 export COMPLETION_WAITING_DOTS=true
 export HYPHEN_INSENSITIVE=true
 
@@ -53,7 +52,7 @@ export BAT_THEME="base16-256"
 export ZSH=$HOME/.oh-my-zsh
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(git fzf base16-shell direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions brew pyenv rbenv zoxide sdk)
+plugins=(git fzf base16-shell direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions brew zoxide sdk)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -109,18 +108,22 @@ nvim() {
   command nvim --listen "${socket}" "${@}"
 }
 
-# _get_display() {
-#   if [ "$(uname -s)" != "Linux" ]; then
-#     return
-#   fi
-#
-#   local pid
-#   pid="$(pgrep --newest --uid $(id -u) gnome-session)"
-#   if [ -n "${pid}" ]; then
-#     export DISPLAY="$(awk 'BEGIN{FS="="; RS="\0"}  $1=="DISPLAY" {print $2; exit}' /proc/${pid}/environ)"
-#   fi
-# }
+_reset_display() {
+  if [ "$(uname -s)" != "Linux" ]; then
+    return
+  fi
 
-# _get_display
+  if [[ -n "${DISPLAY}" ]]; then
+    return
+  fi
+
+  local pid
+  pid="$(pgrep --newest --uid $(id -u) gnome-session)"
+  if [ -n "${pid}" ]; then
+    export DISPLAY="$(awk 'BEGIN{FS="="; RS="\0"}  $1=="DISPLAY" {print $2; exit}' /proc/${pid}/environ)"
+  fi
+}
+
+_reset_display
 
 ulimit -n 4096

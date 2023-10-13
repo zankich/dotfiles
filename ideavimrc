@@ -24,6 +24,8 @@ set sneak
 "nnoremap <Leader>s :%sno/<C-r><C-w>/<C-r><C-w>/gc<Left><Left><Left>
 "xnoremap <Leader>s hy:%sno/<C-r>h/<C-r>h/gc<left><left><left>
 nnoremap <Leader>s :action Replace<CR>
+nnoremap <Leader>gt :action Gradle.ExecuteTask<CR>
+
 "xnoremap <Leader>s :action Replace<CR>
 
 "vim.keymap.set("n", "<Leader>s", ":%sno/<C-r><C-w>/<C-r><C-w>/gc<Left><Left><Left>")
