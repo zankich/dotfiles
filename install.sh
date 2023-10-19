@@ -666,6 +666,7 @@ setup_dependencies() {
           python3-pip \
           python3-setuptools \
           python3-wheel \
+          python3-venv \
           ripgrep \
           ruby-full \
           scdoc \
@@ -676,7 +677,11 @@ setup_dependencies() {
           xsel \
           xz-utils \
           zip \
-          zlib1g-dev
+          zlib1g-dev \
+          libevdev-dev \
+          gir1.2-gtop-2.0 gir1.2-nm-1.0 gir1.2-clutter-1.0 gnome-system-monitor \
+          openssh-server \
+          libfuse2
 
       __go
       __rust
