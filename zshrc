@@ -5,6 +5,38 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_THEME="powerlevel10k/powerlevel10k"
+plugins=(git fzf base16-shell direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions brew zoxide sdk)
+
+source $ZSH/oh-my-zsh.sh
+
+fpath+=(
+  ~/.zsh_functions
+  ${ZSH}/custom/plugins/zsh-completions/src
+  ${ZSH}/custom/completions
+)
+
+# rm -f "$HOME/.zcompdump"; compinit
+
+#
+# colors
+# force fzf theme change
+source $HOME/.config/tinted-theming/base16_shell_theme
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+[[ ! -f ~/.sdkman/bin/sdkman-init.sh ]] || source ~/.sdkman/bin/sdkman-init.sh
+[[ ! -f ~/.cargo/env ]] || source ~/.cargo/env
+
+bindkey '^ ' autosuggest-accept  # space + tab  | autosuggest
+
+alias lla='ls -la'
+alias nvimdiff="nvim -d"
+alias rg=$RG_COMMAND
+alias chmox="chmod +x"
+alias nvi="command nvim -u NONE"
+alias j="z"
+
 if [[ "$(uname -s)" == "Darwin" ]]; then
  export HOMEBREW_NO_ANALYTICS=1
 else
@@ -27,57 +59,36 @@ else
   }
 fi
 
-export N_PREFIX=~/.local
+dkar() {
+  bash -c '
+  docker_ps=$(docker ps -qa)
+  if [[ -n "${docker_ps}" ]];then
+    echo "docker kill"
+    docker kill ${docker_ps}
+  fi
 
-export COMPLETION_WAITING_DOTS=true
-export HYPHEN_INSENSITIVE=true
+  docker_containers=$(docker container ls -aq)
+  if [[ -n "${docker_containers}" ]];then
+    echo "docker rm"
+    docker rm --volumes ${docker_containers}
+  fi
+  '
+}
 
-export RG_COMMAND="rg --follow --column --line-number --no-heading --smart-case --hidden --color=always --glob '!.git'"
-
-export FZF_DEFAULT_COMMAND="fd --hidden --follow --type file --strip-cwd-prefix --color=always --exclude='.git' --exclude='go/pkg/'"
-export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS} --multi --ansi --layout=reverse"
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_CTRL_T_OPTS="${FZF_DEFAULT_OPTS} --preview '$HOME/.vim/plugged/fzf.vim/bin/preview.sh {}'"
-export FZF_CTRL_R_OPTS="${FZF_DEFAULT_OPTS}"
-export FZF_TMUX_OPTS='-p 90%,60%'
-
-export GOPATH=$HOME/code/go
-
-export EDITOR="nvim"
-export PATH=$HOME/.local/bin/dotfiles:$HOME/.local/bin:$GOPATH/bin:$PATH
-export TERM="xterm-256color"
-
-export BAT_THEME="base16-256"
-
-export ZSH=$HOME/.oh-my-zsh
-ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(git fzf base16-shell direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions brew zoxide sdk)
-
-source $ZSH/oh-my-zsh.sh
-
-# colors
-# force fzf theme change
-source $HOME/.config/tinted-theming/base16_shell_theme
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-[[ ! -f ~/.sdkman/bin/sdkman-init.sh ]] || source ~/.sdkman/bin/sdkman-init.sh
-[[ ! -f ~/.cargo/env ]] || source ~/.cargo/env
-
-fpath+=(~/.zsh_functions)
-fpath+=(~/.oh-my-zsh/custom/plugins/zsh-completions/src)
-bindkey '^ ' autosuggest-accept  # space + tab  | autosuggest
-
-alias lla='ls -la'
-alias vimdiff="nvim -d"
-alias rg=$RG_COMMAND
-alias chmox="chmod +x"
-alias nvi="command nvim -u NONE"
-alias j="z"
-
-bash_help() {
+help() {
   bash -c "help ${1}"
 }
+
+nvim() {
+  mkdir -p "${HOME}/.cache/nvim/listen/"
+
+  local socket
+  socket="${HOME}/.cache/nvim/listen/$(date +%s).pipe"
+  trap "rm -f -- ${socket}" EXIT
+
+  command nvim --listen "${socket}" "${@}"
+}
+
 
 _fzf_compgen_path() {
   fd --hidden --follow --exclude ".git" . "$1"
@@ -98,32 +109,20 @@ fzf-tmux() {
   command fzf-tmux "${@}"
 }
 
-nvim() {
-  mkdir -p "${HOME}/.cache/nvim/listen/"
+#https://wiki.archlinux.org/title/zsh#On-demand_rehash
+zshcache_time="$(date +%s%N)"
 
-  local socket
-  socket="${HOME}/.cache/nvim/listen/$(date +%s).pipe"
-  trap "rm -f -- ${socket}" EXIT
+autoload -Uz add-zsh-hook
 
-  command nvim --listen "${socket}" "${@}"
-}
+rehash_precmd() {
+  mkdir -p /tmp/cache/zsh/pacman
 
-_reset_display() {
-  if [ "$(uname -s)" != "Linux" ]; then
-    return
-  fi
-
-  if [[ -n "${DISPLAY}" ]]; then
-    return
-  fi
-
-  local pid
-  pid="$(pgrep --newest --uid $(id -u) gnome-session)"
-  if [ -n "${pid}" ]; then
-    export DISPLAY="$(awk 'BEGIN{FS="="; RS="\0"}  $1=="DISPLAY" {print $2; exit}' /proc/${pid}/environ)"
+  local paccache_time="$(date -r /tmp/cache/zsh/pacman +%s%N)"
+  if (( zshcache_time < paccache_time )); then
+    rehash
+    zshcache_time="$paccache_time"
+    set-x-env.sh
   fi
 }
 
-_reset_display
-
-ulimit -n 4096
+add-zsh-hook -Uz precmd rehash_precmd

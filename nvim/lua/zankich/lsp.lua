@@ -136,7 +136,7 @@ mason_lspconfig.setup({
 					"-loglevel=4",
 					"-logfile=" .. vim.fs.normalize("~/.local/state/nvim/efm.log"),
 				},
-				filetypes = { "lua", "typescript", "javascript", "sh" },
+				filetypes = { "lua", "typescript", "javascript", "sh", "go" },
 				init_options = {
 					documentFormatting = true,
 					documentRangeFormatting = true,
@@ -164,6 +164,16 @@ mason_lspconfig.setup({
 				settings = {
 					rootMarkers = { ".git/" },
 					languages = {
+						go = {
+							{
+								lintCommand = "golangci-lint run --color never --out-format tab ${INPUT}",
+								lintStdin = false,
+								lintIgnoreExitCode = true,
+								lintFormats = {
+									"%.%#:%l:%c %m",
+								},
+							},
+						},
 						sh = {
 							{
 								lintCommand = "shellcheck --color=never --format=gcc --external-sources -",
@@ -359,6 +369,7 @@ mason_lspconfig.setup({
 				filetypes = { "yaml", "yaml.docker-compose", "yml" },
 				settings = {
 					yaml = {
+						validate = true,
 						schemaStore = { enable = true },
 						format = { enable = true },
 						keyOrdering = false,

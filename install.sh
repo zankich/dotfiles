@@ -77,7 +77,6 @@ __nvim() {
   fi
 
   python -m pip install --upgrade --user pynvim
-
   cargo install --locked tree-sitter-cli
 }
 
@@ -611,118 +610,163 @@ setup_dependencies() {
   echo "installing dependencies..."
   case "$(uname -s)" in
     Linux)
-      sudo apt update \
-        && sudo apt install -y \
-          autoconf \
-          automake \
-          bison \
-          build-essential \
-          bundler \
-          cmake \
-          curl \
-          flex \
-          gettext \
-          git \
-          git \
-          jq \
-          libbz2-dev \
-          libconfig++-dev \
-          libevent-dev \
-          libffi-dev \
-          libfontconfig-dev \
-          libfontconfig1-dev \
-          libfreetype-dev \
-          libfreetype6-dev \
-          libgtk-3-dev \
-          libluajit-5.1-dev \
-          liblzma-dev \
-          libncursesw5-dev \
-          libpixman-1-dev \
-          libreadline-dev \
-          libslirp-dev \
-          libsqlite3-dev \
-          libssh-dev \
-          libssl-dev \
-          libtool-bin \
-          libudev-dev \
-          libutempter-dev \
-          libutf8proc-dev \
-          libwayland-dev \
-          libxcb-xfixes0-dev \
-          libxkbcommon-dev \
-          libxml2-dev \
-          libxmlsec1-dev \
-          libyaml-dev \
-          llvm \
-          locales \
-          lua5.1 \
+      if [ -f "/etc/arch-release" ]; then
+        sudo pacman --needed -S \
+          go \
+          tmux \
+          fzf \
+          direnv \
+          shellcheck \
+          alacritty \
+          docker \
+          docker-buildx \
+          bat \
+          fd \
+          zoxide \
+          python \
+          python-pip \
+          python-virtualenv \
+          python-wheel \
+          python-setuptools \
+          ruby \
+          lua51 \
           luajit \
           luarocks \
-          ncurses-dev \
-          ninja-build \
-          pkg-config \
-          python-is-python3 \
-          python3 \
-          python3-pip \
-          python3-setuptools \
-          python3-wheel \
-          python3-venv \
           ripgrep \
-          ruby-full \
-          scdoc \
-          tk-dev \
-          unzip \
           wget \
           xclip \
           xsel \
-          xz-utils \
-          zip \
-          zlib1g-dev \
-          libevdev-dev \
-          gir1.2-gtop-2.0 gir1.2-nm-1.0 gir1.2-clutter-1.0 gnome-system-monitor \
-          openssh-server \
-          libfuse2
+          nerd-fonts \
+          jq \
+          libyaml \
+          lazygit \
+          sysstat \
+          tree-sitter-cli
 
-      __go
-      __rust
-      # __lua
-      # __rbenv
-      # __pyenv
-      __n
-      # __ruby
-      # __python
-      __node
-      __sdkman
+        yay --needed -S \
+          grpcurl-bin \
+          lazydocker \
+          lazygit
 
-      __zsh
-      __tmux
-      __nvim
-      __direnv
-      __grpcurl
-      __fzf
-      __shellcheck
-      __lazydocker
-      __lazygit
+        __rust
+        __n
+        __node
+        __sdkman
+      else
 
-      __nerd-fonts
+        sudo apt update \
+          && sudo apt install -y \
+            autoconf \
+            automake \
+            bison \
+            build-essential \
+            bundler \
+            cmake \
+            curl \
+            flex \
+            gettext \
+            git \
+            git \
+            jq \
+            libbz2-dev \
+            libconfig++-dev \
+            libevent-dev \
+            libffi-dev \
+            libfontconfig-dev \
+            libfontconfig1-dev \
+            libfreetype-dev \
+            libfreetype6-dev \
+            libgtk-3-dev \
+            libluajit-5.1-dev \
+            liblzma-dev \
+            libncursesw5-dev \
+            libpixman-1-dev \
+            libreadline-dev \
+            libslirp-dev \
+            libsqlite3-dev \
+            libssh-dev \
+            libssl-dev \
+            libtool-bin \
+            libudev-dev \
+            libutempter-dev \
+            libutf8proc-dev \
+            libwayland-dev \
+            libxcb-xfixes0-dev \
+            libxkbcommon-dev \
+            libxml2-dev \
+            libxmlsec1-dev \
+            libyaml-dev \
+            llvm \
+            locales \
+            lua5.1 \
+            luajit \
+            luarocks \
+            ncurses-dev \
+            ninja-build \
+            pkg-config \
+            python-is-python3 \
+            python3 \
+            python3-pip \
+            python3-setuptools \
+            python3-wheel \
+            python3-venv \
+            ripgrep \
+            ruby-full \
+            scdoc \
+            tk-dev \
+            unzip \
+            wget \
+            xclip \
+            xsel \
+            xz-utils \
+            zip \
+            zlib1g-dev \
+            libevdev-dev \
+            gir1.2-gtop-2.0 gir1.2-nm-1.0 gir1.2-clutter-1.0 gnome-system-monitor \
+            openssh-server \
+            libfuse2
 
-      if command -v Xorg &>/dev/null; then
-        __logiops
-        __alacritty
-        __foot
+        __go
+        __rust
+        # __lua
+        # __rbenv
+        # __pyenv
+        __n
+        # __ruby
+        # __python
+        __node
+        __sdkman
+
+        __zsh
+        __tmux
+        __nvim
+        __direnv
+        __grpcurl
+        __fzf
+        __shellcheck
+        __lazydocker
+        __lazygit
+
+        __nerd-fonts
+
+        if command -v Xorg &>/dev/null; then
+          __logiops
+          __alacritty
+          __foot
+        fi
+
+        if ! command -v docker &>/dev/null; then
+          __docker
+        fi
+
+        # __qemu
+        # __colima
+        # __lima
+
+        cargo install --locked bat
+        cargo install --locked fd-find
+        cargo install --locked zoxide
       fi
-
-      if ! command -v docker &>/dev/null; then
-        __docker
-      fi
-
-      # __qemu
-      # __colima
-      # __lima
-
-      cargo install --locked bat
-      cargo install --locked fd-find
-      cargo install --locked zoxide
 
       ;;
     Darwin)
@@ -748,10 +792,6 @@ setup_dependencies() {
         reattach-to-user-namespace \
         luajit \
         lua \
-        luarocks \
-        \ # rbenv \
-        \ # ruby-build \
-        \ # pyenv \
         fzf \
         libyaml \
         wget \
@@ -759,7 +799,8 @@ setup_dependencies() {
         zoxide \
         coreutils \
         lazydocker \
-        lazygit
+        lazygit \
+        tree-sitter-cli
 
       brew install homebrew/cask-fonts/font-hack-nerd-font
       brew install --cask alacritty
@@ -775,6 +816,8 @@ setup_dependencies() {
   if [[ ! -d ${HOME}/.oh-my-zsh ]]; then
     sh -c "$(curl --fail -q -sSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
   fi
+
+  go install github.com/daixiang0/gci@latest
 
   __ensure_repo https://github.com/romkatv/powerlevel10k "${HOME}/.oh-my-zsh/custom/themes/powerlevel10k"
   __ensure_repo https://github.com/zsh-users/zsh-syntax-highlighting "${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
@@ -803,6 +846,7 @@ setup_dotfiles() {
   mkdir -p "${HOME}/.config/foot"
 
   ln -sf "${SCRIPT_DIR}/zshrc" "${HOME}/.zshrc"
+  ln -sf "${SCRIPT_DIR}/zshenv" "${HOME}/.zshenv"
   ln -sf "${SCRIPT_DIR}/p10k.zsh" "${HOME}/.p10k.zsh"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
   ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
