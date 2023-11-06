@@ -845,14 +845,23 @@ setup_dotfiles() {
   mkdir -p "${HOME}/.config/alacritty"
   mkdir -p "${HOME}/.config/foot"
 
+  ln -sf "${SCRIPT_DIR}/xinitrc" "${HOME}/.xinitrc"
+  ln -sf "${SCRIPT_DIR}/Xmodmap" "${HOME}/.Xmodmap"
+  ln -sf "${SCRIPT_DIR}/Xresources" "${HOME}/.Xresources"
   ln -sf "${SCRIPT_DIR}/zshrc" "${HOME}/.zshrc"
   ln -sf "${SCRIPT_DIR}/zshenv" "${HOME}/.zshenv"
+  ln -sf "${SCRIPT_DIR}/zprofile" "${HOME}/.zprofile"
   ln -sf "${SCRIPT_DIR}/p10k.zsh" "${HOME}/.p10k.zsh"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
   ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
   ln -sf "${SCRIPT_DIR}/foot.ini" "${HOME}/.config/foot/foot.ini"
   ln -sf "${SCRIPT_DIR}/ideavimrc" "${HOME}/.ideavimrc"
   ln -sf "${SCRIPT_DIR}/bin" "${HOME}/.local/bin/dotfiles"
+  ln -sf "${SCRIPT_DIR}/dunst" "${HOME}/.config/dunst"
+  ln -sf "${SCRIPT_DIR}/i3" "${HOME}/.config/i3"
+  ln -sf "${SCRIPT_DIR}/picom" "${HOME}/.config/picom"
+  ln -sf "${SCRIPT_DIR}/polybar" "${HOME}/.config/polybar"
+  ln -sf "${SCRIPT_DIR}/parcellite" "${HOME}/.config/parcellite"
 
   if [[ "$(uname -s)" == "Linux" ]]; then
     sudo ln -sf "${SCRIPT_DIR}/logid.cfg" /etc/logid.cfg

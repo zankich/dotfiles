@@ -1,0 +1,33 @@
+# Maintainer:  Marcin (CTRL) Wieczorek <marcin@marcin.co>
+
+pkgname=base16-shell-git
+pkgver=9706041
+pkgrel=0
+pkgdesc="base16 for shells"
+arch=('any')
+url='https://github.com/chriskempson/base16-shell'
+license=('MIT')
+makedepends=('git')
+install=${pkgname}.install
+source="${pkgname}::git+https://github.com/chriskempson/base16-shell.git"
+sha256sums='SKIP'
+
+pkgver() {
+  cd ${pkgname}
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+  cd "${srcdir}/${pkgname}"
+}
+
+package() {
+  cd "${srcdir}/${pkgname}"
+
+  mkdir -p "${pkgdir}/usr/share/base16-shell"
+  install -D -m644 "LICENSE.txt" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cp -r * "${pkgdir}/usr/share/base16-shell/"
+}
+
+# vim:set ts=2 sw=2 et:
+
