@@ -6,6 +6,7 @@ polybar-msg cmd quit
 
 num=0
 for m in $(polybar --list-monitors | cut -d":" -f1); do
-  MONITOR=$m polybar --reload "monitor${num}" &>/tmp/polybar-${num}.log &
+  MONITOR=$m polybar --reload "monitor${num}" &>>/tmp/polybar-${num}.log &
+  disown
   ((++num))
 done

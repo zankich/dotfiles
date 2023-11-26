@@ -17,8 +17,10 @@ export GOPATH=$HOME/code/go
 export MANPAGER='nvim +Man!'
 export EDITOR="nvim"
 export PATH=$HOME/.local/bin/dotfiles:$HOME/.local/bin:$GOPATH/bin:$PATH
-export TERM="xterm-256color"
+export TERM="alacritty"
 
 export BAT_THEME="base16-256"
 
 export ZSH=$HOME/.oh-my-zsh
+
+export LIBVA_DRIVER_NAME=nvidia

@@ -36,6 +36,7 @@ alias rg=$RG_COMMAND
 alias chmox="chmod +x"
 alias nvi="command nvim -u NONE"
 alias j="z"
+alias ssh="TERM=xterm-256 ssh"
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
  export HOMEBREW_NO_ANALYTICS=1
@@ -62,13 +63,13 @@ fi
 dkar() {
   bash -c '
   docker_ps=$(docker ps -qa)
-  if [[ -n "${docker_ps}" ]];then
+  if [[ -n "${docker_ps}" ]]; then
     echo "docker kill"
     docker kill ${docker_ps}
   fi
 
   docker_containers=$(docker container ls -aq)
-  if [[ -n "${docker_containers}" ]];then
+  if [[ -n "${docker_containers}" ]]; then
     echo "docker rm"
     docker rm --volumes ${docker_containers}
   fi
