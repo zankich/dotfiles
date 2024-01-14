@@ -14,19 +14,19 @@ TERM = "screen-256color"
 size = 10.0
 
 [font.bold]
-family = "NotoMono NF"
+family = "Hack Nerd Font Mono"
 style = "Bold"
 
 [font.bold_italic]
-family = "NotoMono NF"
+family = "Hack Nerd Font Mono"
 style = "Bold Italic"
 
 [font.italic]
-family = "NotoMono NF"
+family = "Hack Nerd Font Mono"
 style = "Italic"
 
 [font.normal]
-family = "NotoMono NF"
+family = "Hack Nerd Font Mono"
 style = "Regular"
 
 [mouse]

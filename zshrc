@@ -117,20 +117,22 @@ idea() {
   disown
 }
 
-#https://wiki.archlinux.org/title/zsh#On-demand_rehash
-zshcache_time="$(date +%s%N)"
+if [[ "$(uname -s)" != "Darwin" ]]; then
+  #https://wiki.archlinux.org/title/zsh#On-demand_rehash
+  zshcache_time="$(date +%s%N)"
 
-autoload -Uz add-zsh-hook
+  autoload -Uz add-zsh-hook
 
-rehash_precmd() {
-  mkdir -p /tmp/cache/zsh/pacman
+  rehash_precmd() {
+    mkdir -p /tmp/cache/zsh/pacman
 
-  local paccache_time="$(date -r /tmp/cache/zsh/pacman +%s%N)"
-  if (( zshcache_time < paccache_time )); then
-    rehash
-    zshcache_time="$paccache_time"
-    # set-x-env.sh
-  fi
-}
+    local paccache_time="$(date -r /tmp/cache/zsh/pacman +%s%N)"
+    if (( zshcache_time < paccache_time )); then
+      rehash
+      zshcache_time="$paccache_time"
+      # set-x-env.sh
+    fi
+  }
 
-add-zsh-hook -Uz precmd rehash_precmd
+  add-zsh-hook -Uz precmd rehash_precmd
+fi
