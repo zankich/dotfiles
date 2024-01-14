@@ -1,0 +1,11 @@
+[Unit]
+Description=Stats Daemon
+
+[Service]
+Type=simple
+ExecStart=/home/azankich/code/stash.corp.netflix.com/azankich/dotfiles/dotfiles/bin/stats.sh
+Restart=on-failure
+StandardOutput=file:%h/log_file
+
+[Install]
+WantedBy=default.target

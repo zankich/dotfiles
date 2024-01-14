@@ -1,0 +1,10 @@
+[Unit]
+Description=amd-pstate-epp performance preference
+
+[Service]
+ExecStart=/usr/local/bin/set-pstate.sh "balance_performance"
+Type=oneshot
+Restart=never
+
+[Install]
+WantedBy=default.target

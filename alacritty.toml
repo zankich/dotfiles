@@ -1,0 +1,41 @@
+live_config_reload = true
+
+[colors]
+draw_bold_text_with_bright_colors = true
+
+[cursor.style]
+blinking = "Always"
+shape = "Block"
+
+[env]
+TERM = "screen-256color"
+
+[font]
+size = 10.0
+
+[font.bold]
+family = "NotoMono NF"
+style = "Bold"
+
+[font.bold_italic]
+family = "NotoMono NF"
+style = "Bold Italic"
+
+[font.italic]
+family = "NotoMono NF"
+style = "Italic"
+
+[font.normal]
+family = "NotoMono NF"
+style = "Regular"
+
+[mouse]
+hide_when_typing = true
+
+[selection]
+save_to_clipboard = false
+
+[window]
+dynamic_title = false
+decorations = "full"
+# option_as_alt = "OnlyLeft"

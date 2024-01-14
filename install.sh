@@ -371,7 +371,7 @@ __qemu() {
         --enable-libssh \
         --enable-gtk
       make -j "$(nproc)"
-      sudo make install
+      # sudo make install
     }
     popd >/dev/null
   fi
@@ -854,6 +854,7 @@ setup_dotfiles() {
   ln -sf "${SCRIPT_DIR}/p10k.zsh" "${HOME}/.p10k.zsh"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
   ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
+  ln -sf "${SCRIPT_DIR}/alacritty.toml" "${HOME}/.config/alacritty/alacritty.toml"
   ln -sf "${SCRIPT_DIR}/foot.ini" "${HOME}/.config/foot/foot.ini"
   ln -sf "${SCRIPT_DIR}/ideavimrc" "${HOME}/.ideavimrc"
   ln -sf "${SCRIPT_DIR}/bin" "${HOME}/.local/bin/dotfiles"
@@ -914,20 +915,20 @@ setup_nvim() {
     }
     popd &>/dev/null
 
-    __ensure_repo https://github.com/microsoft/java-debug java-debug latest
-    pushd java-debug &>/dev/null
-    {
-      ./mvnw clean install
-    }
-    popd &>/dev/null
-
-    __ensure_repo https://github.com/microsoft/vscode-java-test vscode-java-test
-    pushd vscode-java-test &>/dev/null
-    {
-      npm install
-      npm run build-plugin
-    }
-    popd &>/dev/null
+    #   __ensure_repo https://github.com/microsoft/java-debug java-debug latest
+    #   pushd java-debug &>/dev/null
+    #   {
+    #     ./mvnw clean install
+    #   }
+    #   popd &>/dev/null
+    #
+    #   __ensure_repo https://github.com/microsoft/vscode-java-test vscode-java-test latest
+    #   pushd vscode-java-test &>/dev/null
+    #   {
+    #     npm install
+    #     npm run build-plugin
+    #   }
+    #   popd &>/dev/null
   }
   popd &>/dev/null
 

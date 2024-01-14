@@ -64,7 +64,7 @@ end
 
 vim.keymap.set("n", "<leader>f", M.search_root, { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>rg", function()
-	telescope.extensions.live_grep_args.live_grep_args()
+	telescope.extensions.live_grep_args.live_grep_args({ cwd = util.buffer_root_dir() })
 end)
 vim.keymap.set("n", "<leader>b", builtin.buffers, {})
 vim.keymap.set("n", "<leader>h", builtin.help_tags, {})

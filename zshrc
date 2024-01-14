@@ -36,7 +36,9 @@ alias rg=$RG_COMMAND
 alias chmox="chmod +x"
 alias nvi="command nvim -u NONE"
 alias j="z"
-alias ssh="TERM=xterm-256 ssh"
+alias ssh="TERM=xterm ssh"
+alias zankich_clone='GIT_SSH_COMMAND="ssh -i ~/.ssh/id_zankich_github -o IdentitiesOnly=yes" git clone'
+
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
  export HOMEBREW_NO_ANALYTICS=1
@@ -110,6 +112,11 @@ fzf-tmux() {
   command fzf-tmux "${@}"
 }
 
+idea() {
+  command idea ${1:=.} &> /dev/null &
+  disown
+}
+
 #https://wiki.archlinux.org/title/zsh#On-demand_rehash
 zshcache_time="$(date +%s%N)"
 
@@ -122,7 +129,7 @@ rehash_precmd() {
   if (( zshcache_time < paccache_time )); then
     rehash
     zshcache_time="$paccache_time"
-    set-x-env.sh
+    # set-x-env.sh
   fi
 }
 

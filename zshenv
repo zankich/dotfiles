@@ -17,7 +17,8 @@ export GOPATH=$HOME/code/go
 export MANPAGER='nvim +Man!'
 export EDITOR="nvim"
 export PATH=$HOME/.local/bin/dotfiles:$HOME/.local/bin:$GOPATH/bin:$PATH
-export TERM="alacritty"
+# export TERM="alacritty"
+export TERM="xterm-256color"
 
 export BAT_THEME="base16-256"
 
