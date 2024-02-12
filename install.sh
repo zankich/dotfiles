@@ -941,11 +941,12 @@ setup_nvim() {
 }
 
 main() {
-  setup_dependencies
-  setup_dotfiles
-  setup_colors
-  setup_nvim
-  setup_tmux
+  __qemu
+  # setup_dependencies
+  # setup_dotfiles
+  # setup_colors
+  # setup_nvim
+  # setup_tmux
 }
 
 main

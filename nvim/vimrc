@@ -80,7 +80,18 @@ call plug#begin()
   Plug 'zankich/neotest-go', {'branch': 'gh-issue-47'}
 
   Plug 'mfussenegger/nvim-jdtls'
+
+  Plug 'chrisbra/csv.vim'
 call plug#end()
 
 " outdated-plugins
 let g:outdated_plugins_silent_mode = 1
+
+if exists("did_load_csvfiletype")
+  finish
+endif
+let did_load_csvfiletype=1
+
+augroup filetypedetect
+  au! BufRead,BufNewFile *.csv,*.dat	setfiletype csv
+augroup END

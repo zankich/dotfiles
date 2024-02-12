@@ -8,6 +8,7 @@ _GPU_UTILIZATION="${_STAT_DIR}/gpu/utilization"
 _CPU_TEMP="${_STAT_DIR}/cpu/temp"
 _CPU_FREQ="${_STAT_DIR}/cpu/freq"
 _CPU_UTILIZATION="${_STAT_DIR}/cpu/utilization"
+_CPU_TOP_PROCESSES="${_STAT_DIR}/cpu/top_processes"
 _CONTAINERS="${_STAT_DIR}/containers/count"
 _VPN="${_STAT_DIR}/vpn/status"
 _IO="${_STAT_DIR}/io/speed"
@@ -45,7 +46,7 @@ get_memory_stats() {
 }
 
 get_io_stats() {
-  local sample io read write root_mount
+  local sample io read write root_mount temp
 
   root_mount="$(df / | tail -n1 | awk '{print $1}')"
   sample="$(iostat -o JSON -p "${root_mount}" -y 1 1)"
@@ -53,8 +54,8 @@ get_io_stats() {
 
   read=$(jq -r '.kB_read' <<<"${io}" | numfmt --from-unit 1024 --round nearest --suffix "B/s" --from iec --to iec --format="%4f")
   write=$(jq -r '.kB_wrtn' <<<"${io}" | numfmt --from-unit 1024 --round nearest --suffix "B/s" --from iec --to iec --format="%4f")
-
-  printf "%7s %7s\n" "${read}" "${write}" | tee "${_IO}" &>/dev/null
+  temp="$(echo "($(cat /sys/class/nvme/nvme0/hwmon2/temp1_input)/1000)" | bc)"
+  printf "%s %sC %7s %7s\n" "${root_mount}" "${temp}" "${read}" "${write}" | tee "${_IO}" &>/dev/null
 }
 
 get_cpu-usage_stats() {
@@ -72,6 +73,10 @@ get_cpu-freq_stats() {
 
 get_cpu-temp_stats() {
   sensors | awk '/AMD/ {gsub("+","");gsub("°","");printf $2}' | sed 's|\.0||g' | tee "${_CPU_TEMP}" &>/dev/null
+}
+
+get_cpu-top_process() {
+  ps -Ao user,comm,pcpu,pid --sort=-pcpu | head -n 11 | tee "${_CPU_TOP_PROCESSES}" &>/dev/null
 }
 
 get_gpu-usage_stats() {
@@ -97,7 +102,7 @@ get_network_stats() {
   rx_speed=$(echo "scale=2; ($rx_sample2 - $rx_sample1) * 8" | bc | numfmt --round nearest --suffix "bps" --from si --to si --format="%4f")
   tx_speed=$(echo "scale=2; ($tx_sample2 - $tx_sample1) * 8" | bc | numfmt --round nearest --suffix "bps" --from si --to si --format="%4f")
 
-  printf "%7s %7s\n" "${tx_speed}" "${rx_speed}" | tee "${_NETWORK}" &>/dev/null
+  printf "${interface} %7s %7s\n" "${tx_speed}" "${rx_speed}" | tee "${_NETWORK}" &>/dev/null
 }
 
 get_vpn_stats() {

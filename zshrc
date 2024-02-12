@@ -4,24 +4,21 @@
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
-
+#
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(git fzf base16-shell direnv fd golang rust tmux sudo docker docker-compose zsh-syntax-highlighting zsh-autosuggestions brew zoxide sdk)
-
-source $ZSH/oh-my-zsh.sh
-
+#
 fpath+=(
   ~/.zsh_functions
   ${ZSH}/custom/plugins/zsh-completions/src
   ${ZSH}/custom/completions
 )
-
-# rm -f "$HOME/.zcompdump"; compinit
-
 #
-# colors
-# force fzf theme change
+source $ZSH/oh-my-zsh.sh
+#
+# # colors
+# # force fzf theme change
 source $HOME/.config/tinted-theming/base16_shell_theme
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -29,7 +26,7 @@ source $HOME/.config/tinted-theming/base16_shell_theme
 [[ ! -f ~/.cargo/env ]] || source ~/.cargo/env
 
 bindkey '^ ' autosuggest-accept  # space + tab  | autosuggest
-
+#
 alias lla='ls -la'
 alias nvimdiff="nvim -d"
 alias rg=$RG_COMMAND
@@ -117,9 +114,23 @@ idea() {
   disown
 }
 
+<<<<<<< HEAD
 if [[ "$(uname -s)" != "Darwin" ]]; then
   #https://wiki.archlinux.org/title/zsh#On-demand_rehash
   zshcache_time="$(date +%s%N)"
+=======
+goland() {
+  command goland ${1:=.} &> /dev/null &
+  disown
+}
+
+nflxgrpcurl() {
+  grpcurl -servername localserver.us-east-1.test.stub.metatron.netflix.net -cert ~/.metatron/certificates/user.crt -key ~/.metatron/certificates/user.key -cacert ~/.metatron/certificates/localServer.pem.crt "${@}"
+}
+
+#https://wiki.archlinux.org/title/zsh#On-demand_rehash
+zshcache_time="$(date +%s%N)"
+>>>>>>> fd5f933 (wip)
 
   autoload -Uz add-zsh-hook
 

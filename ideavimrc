@@ -50,9 +50,11 @@ nnoremap <space>q :action ActivateProblemsViewToolWindow<CR>
 nnoremap gi :action GotoImplementation<CR>
 nnoremap [d :action GotoPreviousError<CR>
 nnoremap ]d :action GotoNextError<CR>
+nnoremap <space>f :action ReformatCode<CR>
 
 " tmuxish maps
 nnoremap <space>t :action ActivateTerminalToolWindow<CR>
+
 "sethandler <c-a><s-2> a:ide
 
 " whichkey
