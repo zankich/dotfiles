@@ -24,4 +24,4 @@ export BAT_THEME="base16-256"
 
 export ZSH=$HOME/.oh-my-zsh
 
-export LIBVA_DRIVER_NAME=nvidia
+#export LIBVA_DRIVER_NAME=nvidia

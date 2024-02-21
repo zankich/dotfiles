@@ -246,9 +246,9 @@ __alacritty() {
         sudo desktop-file-install extra/linux/Alacritty.desktop
         sudo update-desktop-database
 
-        sudo mkdir -p /usr/local/share/man/man1
-        gzip -c extra/alacritty.man | sudo tee /usr/local/share/man/man1/alacritty.1.gz >/dev/null
-        gzip -c extra/alacritty-msg.man | sudo tee /usr/local/share/man/man1/alacritty-msg.1.gz >/dev/null
+        #sudo mkdir -p /usr/local/share/man/man1
+        #gzip -c extra/alacritty.man | sudo tee /usr/local/share/man/man1/alacritty.1.gz >/dev/null
+        #gzip -c extra/alacritty-msg.man | sudo tee /usr/local/share/man/man1/alacritty-msg.1.gz >/dev/null
 
         mkdir -p "${HOME}/.zsh_functions"
         cp extra/completions/_alacritty "${HOME}/.zsh_functions/_alacritty"
@@ -505,7 +505,9 @@ __sdkman() {
   fi
 
   sdk install java 17-open
-  sdk default java 17-open
+  sdk install java 21-zulu
+  sdk install java 8.0.402-zulu
+  sdk default java 21-zulu
   set -u
 }
 
@@ -749,11 +751,11 @@ setup_dependencies() {
 
         __nerd-fonts
 
-        if command -v Xorg &>/dev/null; then
-          __logiops
+        #if command -v Xorg &>/dev/null; then
+          #__logiops
           __alacritty
-          __foot
-        fi
+          #__foot
+        #fi
 
         if ! command -v docker &>/dev/null; then
           __docker
@@ -807,7 +809,7 @@ setup_dependencies() {
 
       __sdkman
       __rust
-      __ruby
+      #__ruby
       # __python
       __node
       ;;
@@ -843,11 +845,11 @@ setup_colors() {
 setup_dotfiles() {
   echo "setting up dotfiles..."
   mkdir -p "${HOME}/.config/alacritty"
-  mkdir -p "${HOME}/.config/foot"
+  #mkdir -p "${HOME}/.config/foot"
 
-  ln -sf "${SCRIPT_DIR}/xinitrc" "${HOME}/.xinitrc"
-  ln -sf "${SCRIPT_DIR}/Xmodmap" "${HOME}/.Xmodmap"
-  ln -sf "${SCRIPT_DIR}/Xresources" "${HOME}/.Xresources"
+  #ln -sf "${SCRIPT_DIR}/xinitrc" "${HOME}/.xinitrc"
+  #ln -sf "${SCRIPT_DIR}/Xmodmap" "${HOME}/.Xmodmap"
+  #ln -sf "${SCRIPT_DIR}/Xresources" "${HOME}/.Xresources"
   ln -sf "${SCRIPT_DIR}/zshrc" "${HOME}/.zshrc"
   ln -sf "${SCRIPT_DIR}/zshenv" "${HOME}/.zshenv"
   ln -sf "${SCRIPT_DIR}/zprofile" "${HOME}/.zprofile"
@@ -855,18 +857,18 @@ setup_dotfiles() {
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
   ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
   ln -sf "${SCRIPT_DIR}/alacritty.toml" "${HOME}/.config/alacritty/alacritty.toml"
-  ln -sf "${SCRIPT_DIR}/foot.ini" "${HOME}/.config/foot/foot.ini"
+  #ln -sf "${SCRIPT_DIR}/foot.ini" "${HOME}/.config/foot/foot.ini"
   ln -sf "${SCRIPT_DIR}/ideavimrc" "${HOME}/.ideavimrc"
   ln -sf "${SCRIPT_DIR}/bin" "${HOME}/.local/bin/dotfiles"
-  ln -sf "${SCRIPT_DIR}/dunst" "${HOME}/.config/dunst"
-  ln -sf "${SCRIPT_DIR}/i3" "${HOME}/.config/i3"
-  ln -sf "${SCRIPT_DIR}/picom" "${HOME}/.config/picom"
-  ln -sf "${SCRIPT_DIR}/polybar" "${HOME}/.config/polybar"
-  ln -sf "${SCRIPT_DIR}/parcellite" "${HOME}/.config/parcellite"
+  #ln -sf "${SCRIPT_DIR}/dunst" "${HOME}/.config/dunst"
+  #ln -sf "${SCRIPT_DIR}/i3" "${HOME}/.config/i3"
+  #ln -sf "${SCRIPT_DIR}/picom" "${HOME}/.config/picom"
+  #ln -sf "${SCRIPT_DIR}/polybar" "${HOME}/.config/polybar"
+  #ln -sf "${SCRIPT_DIR}/parcellite" "${HOME}/.config/parcellite"
 
-  if [[ "$(uname -s)" == "Linux" ]]; then
-    sudo ln -sf "${SCRIPT_DIR}/logid.cfg" /etc/logid.cfg
-  fi
+  #if [[ "$(uname -s)" == "Linux" ]]; then
+  #  sudo ln -sf "${SCRIPT_DIR}/logid.cfg" /etc/logid.cfg
+  #fi
 }
 
 setup_tmux() {
@@ -941,12 +943,12 @@ setup_nvim() {
 }
 
 main() {
-  __qemu
-  # setup_dependencies
-  # setup_dotfiles
-  # setup_colors
-  # setup_nvim
-  # setup_tmux
+  #__qemu
+   setup_dependencies
+   setup_dotfiles
+   setup_colors
+   setup_nvim
+   setup_tmux
 }
 
 main

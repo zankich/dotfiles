@@ -36,7 +36,6 @@ alias j="z"
 alias ssh="TERM=xterm ssh"
 alias zankich_clone='GIT_SSH_COMMAND="ssh -i ~/.ssh/id_zankich_github -o IdentitiesOnly=yes" git clone'
 
-
 if [[ "$(uname -s)" == "Darwin" ]]; then
  export HOMEBREW_NO_ANALYTICS=1
 else
@@ -114,11 +113,6 @@ idea() {
   disown
 }
 
-<<<<<<< HEAD
-if [[ "$(uname -s)" != "Darwin" ]]; then
-  #https://wiki.archlinux.org/title/zsh#On-demand_rehash
-  zshcache_time="$(date +%s%N)"
-=======
 goland() {
   command goland ${1:=.} &> /dev/null &
   disown
@@ -128,22 +122,20 @@ nflxgrpcurl() {
   grpcurl -servername localserver.us-east-1.test.stub.metatron.netflix.net -cert ~/.metatron/certificates/user.crt -key ~/.metatron/certificates/user.key -cacert ~/.metatron/certificates/localServer.pem.crt "${@}"
 }
 
-#https://wiki.archlinux.org/title/zsh#On-demand_rehash
-zshcache_time="$(date +%s%N)"
->>>>>>> fd5f933 (wip)
-
-  autoload -Uz add-zsh-hook
-
-  rehash_precmd() {
-    mkdir -p /tmp/cache/zsh/pacman
-
-    local paccache_time="$(date -r /tmp/cache/zsh/pacman +%s%N)"
-    if (( zshcache_time < paccache_time )); then
-      rehash
-      zshcache_time="$paccache_time"
-      # set-x-env.sh
-    fi
-  }
-
-  add-zsh-hook -Uz precmd rehash_precmd
-fi
+# #https://wiki.archlinux.org/title/zsh#On-demand_rehash
+# if [[ "$(uname -s)" != "Darwin" ]]; then
+#   autoload -Uz add-zsh-hook
+#
+#   rehash_precmd() {
+#     mkdir -p /tmp/cache/zsh/pacman
+#
+#     local paccache_time="$(date -r /tmp/cache/zsh/pacman +%s%N)"
+#     if (( zshcache_time < paccache_time )); then
+#       rehash
+#       zshcache_time="$paccache_time"
+#       # set-x-env.sh
+#     fi
+#   }
+#
+#   add-zsh-hook -Uz precmd rehash_precmd
+# fi
