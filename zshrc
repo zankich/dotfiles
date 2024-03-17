@@ -139,3 +139,5 @@ nflxgrpcurl() {
 #
 #   add-zsh-hook -Uz precmd rehash_precmd
 # fi
+#
+xset r rate 200 30

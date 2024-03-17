@@ -752,9 +752,9 @@ setup_dependencies() {
         __nerd-fonts
 
         #if command -v Xorg &>/dev/null; then
-          #__logiops
-          __alacritty
-          #__foot
+        #__logiops
+        #__alacritty
+        #__foot
         #fi
 
         if ! command -v docker &>/dev/null; then
@@ -844,7 +844,7 @@ setup_colors() {
 
 setup_dotfiles() {
   echo "setting up dotfiles..."
-  mkdir -p "${HOME}/.config/alacritty"
+  #mkdir -p "${HOME}/.config/alacritty"
   #mkdir -p "${HOME}/.config/foot"
 
   #ln -sf "${SCRIPT_DIR}/xinitrc" "${HOME}/.xinitrc"
@@ -855,8 +855,8 @@ setup_dotfiles() {
   ln -sf "${SCRIPT_DIR}/zprofile" "${HOME}/.zprofile"
   ln -sf "${SCRIPT_DIR}/p10k.zsh" "${HOME}/.p10k.zsh"
   ln -sf "${SCRIPT_DIR}/gitconfig" "${HOME}/.gitconfig"
-  ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
-  ln -sf "${SCRIPT_DIR}/alacritty.toml" "${HOME}/.config/alacritty/alacritty.toml"
+  #ln -sf "${SCRIPT_DIR}/alacritty.yml" "${HOME}/.config/alacritty/alacritty.yml"
+  #ln -sf "${SCRIPT_DIR}/alacritty.toml" "${HOME}/.config/alacritty/alacritty.toml"
   #ln -sf "${SCRIPT_DIR}/foot.ini" "${HOME}/.config/foot/foot.ini"
   ln -sf "${SCRIPT_DIR}/ideavimrc" "${HOME}/.ideavimrc"
   ln -sf "${SCRIPT_DIR}/bin" "${HOME}/.local/bin/dotfiles"
@@ -943,12 +943,12 @@ setup_nvim() {
 }
 
 main() {
-  #__qemu
-   setup_dependencies
-   setup_dotfiles
-   setup_colors
-   setup_nvim
-   setup_tmux
+  __qemu
+  # setup_dependencies
+  # setup_dotfiles
+  # setup_colors
+  # setup_nvim
+  # setup_tmux
 }
 
 main
